@@ -61,7 +61,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 	Circle nucleus[12];
 	Vector2 nucleusPrePos[12];
+	Vector2 nucleusSuctionPos[12];
+	int nucleusSuctionCount = 0;
 	int max = 12;
+	int nucleusCountfrag[12] = { false };
+
 	for (int i = 0; i < max; i++) {
 		nucleus[0].center = { 300, 180 };
 		nucleus[1].center = { 1000, 180 };
@@ -81,22 +85,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		nucleus[i].radius = 36.0f;
 		nucleus[i].color = WHITE;
 		nucleusPrePos[i] = nucleus[i].center;
+		nucleusSuctionPos[i] = nucleus[i].center;
 	}
 
-	Circle enemy[2];
+	const int enemyNum = 3;
+	Circle enemy[enemyNum];
 	enemy[0] = {//敵
-	{800,650},
-36.0f,
-6.0f,
-WHITE,
-
+	{600,300},
+		36.0f,
+		6.0f,
+		WHITE,
 	};
 	enemy[1] = {//敵
-	{700,950},
-36.0f,
-6.0f,
-WHITE,
-
+	{1400,100},
+		36.0f,
+		6.0f,
+		WHITE,
+	};
+	enemy[2] = {//敵
+	{2000,200},
+		36.0f,
+		6.0f,
+		WHITE,
 	};
 
 	Line line = {
@@ -117,7 +127,7 @@ WHITE,
 
 	int mouseX, mouseY;
 	Vector2 mouse = { 0,0 };
-	float stop = 0.98;
+	float stop = 0.93;
 	enum Atack {
 		non,
 		start,
@@ -162,7 +172,7 @@ WHITE,
 
 	float theta = 0;
 
-	float playertheta = 0;
+	float playertheta[4] = { 0 };
 
 	const int bulletNum = 16;//敵弾
 	Bullet bullet[bulletNum];//弾
@@ -207,26 +217,43 @@ WHITE,
 	stage[2] = Novice::LoadTexture("./Resources/image/backGround3.png"); //ステージ左下
 	stage[3] = Novice::LoadTexture("./Resources/image/backGround4.png"); //ステージ右下
 
-	Vector2 Start = { 0 };
-	Vector2 Vertex = { 0 };
-	Vector2 End = { 0 };
+	Vector2 Start[4];
+	Vector2 Vertex[4];
+	Vector2 End[4];
 
-	Vector2 throwPos = { 400,400 };//中心点
+	Vector2 throwPos[4];
 
-	int throwFlag = false;
-	Vector2 throwradian = { 0 };
-	Vector2 throwAngle = { 0 };
-	Vector2 throwSpeed = { 0 };
+	float hitradius[4];
+	int throwDamageFlag[4] = { false };
+	for (int i = 0; i < 4; i++)
+	{
+		throwPos[i] = { 0,0 };
+		Start[i] = { 0,0 };
+		Vertex[i] = { 0,0 };
+		End[i] = { 0,0 };
+		hitradius[i] = 0;
+	};//中心点
+	int throwFlag[4] = { false };
+
+	Vector2 throwradian[4] = { 0 };
+	Vector2 throwAngle[4] = { 0 };
+	Vector2 throwSpeed[4] = { 0 };
 
 	float triangleSide = 0;
-	float hitradius = 0;
+
 	int triangleBreak = false;
 
 	int playerFlag = true;//自機生存フラグ
-	int enemyAlive[2] = { true };//核
-	for (int i = 0; i < 2; i++) {
+	int enemyAlive[enemyNum] = { true };//核
+	for (int i = 0; i < enemyNum; i++) {
 		enemyAlive[i] = true;
 	}
+
+	Vector2 boundPoint = { 3839,719 };//反射する座標、Xx1280-1、Yx720-1
+
+	int gamemode = 0;//ゲームモード管理 0でスタート前,1で第一ステージ
+	int scrollMode = 0;//0でスクロールしない　1でスクロールする
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -240,384 +267,444 @@ WHITE,
 		/// ↓更新処理ここから
 		///
 
+		if (gamemode == 0) {//ゲーム開始画面
+			if (keys[DIK_V]) {
+				gamemode = 1;
+			}
+		}
 
-		if (pattern == 0 || pattern == 5) {
-			if (keys[DIK_A] != 0) {
-				player.center.x -= player.speed;
-				if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
-					scroll.x -= player.speed;
+		if (gamemode >= 1) {//ゲームスタート
+			if (gamemode == 1) {//ステージ1
+				scrollMode = 0;
+				for (int i = 0; i < enemyNum; i++) {
+					enemy[i].center.y += enemy[i].speed;
+					if (enemy[i].center.y <= 100 || enemy[i].center.y >= 620) {
+						enemy[i].speed *= -1;
+					}
 				}
 			}
-			// 右キーを押したら右に動かす
-			if (keys[DIK_D] != 0) {
-				player.center.x += player.speed;
-				if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
-					scroll.x += player.speed;
+
+			if (pattern == 0 || pattern == 5) {
+				if (keys[DIK_A] != 0) {
+					player.center.x -= player.speed;
+					if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
+						scroll.x -= player.speed;
+					}
+				}
+				// 右キーを押したら右に動かす
+				if (keys[DIK_D] != 0) {
+					player.center.x += player.speed;
+					if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
+						scroll.x += player.speed;
+					}
+				}
+				// 上キーを押したら上に動かす
+				if (keys[DIK_W] != 0) {
+					player.center.y -= player.speed;
+					if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
+						scroll.y -= player.speed;
+					}
+				}
+				// 下キーを押したら下に動かす
+				if (keys[DIK_S] != 0) {
+					player.center.y += player.speed;
+					if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
+						scroll.y += player.speed;
+					}
 				}
 			}
-			// 上キーを押したら上に動かす
-			if (keys[DIK_W] != 0) {
-				player.center.y -= player.speed;
-				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y) {
-					scroll.y -= player.speed;
-				}
-			}
-			// 下キーを押したら下に動かす
-			if (keys[DIK_S] != 0) {
-				player.center.y += player.speed;
-				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y) {
-					scroll.y += player.speed;
-				}
-			}
-		}
 
-		///座標固定
-		if (player.center.x <= scrollwall.x) {
-			scroll.x = 0.0f;
-		}
-		if (player.center.x >= 1920.0f) {
-			scroll.x = 1280.0f;
-		}
-		if (player.center.y <= scrollwall.y) {
-			scroll.y = 0.0f;
-		}
-		if (player.center.y >= 1080.0f) {
-			scroll.y = 720.0f;
-		}
-
-		//移動可能範囲
-		if (player.center.x >= 2560.0f - player.radius) {
-			player.center.x = 2560.0f - player.radius;
-		}
-		if (player.center.x <= 0) {
-			player.center.x = 0;
-		}
-		if (player.center.y >= 1440.0f - player.radius) {
-			player.center.y = 1440.0f - player.radius;
-		}
-		if (player.center.y <= 0) {
-			player.center.y = 0;
-		}
-
-		////画面端で跳ね返る
-		if (player.center.x - player.radius < 0) {
-			atackSpeed = { -atackSpeed.x,atackSpeed.y };
-		}
-		if (player.center.x + player.radius > 2559) {
-			atackSpeed = { -atackSpeed.x,atackSpeed.y };
-		}
-		if (player.center.y - player.radius < 0) {
-			atackSpeed = { atackSpeed.x,-atackSpeed.y };
-		}
-		if (player.center.y + player.radius > 1439) {
-			atackSpeed = { atackSpeed.x,-atackSpeed.y };
-		}
-		if (pattern == 0) {
-			atackSpeed = { 0,0 };
-			for (int i = 0; i < 3; i++) {
-				nucleus[i].center = nucleusPrePos[i];
-				nucleusSuctionFlag[i] = false;
-				nucleus[i].radius = 36.0f;
-				nucleus[i].color = WHITE;
+			///座標固定
+			if (player.center.x <= scrollwall.x) {
+				scroll.x = 0.0f;
 			}
-		}
-		if (keys[DIK_SPACE]) {
-
-			PressCount++;
-			//ゲージ
-			playerSpeed = PressCount % 30;
-			if (pattern <= 1 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
-				gaugeRight.x = 30 + playerSpeed * 3;
+			if (player.center.x >= 1920.0f) {
+				scroll.x = 1280.0f;
 			}
-		}
-		//スペースを押してなおかつ止まっているとき
-		if (preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
-			//一つ目の点を求める
+			if (player.center.y <= scrollwall.y) {
+				scroll.y = 0.0f;
+			}
+			if (player.center.y >= 1080.0f) {
+				scroll.y = 720.0f;
+			}
+
+			////画面端で跳ね返る
+			if (player.center.x - player.radius < 0) {
+				atackSpeed = { -atackSpeed.x,atackSpeed.y };
+			}
+			if (player.center.x + player.radius > boundPoint.x) {
+				atackSpeed = { -atackSpeed.x,atackSpeed.y };
+			}
+			if (player.center.y - player.radius < 0) {
+				atackSpeed = { atackSpeed.x,-atackSpeed.y };
+			}
+			if (player.center.y + player.radius > boundPoint.y) {
+				atackSpeed = { atackSpeed.x,-atackSpeed.y };
+			}
 			if (pattern == 0) {
-				playerEndSpeed = 0;
-				triangleSpeed = 0;
-				line.start = player.center;
 				atackSpeed = { 0,0 };
-				pattern = 1;
-			}
-			//二つ目の点を求める
-			else if (pattern == 1) {
-				line.vertex = player.center;
-				preLineVertex = line.vertex;
-				atackSpeed = { 0,0 };
-				pattern = 2;
-			}
-			//三つ目の点を求める
-			else if (pattern == 2) {
-				line.end = player.center;
-				preLineEnd = line.end;
-				atackSpeed = { 0,0 };
-				pattern = 3;
-			}
-
-
-			//プレイヤーを飛ばす
-			if (pattern <= 2) {
-				playerSpeed = PressCount % 30;
-				mouse = { (float)mouseX + scroll.x,(float)mouseY + scroll.y };
-				PressCount = 0;
-				playerAngle = VectorProduct(mouse, player.center);
-				atackSpeed = Multiply(Normalais(playerAngle), playerSpeed);
-			}
-
-
-		}
-		//プレイヤーのスピードを計算
-		if (pattern <= 2) {
-			atackSpeed = Multiply(atackSpeed, stop);
-			if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
-				scroll.x = player.center.x - 640;
-			}
-			if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y) {
-				scroll.y = player.center.y - 360;
-			}
-		}
-		//最期の点を求めてから最初の点に戻る
-		if (pattern == 3) {
-			if (playerEndSpeed <= 1.0) {
-				playerEndSpeed += 1 / 120.0f;
-			}
-			player.center.x = learp(easeInSine(playerEndSpeed), line.end.x, line.start.x);
-			player.center.y = learp(easeInSine(playerEndSpeed), line.end.y, line.start.y);
-			if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
-				scroll.x = player.center.x - 640;
-			}
-			if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y) {
-				scroll.y = player.center.y - 360;
-			}
-			if (playerEndSpeed >= 1.0f) {
-				pattern = 4;
-			}
-		}
-		//作った三角形を回収して武器にする
-		if (pattern == 4) {
-			triangleSide = sqrtf((originalLine.vertex.x - originalLine.end.x) * (originalLine.vertex.x - originalLine.end.x) + (originalLine.vertex.y - originalLine.end.y) * (originalLine.vertex.y - originalLine.end.y));
-
-			Vector2  lineStartToEnd = { line.start.x - preLineEnd.x,line.start.y - preLineEnd.y };
-			Vector2  lineStartToEndRadian = Normalais(lineStartToEnd);
-			Vector2  lineStartToEndAngle = Multiply(lineStartToEndRadian, triangleSide);
-			Vector2 triangleTop = Add(line.start, lineStartToEndAngle);
-
-			Vector2  lineStartToVertex = { line.start.x - preLineVertex.x,line.start.y - preLineVertex.y };
-			Vector2  lineStartToVertexRadian = Normalais(lineStartToVertex);
-			Vector2  lineStartToVertexAngle = Multiply(lineStartToVertexRadian, triangleSide);
-			Vector2 triangleDown = Add(line.start, lineStartToVertexAngle);
-
-			if (triangleSpeed <= 1.0) {
-				triangleSpeed += 1 / 120.0f;
-			}
-			line.end.x = learp(easeInSine(triangleSpeed), preLineEnd.x, triangleTop.x);
-			line.end.y = learp(easeInSine(triangleSpeed), preLineEnd.y, triangleTop.y);
-
-			line.vertex.x = learp(easeInSine(triangleSpeed), preLineVertex.x, triangleDown.x);
-			line.vertex.y = learp(easeInSine(triangleSpeed), preLineVertex.y, triangleDown.y);
-
-
-
-			throwPos = { throwradian.x + throwPos.x,throwradian.y + throwPos.y };
-
-
-
-		}
-
-		player.center = Add(player.center, atackSpeed);
-
-
-		//三角形と核の当たり判定を計算する
-		for (int i = 0; i < max; i++) {
-			toEnd = VectorProduct(line.start, line.end);
-			toplayer[i] = VectorProduct(nucleus[i].center, line.start);
-			exterior[i] = Product(toEnd, toplayer[i]);
-
-			toEnd2 = VectorProduct(line.end, line.vertex);
-			toplayer2[i] = VectorProduct(nucleus[i].center, line.end);
-			exterior2[i] = Product(toEnd2, toplayer2[i]);
-
-			toEnd3 = VectorProduct(line.vertex, line.start);
-			toplayer3[i] = VectorProduct(nucleus[i].center, line.vertex);
-			exterior3[i] = Product(toEnd3, toplayer3[i]);
-			if (pattern == 4) {
-				if (exterior[i] > 0.0f && exterior2[i] > 0.0f && exterior3[i] > 0.0f || exterior[i] < 0.0f && exterior2[i] < 0.0f && exterior3[i] < 0.0f) {
-					nucleus[i].color = BLUE;
-					nucleusSuctionFlag[i] = true;
-
-				}
-				else {
+				for (int i = 0; i < 3; i++) {
+					nucleus[i].center = nucleusPrePos[i];
+					nucleusSuctionFlag[i] = false;
+					nucleus[i].radius = 36.0f;
 					nucleus[i].color = WHITE;
+				}
+			}
+			if (keys[DIK_SPACE]) {
+
+				PressCount++;
+				//ゲージ
+				playerSpeed = PressCount % 30;
+				if (pattern <= 1 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
+					gaugeRight.x = 30 + playerSpeed * 3;
+				}
+			}
+			//スペースを押してなおかつ止まっているとき
+			if (preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
+				//一つ目の点を求める
+				if (pattern == 0) {
+					playerEndSpeed = 0;
+					triangleSpeed = 0;
+					line.start = player.center;
+					atackSpeed = { 0,0 };
+					pattern = 1;
+				}
+				//二つ目の点を求める
+				else if (pattern == 1) {
+					line.vertex = player.center;
+					preLineVertex = line.vertex;
+					atackSpeed = { 0,0 };
+					pattern = 2;
+				}
+				//三つ目の点を求める
+				else if (pattern == 2) {
+					line.end = player.center;
+					preLineEnd = line.end;
+					atackSpeed = { 0,0 };
+					pattern = 3;
+				}
+
+
+				//プレイヤーを飛ばす
+				if (pattern <= 2) {
+					playerSpeed *= 4;
+					mouse = { (float)mouseX + scroll.x,(float)mouseY + scroll.y };
+					PressCount = 0;
+					playerAngle = VectorProduct(mouse, player.center);
+					atackSpeed = Multiply(Normalais(playerAngle), playerSpeed);
+				}
+
+
+			}
+			//プレイヤーのスピードを計算
+			if (pattern <= 2) {
+				atackSpeed = Multiply(atackSpeed, stop);
+				if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
+					scroll.x = player.center.x - 640;
+				}
+				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
+					scroll.y = player.center.y - 360;
+				}
+			}
+			//最期の点を求めてから最初の点に戻る
+			if (pattern == 3) {
+				if (playerEndSpeed <= 1.0) {
+					playerEndSpeed += 1 / 60.0f;
+				}
+				player.center.x = learp(easeInSine(playerEndSpeed), line.end.x, line.start.x);
+				player.center.y = learp(easeInSine(playerEndSpeed), line.end.y, line.start.y);
+				if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
+					scroll.x = player.center.x - 640;
+				}
+				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
+					scroll.y = player.center.y - 360;
+				}
+				if (playerEndSpeed >= 1.0f) {
+					pattern = 4;
+				}
+				playertheta[0] = 0;
+				playertheta[1] = 15.0f;
+				playertheta[2] = 30.0f;
+				playertheta[3] = 45.0f;
+				nucleusSuctionCount = 0;
+				for (int i = 0; i < 4; i++) {
+					throwDamageFlag[i] = false;
+					throwFlag[i] = false;
+				}
+				for (int i = 0; i < 12; i++) {
+					nucleusCountfrag[i] = false;
 
 				}
 			}
-		}
-
-
-		triangleBreak = lineSearch(nucleusSuctionFlag, max);
-		//三角形と敵の当たり判定
-		for (int i = 0; i < 2; i++) {
-			toenemy[i] = VectorProduct(enemy[i].center, line.start);
-			enemyexterior[i] = Product(toEnd, toenemy[i]);
-
-			toenemy2[i] = VectorProduct(enemy[i].center, line.end);
-			enemyexterior2[i] = Product(toEnd2, toenemy2[i]);
-
-			toenemy3[i] = VectorProduct(enemy[i].center, line.vertex);
-			enemyexterior3[i] = Product(toEnd3, toenemy3[i]);
-
+			//作った三角形を回収して武器にする
 			if (pattern == 4) {
-				if (enemyexterior[i] > 0.0f && enemyexterior2[i] > 0.0f && enemyexterior3[i] > 0.0f || enemyexterior[i] < 0.0f && enemyexterior2[i] < 0.0f && enemyexterior3[i] < 0.0f) {
-					triangleBreak = false;
+				triangleSide = sqrtf((originalLine.vertex.x - originalLine.end.x) * (originalLine.vertex.x - originalLine.end.x) + (originalLine.vertex.y - originalLine.end.y) * (originalLine.vertex.y - originalLine.end.y));
 
+				Vector2  lineStartToEnd = { line.start.x - preLineEnd.x,line.start.y - preLineEnd.y };
+				Vector2  lineStartToEndRadian = Normalais(lineStartToEnd);
+				Vector2  lineStartToEndAngle = Multiply(lineStartToEndRadian, triangleSide);
+				Vector2 triangleTop = Add(line.start, lineStartToEndAngle);
+
+				Vector2  lineStartToVertex = { line.start.x - preLineVertex.x,line.start.y - preLineVertex.y };
+				Vector2  lineStartToVertexRadian = Normalais(lineStartToVertex);
+				Vector2  lineStartToVertexAngle = Multiply(lineStartToVertexRadian, triangleSide);
+				Vector2 triangleDown = Add(line.start, lineStartToVertexAngle);
+
+				if (triangleSpeed <= 1.0) {
+					triangleSpeed += 1 / 30.0f;
 				}
+				line.end.x = learp(easeInSine(triangleSpeed), preLineEnd.x, triangleTop.x);
+				line.end.y = learp(easeInSine(triangleSpeed), preLineEnd.y, triangleTop.y);
+
+				line.vertex.x = learp(easeInSine(triangleSpeed), preLineVertex.x, triangleDown.x);
+				line.vertex.y = learp(easeInSine(triangleSpeed), preLineVertex.y, triangleDown.y);
+
+
+
+				//throwPos = { throwradian.x + throwPos.x,throwradian.y + throwPos.y };
+
+
 
 			}
 
-		}
-		for (int i = 0; i < max; i++) {
-			if (pattern >= 4) {
-				if (triangleBreak == true) {
-					if (nucleusSuctionFlag[i] == true) {
+			player.center = Add(player.center, atackSpeed);
 
 
-						nucleus[i].center.x = learp(easeInSine(triangleSpeed), nucleusPrePos[i].x, line.start.x);
-						nucleus[i].center.y = learp(easeInSine(triangleSpeed), nucleusPrePos[i].y, line.start.y);
-						nucleus[i].radius = learp(easeInSine(triangleSpeed), 32, 0);
-						if (triangleSpeed >= 1.0f) {
+			//三角形と核の当たり判定を計算する
+			for (int i = 0; i < max; i++) {
+				toEnd = VectorProduct(line.start, line.end);
+				toplayer[i] = VectorProduct(nucleus[i].center, line.start);
+				exterior[i] = Product(toEnd, toplayer[i]);
 
-							pattern = 5;
+				toEnd2 = VectorProduct(line.end, line.vertex);
+				toplayer2[i] = VectorProduct(nucleus[i].center, line.end);
+				exterior2[i] = Product(toEnd2, toplayer2[i]);
+
+				toEnd3 = VectorProduct(line.vertex, line.start);
+				toplayer3[i] = VectorProduct(nucleus[i].center, line.vertex);
+				exterior3[i] = Product(toEnd3, toplayer3[i]);
+				if (pattern == 4) {
+					if (exterior[i] > 0.0f && exterior2[i] > 0.0f && exterior3[i] > 0.0f || exterior[i] < 0.0f && exterior2[i] < 0.0f && exterior3[i] < 0.0f) {
+						nucleus[i].color = BLUE;
+						nucleusSuctionFlag[i] = true;
+						if (nucleusCountfrag[i] == false) {
+							nucleusSuctionCount++;
+							if (nucleusSuctionCount >= 4) {
+								nucleusSuctionCount = 4;
+							}
+							nucleusCountfrag[i] = true;
 						}
-
+					}
+					else {
+						nucleus[i].color = WHITE;
 
 					}
 				}
-				else {
-					pattern = 0;
+			}
 
-					throwFlag = false;
-					nucleus[i].radius = 36;
-					
+
+			triangleBreak = lineSearch(nucleusSuctionFlag, max);
+			//三角形と敵の当たり判定
+			for (int i = 0; i < enemyNum; i++) {
+				toenemy[i] = VectorProduct(enemy[i].center, line.start);
+				enemyexterior[i] = Product(toEnd, toenemy[i]);
+
+				toenemy2[i] = VectorProduct(enemy[i].center, line.end);
+				enemyexterior2[i] = Product(toEnd2, toenemy2[i]);
+
+				toenemy3[i] = VectorProduct(enemy[i].center, line.vertex);
+				enemyexterior3[i] = Product(toEnd3, toenemy3[i]);
+
+				if (pattern == 4) {
+					if (enemyexterior[i] > 0.0f && enemyexterior2[i] > 0.0f && enemyexterior3[i] > 0.0f || enemyexterior[i] < 0.0f && enemyexterior2[i] < 0.0f && enemyexterior3[i] < 0.0f) {
+						if (enemyAlive[i] == true) {
+							triangleBreak = false;
+						}
+
+					}
+
 				}
 
+			}
+			for (int i = 0; i < max; i++) {
+				if (pattern >= 4) {
+					if (triangleBreak == true) {
+						if (nucleusSuctionFlag[i] == true) {
+
+
+							nucleus[i].center.x = learp(easeInSine(triangleSpeed), nucleusPrePos[i].x, line.start.x);
+							nucleus[i].center.y = learp(easeInSine(triangleSpeed), nucleusPrePos[i].y, line.start.y);
+							nucleus[i].radius = learp(easeInSine(triangleSpeed), 32, 0);
+
+							nucleusSuctionPos[i].x = (line.start.x + line.end.x + line.vertex.x) / 3;
+							nucleusSuctionPos[i].y = (line.start.y + line.end.y + line.vertex.y) / 3;
+
+
+							if (triangleSpeed >= 1.0f) {
+
+								pattern = 5;
+							}
+
+
+						}
+					}
+					else {
+						pattern = 0;
+
+						for (int j = 0; j < 4; j++) {
+							throwFlag[j] = false;
+						}
+						nucleus[i].radius = 36;
+
+					}
+
+
+				}
 
 			}
+			//攻撃の準備をする
+			if (pattern == 5) {
+				for (int i = 0; i < nucleusSuctionCount; i++) {
+					if (throwFlag[i] == false) {
+						throwPos[i].x = (Start[i].x + End[i].x + Vertex[i].x) / 3;
+						throwPos[i].y = (Start[i].y + End[i].y + Vertex[i].y) / 3;
 
-		}
-		//攻撃の準備をする
-		if (pattern == 5) {
-			throwPos.x = (line.start.x + line.end.x + line.vertex.x) / 3;
-			throwPos.y = (line.start.y + line.end.y + line.vertex.y) / 3;
+						playertheta[i] += 1 / 60.0f;
+						theta += 1 / 10.0f;
+						throwPos[i] = { player.center.x + cosf(playertheta[i]) * 60,player.center.y + sinf(playertheta[i]) * 60 };
+						Matrix2x2 rotateMatrix = MakeRotateMatrix(theta);
+
+						Start[i] = MatrixMultiply(originalLine.start, rotateMatrix);
+
+						Vertex[i] = MatrixMultiply(originalLine.vertex, rotateMatrix);
+
+						End[i] = MatrixMultiply(originalLine.end, rotateMatrix);
+
+						Start[i] = Add(Start[i], throwPos[i]);
+						Vertex[i] = Add(Vertex[i], throwPos[i]);
+						End[i] = Add(End[i], throwPos[i]);
+					}
+				}
+				//攻撃フラグをtureにする
+				if (keys[DIK_V] && preKeys[DIK_V] == 0) {
+					for (int i = 0; i < nucleusSuctionCount; i++) {
+
+						if (throwFlag[i] == false) {
+							throwAngle[i] = { (float)mouseX - throwPos[i].x + scroll.x,(float)mouseY - throwPos[i].y + scroll.y };
+							throwradian[i] = Normalais(throwAngle[i]);
+							throwSpeed[i] = Multiply(throwradian[i], 8);
+							throwDamageFlag[i] = true;
 
 
-			playertheta += 1 / 30.0f;
-			theta += 1 / 30.0f;
-			throwPos = { player.center.x + cosf(playertheta) * 60,player.center.y + sinf(playertheta) * 60 };
-			Matrix2x2 rotateMatrix = MakeRotateMatrix(theta);
+							throwFlag[i] = true;
+							if (throwFlag[nucleusSuctionCount - 1] == true) {
+								pattern = 0;
+								for (int j = 0; j < max; j++) {
+									nucleusSuctionFlag[j] = false;
+								}
+							}
+							break;
+						}
 
-			Start = MatrixMultiply(originalLine.start, rotateMatrix);
 
-			Vertex = MatrixMultiply(originalLine.vertex, rotateMatrix);
 
-			End = MatrixMultiply(originalLine.end, rotateMatrix);
+					}
 
-			Start = Add(Start, throwPos);
-			Vertex = Add(Vertex, throwPos);
-			End = Add(End, throwPos);
-			//攻撃フラグをtureにする
-			if (keys[DIK_V] && preKeys[DIK_V] == 0) {
-				throwAngle = { (float)mouseX - throwPos.x + scroll.x,(float)mouseY - throwPos.y + scroll.y };
-				throwradian = Normalais(throwAngle);
-				throwSpeed = Multiply(throwradian, 4);
-				throwFlag = true;
-				pattern = 0;
-				for (int i = 0; i < max; i++) {
-					nucleusSuctionFlag[i] = false;
+
 				}
 			}
-		}
-		//攻撃処理
-		if (throwFlag == true) {
+			//攻撃処理
+			for (int i = 0; i < nucleusSuctionCount; i++) {
+				if (throwDamageFlag[i] == true) {
+					throwPos[i] = Add(throwPos[i], throwSpeed[i]);
+					theta += 1 / 10.0f;
+					Matrix2x2 rotateMatrix = MakeRotateMatrix(theta);
 
-			theta += 1 / 30.0f;
-			Matrix2x2 rotateMatrix = MakeRotateMatrix(theta);
+					Start[i] = MatrixMultiply(originalLine.start, rotateMatrix);
 
-			Start = MatrixMultiply(originalLine.start, rotateMatrix);
+					Vertex[i] = MatrixMultiply(originalLine.vertex, rotateMatrix);
 
-			Vertex = MatrixMultiply(originalLine.vertex, rotateMatrix);
+					End[i] = MatrixMultiply(originalLine.end, rotateMatrix);
 
-			End = MatrixMultiply(originalLine.end, rotateMatrix);
+					Start[i] = Add(Start[i], throwPos[i]);
+					Vertex[i] = Add(Vertex[i], throwPos[i]);
+					End[i] = Add(End[i], throwPos[i]);
 
-			Start = Add(Start, throwPos);
-			Vertex = Add(Vertex, throwPos);
-			End = Add(End, throwPos);
-			hitradius = sqrtf((throwPos.x - Start.x) * (throwPos.x - Start.x) + (throwPos.y - Start.y) * (throwPos.y - Start.y));
 
-			throwPos = Add(throwPos, throwSpeed);
-		}
-		//攻撃とエネミーの当たり判定
-		for (int i = 0; i < 2; i++) {
-			if (CircleCollisinHit(throwPos, hitradius, enemy[i].center, enemy[i].radius) == true && throwFlag == true) {
-				enemyAlive[i] = false;
-				throwFlag = false;
+					hitradius[i] = sqrtf((throwPos[i].x - Start[i].x) * (throwPos[i].x - Start[i].x) + (throwPos[i].y - Start[i].y) * (throwPos[i].y - Start[i].y));
+
+
+
+				}
+				//攻撃とエネミーの当たり判定
+				for (int j = 0; j < 2; j++) {
+					if (enemyAlive[j] == true && throwDamageFlag[i] == true) {
+						if (CircleCollisinHit(throwPos[i], hitradius[i], enemy[j].center, enemy[j].radius) == true && throwFlag[i] == true) {
+							enemyAlive[j] = false;
+							/*throwFlag[i] = false;*/
+							throwDamageFlag[i] = false;
+						}
+					}
+				}
 			}
-		}
+			//誘導弾
+			if (Novice::IsPressMouse(1)) {
+				for (int i = 0; i < bulletNum; i++) {
+					if (bulletOnFlag[i] == false && bullettimer <= 0) {
+						bullet[i].center = { (float)mouseX + scroll.x ,(float)mouseY + scroll.y };
+						bulletOnFlag[i] = true;
+						bullettimer = 20;
+						bulletInductionOnFlag[i] = true;
+					}
+				}
+			}
 
-		//誘導弾
-		if (Novice::IsPressMouse(1)) {
+			bullettimer--;
+
 			for (int i = 0; i < bulletNum; i++) {
-				if (bulletOnFlag[i] == false && bullettimer <= 0) {
-					bullet[i].center = { (float)mouseX + scroll.x ,(float)mouseY + scroll.y };
-					bulletOnFlag[i] = true;
-					bullettimer = 20;
-					bulletInductionOnFlag[i] = true;
+				if (bulletOnFlag[i] == true) {//弾を置いたら
+					bulletEndTimer[i]--;
+					bullet[i].speed = Multiply(Normalais(bulletAngle[i]), 6);
+					bullet[i].center = Add(bullet[i].center, bullet[i].speed);
+					if (bulletInductionOnFlag[i] == true) {//誘導時間忠
+						bulletInductionTimer[i]--;
+						bulletAngle[i] = { (float)player.center.x - bullet[i].center.x, (float)player.center.y - bullet[i].center.y };
+					}
+					if (CircleCollisinHit(bullet[i].center, bullet[i].radius, player.center, player.radius) == true) {//ボールと弾がぶつかったとき
+						//playerFlag = false;//生存判定をfalseにする
+						bulletInductionTimer[i] = 100;
+						bulletInductionOnFlag[i] = false;
+						bulletOnFlag[i] = false;
+					}
 				}
-			}
-		}
 
-		bullettimer--;
-
-		for (int i = 0; i < bulletNum; i++) {
-			if (bulletOnFlag[i] == true) {//弾を置いたら
-				bulletEndTimer[i]--;
-				bullet[i].speed = Multiply(Normalais(bulletAngle[i]), 6);
-				bullet[i].center = Add(bullet[i].center, bullet[i].speed);
-				if (bulletInductionOnFlag[i] == true) {//誘導時間忠
-					bulletInductionTimer[i]--;
-					bulletAngle[i] = { (float)player.center.x - bullet[i].center.x, (float)player.center.y - bullet[i].center.y };
-				}
-				if (CircleCollisinHit(bullet[i].center, bullet[i].radius, player.center, player.radius) == true) {//ボールと弾がぶつかったとき
-					//playerFlag = false;//生存判定をfalseにする
+				if (bulletEndTimer[i] <= 0) {
 					bulletInductionTimer[i] = 100;
 					bulletInductionOnFlag[i] = false;
 					bulletOnFlag[i] = false;
+					bulletEndTimer[i] = 400;
+				}
+
+				if (bulletInductionTimer[i] <= 0) {//誘導タイマーが0で誘導終了
+					bulletInductionOnFlag[i] = false;
+					bullet[i].speed = Multiply(Normalais(bulletAngle[i]), 12);
+					bullet[i].center = Add(bullet[i].center, bullet[i].speed);
 				}
 			}
 
-			if (bulletEndTimer[i] <= 0) {
-				bulletInductionTimer[i] = 100;
-				bulletInductionOnFlag[i] = false;
-				bulletOnFlag[i] = false;
-				bulletEndTimer[i] = 400;
+			//デバッグ用エンターで戻す
+			if (preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
+				pattern = 0;
+				for (int i = 0; i < nucleusSuctionCount; i++) {
+					throwFlag[i] = false;
+				}
+				for (int i = 1; i < max; i++) {
+					nucleus[i].radius = 36;
+					nucleus[i].center = nucleusPrePos[i];
+				}
+				enemyAlive[0] = true;
 			}
 
-			if (bulletInductionTimer[i] <= 0) {//誘導タイマーが0で誘導終了
-				bulletInductionOnFlag[i] = false;
-				bullet[i].speed = Multiply(Normalais(bulletAngle[i]), 12);
-				bullet[i].center = Add(bullet[i].center, bullet[i].speed);
-			}
-		}
-
-		//デバッグ用エンターで戻す
-		if (preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
-			pattern = 0;
-			throwFlag = false;
-			for (int i = 1; i < max; i++) {
-				nucleus[i].radius = 36;
-				nucleus[i].center = nucleusPrePos[i];
-			}
-			enemyAlive[0] = true;
 		}
 
 		///
@@ -627,61 +714,74 @@ WHITE,
 		///
 		/// ↓描画処理ここから
 		///
-
-		//Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 0 - scroll.y, stage[0], 1, 1, 0.0f, GREEN);
-		Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 0 - scroll.y, stage[1], 1, 1, 0.0f, 0xFFFFFFFF);
-		Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 1 - scroll.y, stage[2], 1, 1, 0.0f, 0xFFFFFFFF);
-		Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 1 - scroll.y, stage[3], 1, 1, 0.0f, 0xFFFFFFFF);
-
-
-		if (pattern == 1) {
-			Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, player.center.x - scroll.x, player.center.y - scroll.y, WHITE);
-		}
-		if (pattern == 2) {
-			Novice::DrawLine(player.center.x - scroll.x, player.center.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
-			Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
-		}
-		if (pattern == 3) {
-			Novice::DrawLine(line.end.x - scroll.x, line.end.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
-			Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
-			Novice::DrawLine(line.end.x - scroll.x, line.end.y - scroll.y, player.center.x - scroll.x, player.center.y - scroll.y, WHITE);
-		}
-		if (pattern == 4) {
-			Novice::DrawTriangle(line.start.x - scroll.x, line.start.y - scroll.y, line.end.x - scroll.x, line.end.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE, kFillModeWireFrame);
-		}
-		if (pattern == 5) {
-			Novice::DrawTriangle(Start.x - scroll.x, Start.y - scroll.y, End.x - scroll.x, End.y - scroll.y, Vertex.x - scroll.x, Vertex.y - scroll.y, WHITE, kFillModeWireFrame);
-			Novice::DrawTriangle(Start.x - scroll.x, Start.y - scroll.y, End.x - scroll.x, End.y - scroll.y, Vertex.x - scroll.x, Vertex.y - scroll.y, WHITE, kFillModeWireFrame);
+		if (gamemode == 0) {//ゲーム開始画面
 
 		}
-		if (throwFlag == true) {
-			Novice::DrawTriangle(Start.x - scroll.x, Start.y - scroll.y, End.x - scroll.x, End.y - scroll.y, Vertex.x - scroll.x, Vertex.y - scroll.y, WHITE, kFillModeWireFrame);
-			Novice::DrawEllipse(throwPos.x - scroll.x, throwPos.y - scroll.y, hitradius, hitradius, 0, RED, kFillModeWireFrame);
-		}
 
-		for (int i = 0; i < bulletNum; i++) {//弾
-			if (bulletOnFlag[i] == true) {
-				Novice::DrawEllipse(bullet[i].center.x - scroll.x, bullet[i].center.y - scroll.y, bullet[i].radius, bullet[i].radius, 0.0f, BLACK, kFillModeSolid);
-			}
-		}
-
-		if (playerFlag == true) {//自機(仮)
-			float monitorx = player.center.x - scroll.x;
-			float monitory = player.center.y - scroll.y;
-			Novice::DrawEllipse(monitorx, monitory, player.radius, player.radius, 0.0f, player.color, kFillModeSolid);
-		}
-
-		for (int i = 0; i < max; i++) {
-			Novice::DrawEllipse(nucleus[i].center.x - scroll.x, nucleus[i].center.y - scroll.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
-		}
-		for (int i = 0; i < 2; i++) {
-			if (enemyAlive[i] == true) {
-				Novice::DrawEllipse(enemy[i].center.x - scroll.x, enemy[i].center.y - scroll.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
+		if (gamemode >= 1) {//ゲームスタート
+			if (gamemode == 1) {//ステージ1
 
 			}
-		}
 
-		Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, Whitep, WHITE);
+			//Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 0 - scroll.y, stage[0], 1, 1, 0.0f, GREEN);
+			Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 0 - scroll.y, stage[1], 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 1 - scroll.y, stage[2], 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 1 - scroll.y, stage[3], 1, 1, 0.0f, 0xFFFFFFFF);
+
+
+			if (pattern == 1) {
+				Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, player.center.x - scroll.x, player.center.y - scroll.y, WHITE);
+			}
+			if (pattern == 2) {
+				Novice::DrawLine(player.center.x - scroll.x, player.center.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
+				Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
+			}
+			if (pattern == 3) {
+				Novice::DrawLine(line.end.x - scroll.x, line.end.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
+				Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
+				Novice::DrawLine(line.end.x - scroll.x, line.end.y - scroll.y, player.center.x - scroll.x, player.center.y - scroll.y, WHITE);
+			}
+			if (pattern == 4) {
+				Novice::DrawTriangle(line.start.x - scroll.x, line.start.y - scroll.y, line.end.x - scroll.x, line.end.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE, kFillModeWireFrame);
+			}
+			for (int i = 0; i < nucleusSuctionCount; i++) {
+				if (pattern == 5) {
+					if (throwFlag[i] == false) {
+						Novice::DrawTriangle(Start[i].x - scroll.x, Start[i].y - scroll.y, End[i].x - scroll.x, End[i].y - scroll.y, Vertex[i].x - scroll.x, Vertex[i].y - scroll.y, WHITE, kFillModeWireFrame);
+					}//Novice::DrawTriangle(Start[i].x - scroll.x, Start[i].y - scroll.y, End[i].x - scroll.x, End[i].y - scroll.y, Vertex[i].x - scroll.x, Vertex[i].y - scroll.y, WHITE, kFillModeWireFrame);
+
+				}
+
+				if (throwDamageFlag[i] == true) {
+					Novice::DrawTriangle(Start[i].x - scroll.x, Start[i].y - scroll.y, End[i].x - scroll.x, End[i].y - scroll.y, Vertex[i].x - scroll.x, Vertex[i].y - scroll.y, WHITE, kFillModeWireFrame);
+					Novice::DrawEllipse(throwPos[i].x - scroll.x, throwPos[i].y - scroll.y, hitradius[i], hitradius[i], 0, RED, kFillModeWireFrame);
+				}
+			}
+			for (int i = 0; i < bulletNum; i++) {//弾
+				if (bulletOnFlag[i] == true) {
+					Novice::DrawEllipse(bullet[i].center.x - scroll.x, bullet[i].center.y - scroll.y, bullet[i].radius, bullet[i].radius, 0.0f, BLACK, kFillModeSolid);
+				}
+			}
+
+			if (playerFlag == true) {//自機(仮)
+				float monitorx = player.center.x - scroll.x;
+				float monitory = player.center.y - scroll.y;
+				Novice::DrawEllipse(monitorx, monitory, player.radius, player.radius, 0.0f, player.color, kFillModeSolid);
+			}
+
+			for (int i = 0; i < max; i++) {
+				Novice::DrawEllipse(nucleus[i].center.x - scroll.x, nucleus[i].center.y - scroll.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
+			}
+			for (int i = 0; i < enemyNum; i++) {
+				if (enemyAlive[i] == true) {
+					Novice::DrawEllipse(enemy[i].center.x - scroll.x, enemy[i].center.y - scroll.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
+
+				}
+			}
+
+			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, Whitep, WHITE);
+
+		}
 
 		///
 		/// ↑描画処理ここまで
