@@ -260,9 +260,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		enemyAlive[i] = true;
 	}
 
-	Vector2 boundPoint = { 3839,719 };//反射する座標、Xx1280-1、Yx720-1
+	Vector2 boundPoint = { 2560,720 };//反射する座標、Xx1280、Yx720
 
-	int gamemode = 0;//ゲームモード管理 0でスタート前,1で第一ステージ
+	int gamemode =0;//ゲームモード管理 0でスタート前,1で第一ステージ
 	int scrollMode = 0;//0でスクロールしない　1でスクロールする
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -295,6 +295,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					}
 				}
 			}
+			if (gamemode == 2) {//ステージ2
+				scrollMode = 1;
+				for (int i = 0; i < enemyNum; i++) {
+					enemyAlive[i] = false;
+				}
+				enemyAlive[0] = true;
+				enemy[0].center.x = 1280;
+				enemy[0].center.y = 720;
+			}
+
+			if (scrollMode == 0) {
+				boundPoint = { 2559,719 };
+			}
+			if (scrollMode == 1) {
+				boundPoint = { 2559,1439 };
+			}
 
 			if (pattern == 0 || pattern == 5) {
 				if (keys[DIK_A] != 0) {
@@ -326,7 +342,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 
-			///座標固定
+			//通常移動時の移動可能範囲
+			if (player.center.x >= boundPoint.x - player.radius) { //右方向
+				player.center.x = boundPoint.x - player.radius;
+			}
+			if (player.center.x <= 0 + player.radius) { //左方向
+				player.center.x = 0 + player.radius;
+			}
+			if (player.center.y  <= player.radius) { //上方向
+				player.center.y = player.radius;
+			}
+			if (player.center.y >= boundPoint.y - player.radius) { //下方向
+				player.center.y = boundPoint.y - player.radius;
+			}
+
+			///スクロール終了時の座標修正
 			if (player.center.x <= scrollwall.x) {
 				scroll.x = 0.0f;
 			}
@@ -341,18 +371,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			////画面端で跳ね返る
-			if (player.center.x - player.radius < 0) {
+			if (player.center.x <= 0 + player.radius) {//左方向
 				atackSpeed = { -atackSpeed.x,atackSpeed.y };
 			}
-			if (player.center.x + player.radius > boundPoint.x) {
+			if (player.center.x >= boundPoint.x - player.radius) {//右方向
 				atackSpeed = { -atackSpeed.x,atackSpeed.y };
 			}
-			if (player.center.y - player.radius < 0) {
+			if (player.center.y <= player.radius) {//上方向
 				atackSpeed = { atackSpeed.x,-atackSpeed.y };
 			}
-			if (player.center.y + player.radius > boundPoint.y) {
+			if (player.center.y >= boundPoint.y - player.radius) {//下方向
 				atackSpeed = { atackSpeed.x,-atackSpeed.y };
 			}
+
 			if (pattern == 0) {
 				atackSpeed = { 0,0 };
 				for (int i = 0; i < max; i++) {
@@ -417,7 +448,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
 					scroll.x = player.center.x - 640;
 				}
-				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y) {
+				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
 					scroll.y = player.center.y - 360;
 				}
 			}
@@ -431,7 +462,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
 					scroll.x = player.center.x - 640;
 				}
-				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y) {
+				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
 					scroll.y = player.center.y - 360;
 				}
 				if (playerEndSpeed >= 1.0f) {
