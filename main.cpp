@@ -48,8 +48,8 @@ void randShake(Vector2& randam, int& count) {
 	count--;
 
 	if (count > 0) {
-		randam.x = rand() % count-count;
-		randam.y = rand() % count-count;
+		randam.x = rand() % count - count;
+		randam.y = rand() % count - count;
 
 	}
 }
@@ -115,6 +115,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 	enemy[2] = {//敵
 	{2000,200},
+		36.0f,
+		6.0f,
+		WHITE,
+	};
+
+	const int beamNum = 4;//ビーム発射地点
+	Circle beamPoint[beamNum];
+	beamPoint[0] = {
+		{0,0},
+		36.0f,
+		6.0f,
+		WHITE,
+	};
+	beamPoint[1] = {
+		{0,1440},
+		36.0f,
+		6.0f,
+		WHITE,
+	};
+	beamPoint[2] = {
+		{0,1440},
+		36.0f,
+		6.0f,
+		WHITE,
+	};
+	beamPoint[3] = {
+		{2560,0},
 		36.0f,
 		6.0f,
 		WHITE,
@@ -192,7 +219,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int bulletInductionOnFlag[bulletNum];//誘導フラグ
 	int bulletInductionTimer[bulletNum];//誘導時間(初期値100)
 	int bulletEndTimer[bulletNum];//弾消滅時間(初期値400)
-	int bullettimer = 20;
+	int bullettimer[bulletNum];//弾の発射クールダウン
 
 	for (int i = 0; i < bulletNum; i++) {
 		bullet[i].speed = { 0 , 0 };//速度
@@ -201,8 +228,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		bulletAngle[i] = { 0 , 0 };//角度X
 		bulletOnFlag[i] = false;//弾の発射
 		bulletInductionOnFlag[i] = false;//誘導フラグ
-		bulletInductionTimer[i] = 50;//誘導時間(初期値1-0)
+		bulletInductionTimer[i] = 10;//誘導時間(初期値10)
 		bulletEndTimer[i] = 300;//弾消滅時間(初期値400)
+		bullettimer[i] = 80 + 20 * i;
 	}
 
 	Vector2 scroll;//スクロール
@@ -255,14 +283,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int triangleBreak = false;
 
 	int playerFlag = true;//自機生存フラグ
-	int enemyAlive[enemyNum] = { true };//核
+
+	int enemyAlive[enemyNum] = { true };//敵生存フラグ
+	int enemyScreenIn[enemyNum];//敵が画面内に居るか
+
 	for (int i = 0; i < enemyNum; i++) {
 		enemyAlive[i] = true;
+		enemyScreenIn[i] = false;
 	}
 
 	Vector2 boundPoint = { 2560,720 };//反射する座標、Xx1280、Yx720
 
-	int gamemode =0;//ゲームモード管理 0でスタート前,1で第一ステージ
+	int gamemode = 0;//ゲームモード管理 0でスタート前,1で第一ステージ
 	int scrollMode = 0;//0でスクロールしない　1でスクロールする
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -349,7 +381,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (player.center.x <= 0 + player.radius) { //左方向
 				player.center.x = 0 + player.radius;
 			}
-			if (player.center.y  <= player.radius) { //上方向
+			if (player.center.y <= player.radius) { //上方向
 				player.center.y = player.radius;
 			}
 			if (player.center.y >= boundPoint.y - player.radius) { //下方向
@@ -439,9 +471,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					atackSpeed = Multiply(Normalais(playerAngle), playerSpeed);
 
 				}
-
-
 			}
+
 			//プレイヤーのスピードを計算
 			if (pattern <= 2) {
 				atackSpeed = Multiply(atackSpeed, stop);
@@ -601,13 +632,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							throwFlag[j] = false;
 						}
 						nucleus[i].radius = 36;
-
 					}
-
-
 				}
-
 			}
+
 			//攻撃の準備をする
 			if (pattern == 5) {
 				for (int i = 0; i < nucleusSuctionCount; i++) {
@@ -632,9 +660,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					}
 				}
 				//攻撃フラグをtureにする
-				if (keys[DIK_V] && preKeys[DIK_V] == 0||Novice::IsPressMouse(0)) {
+				if (keys[DIK_V] && preKeys[DIK_V] == 0 || Novice::IsPressMouse(0)) {
 					mousePressTime++;
-					 mousePress = true;
+					mousePress = true;
 					for (int i = 0; i < nucleusSuctionCount; i++) {
 
 						if (throwFlag[i] == false) {
@@ -653,14 +681,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							}
 							break;
 						}
-
-
-
 					}
-
-
 				}
 			}
+
 			//攻撃処理
 			for (int i = 0; i < nucleusSuctionCount; i++) {
 				if (throwDamageFlag[i] == true) {
@@ -678,7 +702,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					Vertex[i] = Add(Vertex[i], throwPos[i]);
 					End[i] = Add(End[i], throwPos[i]);
 
-					 
+
 					hitradius[i] = sqrtf((throwPos[i].x - Start[i].x) * (throwPos[i].x - Start[i].x) + (throwPos[i].y - Start[i].y) * (throwPos[i].y - Start[i].y));
 
 
@@ -694,19 +718,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					}
 				}
 			}
-			//誘導弾
-			if (Novice::IsPressMouse(1)) {
-				for (int i = 0; i < bulletNum; i++) {
-					if (bulletOnFlag[i] == false && bullettimer <= 0) {
-						bullet[i].center = { (float)mouseX + scroll.x ,(float)mouseY + scroll.y };
-						bulletOnFlag[i] = true;
-						bullettimer = 20;
-						bulletInductionOnFlag[i] = true;
-					}
+
+			//画面内の敵を感知
+			for (int i = 0; i < enemyNum; i++) {
+				if (enemy[i].center.x > player.center.x - 1280/2 && enemy[i].center.x < player.center.x + 1280 / 2) {
+					enemyScreenIn[i] = true;
+				}
+				else {
+					enemyScreenIn[i] = false;
 				}
 			}
 
-			bullettimer--;
+			//誘導弾
+			for (int j = 0; j < enemyNum; j++) {
+				for (int i = 0; i < bulletNum; i++) {
+					if (bulletOnFlag[i] == false && bullettimer[j] <= 0 && enemyAlive[j] == true && enemyScreenIn[j] == true) {
+						bullet[i].center = { enemy[j].center.x ,enemy[j].center.y };
+						bulletOnFlag[i] = true;
+						bullettimer[j] = 80 + 20 * i;
+						bulletInductionOnFlag[i] = true;
+					}
+				}
+				bullettimer[j]--;
+			}
 
 			for (int i = 0; i < bulletNum; i++) {
 				if (bulletOnFlag[i] == true) {//弾を置いたら
@@ -719,7 +753,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					}
 					if (CircleCollisinHit(bullet[i].center, bullet[i].radius, player.center, player.radius) == true) {//ボールと弾がぶつかったとき
 						//playerFlag = false;//生存判定をfalseにする
-						bulletInductionTimer[i] = 100;
+						bulletInductionTimer[i] = 10;
 						bulletInductionOnFlag[i] = false;
 						bulletOnFlag[i] = false;
 						bulletEndTimer[i] = 400;
@@ -727,7 +761,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 
 				if (bulletEndTimer[i] <= 0) {
-					bulletInductionTimer[i] = 20;
+					bulletInductionTimer[i] = 10;
 					bulletInductionOnFlag[i] = false;
 					bulletOnFlag[i] = false;
 					bulletEndTimer[i] = 400;
@@ -735,7 +769,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				if (bulletInductionTimer[i] <= 0) {//誘導タイマーが0で誘導終了
 					bulletInductionOnFlag[i] = false;
-					bullet[i].speed = Multiply(Normalais(bulletAngle[i]), 8);
+					bullet[i].speed = Multiply(Normalais(bulletAngle[i]), 4);
 					bullet[i].center = Add(bullet[i].center, bullet[i].speed);
 				}
 			}
@@ -762,6 +796,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+		//Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 0 - scroll.y, stage[0], 1, 1, 0.0f, GREEN);
+		Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 0 - scroll.y, stage[1], 1, 1, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 1 - scroll.y, stage[2], 1, 1, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 1 - scroll.y, stage[3], 1, 1, 0.0f, 0xFFFFFFFF);
+
 		if (gamemode == 0) {//ゲーム開始画面
 
 		}
@@ -770,12 +809,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (gamemode == 1) {//ステージ1
 
 			}
-
-			//Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 0 - scroll.y, stage[0], 1, 1, 0.0f, GREEN);
-			Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 0 - scroll.y, stage[1], 1, 1, 0.0f, 0xFFFFFFFF);
-			Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 1 - scroll.y, stage[2], 1, 1, 0.0f, 0xFFFFFFFF);
-			Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 1 - scroll.y, stage[3], 1, 1, 0.0f, 0xFFFFFFFF);
-
 
 			if (pattern == 1) {
 				Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, player.center.x - scroll.x, player.center.y - scroll.y, WHITE);
@@ -825,12 +858,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					Novice::DrawEllipse(nucleusSuctionPos[i].x - scroll.x, nucleusSuctionPos[i].y - scroll.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
 				}
 			}
-			for (int i = 0; i < enemyNum; i++) {
+
+			for (int i = 0; i < enemyNum; i++) {//敵
 				if (enemyAlive[i] == true) {
 					Novice::DrawEllipse(enemy[i].center.x - scroll.x, enemy[i].center.y - scroll.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
-
 				}
 			}
+
+			//for (int i = 0; i < beamNum; i++) {//ビーム
+			//	if (enemyAlive[i] == true) {
+			//		Novice::DrawEllipse(enemy[i].center.x - scroll.x, enemy[i].center.y - scroll.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
+			//	}
+			//}
 
 			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, Whitep, WHITE);
 
