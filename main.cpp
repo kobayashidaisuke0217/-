@@ -384,6 +384,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int gamemode = 2;//ゲームモード管理 0でスタート前,1で第一ステージ
 	int scrollMode = 0;//0でスクロールしない　1でスクロールする
 
+	int leftx = 0;
+	int lefty = 0;
+
+	int rightx = 0;
+	int righty = 0;
+
+	int stickNo = 0;
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -392,17 +399,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// キー入力を受け取る
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
-		Novice::GetMousePosition(&mouseX, &mouseY);
+		//Novice::GetMousePosition(&mouseX, &mouseY);
+		Novice::GetAnalogInputLeft(stickNo, &leftx, &lefty);
+		Novice::GetAnalogInputRight(stickNo, &mouseX, &mouseY);
 		Novice::SetWindowMode(kFullscreen);
 		///
 		/// ↓更新処理ここから
 		///
 
 		if (gamemode == 0) {//ゲーム開始画面
-			if (keys[DIK_V]) {
+			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]) {
 				gamemode = 1;
 			}
 		}
+
 
 		if (gamemode >= 1) {//ゲームスタート
 			if (gamemode == 1) {//ステージ1
@@ -412,6 +422,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					if (enemy[i].center.y <= 100 || enemy[i].center.y >= 620) {
 						enemy[i].speed *= -1;
 					}
+				}
+				/*if (Novice::IsTriggerButton(0, kPadButton11) || keys[DIK_V]) {
+					gamemode = 2;
+				}*/
+				if (player.center.x >= 1000) {
+					gamemode = 2;
 				}
 			}
 			if (gamemode == 2) {//ステージ2
@@ -432,28 +448,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			if (pattern == 0 || pattern == 5) {
-				if (keys[DIK_A] != 0) {
+				if (leftx < -10000 || keys[DIK_A] != 0) {
 					player.center.x -= player.speed;
 					if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
 						scroll.x -= player.speed;
 					}
 				}
 				// 右キーを押したら右に動かす
-				if (keys[DIK_D] != 0) {
+				if (leftx > 10000 || keys[DIK_D] != 0) {
 					player.center.x += player.speed;
 					if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
 						scroll.x += player.speed;
 					}
 				}
 				// 上キーを押したら上に動かす
-				if (keys[DIK_W] != 0) {
+				if (lefty < -10000 || keys[DIK_W] != 0) {
 					player.center.y -= player.speed;
 					if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
 						scroll.y -= player.speed;
 					}
 				}
 				// 下キーを押したら下に動かす
-				if (keys[DIK_S] != 0) {
+				if (lefty > 10000 || keys[DIK_S] != 0) {
 					player.center.y += player.speed;
 					if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
 						scroll.y += player.speed;
@@ -512,7 +528,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					nucleus[i].color = WHITE;
 				}
 			}
-			if (keys[DIK_SPACE]) {
+			if (Novice::IsPressButton(0, kPadButton8) || keys[DIK_SPACE]) {
 
 				PressCount++;
 				//ゲージ
@@ -523,7 +539,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 			//スペースを押してなおかつ止まっているとき
-			if (preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
+			if (Novice::IsTriggerButton(0, kPadButton9) || preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
 				//一つ目の点を求める
 				if (pattern == 0) {
 					playerEndSpeed = 0;
@@ -747,7 +763,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					}
 				}
 				//攻撃フラグをtureにする
-				if (keys[DIK_V] && preKeys[DIK_V] == 0 || Novice::IsPressMouse(0)) {
+				if (Novice::IsTriggerButton(0, kPadButton11) || keys[DIK_V] && preKeys[DIK_V] == 0 || Novice::IsPressMouse(0)) {
 					mousePressTime++;
 					mousePress = true;
 					for (int i = 0; i < nucleusSuctionCount; i++) {
@@ -1021,7 +1037,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//デバッグ用エンターで戻す
-			if (preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
+			if (Novice::IsPressButton(0, kPadButton10) || preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
 				pattern = 0;
 				for (int i = 0; i < nucleusSuctionCount; i++) {
 					throwFlag[i] = false;
@@ -1094,6 +1110,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				float monitorx = player.center.x - scroll.x;
 				float monitory = player.center.y - scroll.y;
 				Novice::DrawEllipse(monitorx, monitory, player.radius, player.radius, 0.0f, player.color, kFillModeSolid);
+				Novice::DrawEllipse(monitorx + mouseX / 1000, monitory + mouseY / 1000, 10, 10, 0, WHITE, kFillModeSolid);
 			}
 
 			for (int i = 0; i < max; i++) {
