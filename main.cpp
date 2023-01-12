@@ -4,6 +4,8 @@
 
 #include "matrix.h"
 
+#define _USE_MATH_DEFINE_
+#include <math.h>
 const char kWindowTitle[] = "LC1B_08_コバヤシダイスケ";
 
 struct Circle {
@@ -404,7 +406,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			////画面端で跳ね返る
 			if (player.center.x <= 0 + player.radius) {//左方向
-				atackSpeed = { -atackSpeed.x,atackSpeed.y };
+				atackSpeed = { -atackSpeed.x,atackSpeed.y };//*0.9を入れる
 			}
 			if (player.center.x >= boundPoint.x - player.radius) {//右方向
 				atackSpeed = { -atackSpeed.x,atackSpeed.y };
