@@ -1,11 +1,9 @@
 ﻿#include <Novice.h>
 #include "Vec2.h"
-#include "collision.h"
+#include "collisionfunc.h"
 
 #include "matrix.h"
 
-#define _USE_MATH_DEFINE_
-#include <math.h>
 const char kWindowTitle[] = "LC1B_08_コバヤシダイスケ";
 
 struct Circle {

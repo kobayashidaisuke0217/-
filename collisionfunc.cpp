@@ -1,4 +1,4 @@
-#include "collision.h"
+#include "collisionfunc.h"
 
 float Distance(const Vector2& a, const Vector2& b) {
 	Vector2 c = { a.x - b.x,a.y - b.y };

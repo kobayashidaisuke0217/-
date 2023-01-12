@@ -1,6 +1,6 @@
 #pragma once
 #include <Novice.h>
-#define _USE_MATH_DEFINE_
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 
