@@ -158,7 +158,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{-24.0f,24.0f},
 	};
 
-	int PressCount = 0;
+	float PressCount = 0;
 	int atackFrag = false;
 	float playerSpeed = 0;
 	Vector2 atackSpeed = { 0 };
@@ -427,12 +427,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			if (keys[DIK_SPACE]) {
 
-				PressCount++;
+				PressCount+=0.5;
 				//ゲージ
-				playerSpeed = PressCount % 30;
+				playerSpeed = PressCount *4;
 
 				if (pattern <= 1 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
 					gaugeRight.x = 30 + playerSpeed;
+				}
+				if (PressCount > 20) {
+					PressCount = 0;
 				}
 			}
 			//スペースを押してなおかつ止まっているとき
@@ -464,9 +467,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//プレイヤーを飛ばす
 				if (pattern <= 2) {
 
-					playerSpeed *= 4;
+					
 					mouse = { (float)mouseX + scroll.x,(float)mouseY + scroll.y };
-					PressCount = 0;
+					
 					playerAngle = VectorProduct(mouse, player.center);
 					atackSpeed = Multiply(Normalais(playerAngle), playerSpeed);
 
