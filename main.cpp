@@ -1,6 +1,6 @@
 ﻿#include <Novice.h>
 #include "Vec2.h"
-#include "collision.h"
+#include "collisionfunc.h"
 
 #include "matrix.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "collision.h"
+#include "collisionfunc.h"
 
 typedef struct Boss3 {
 	Vector2 Pos;
