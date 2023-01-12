@@ -24,7 +24,6 @@ struct Line {
 	Vector2 start;
 	Vector2 vertex;
 	Vector2 end;
-
 };
 
 float easeInSine(float x) {
@@ -41,7 +40,6 @@ int lineSearch(int flag[], int num) {
 			return 1;
 		}
 	}
-
 }
 
 void randShake(Vector2& randam, int& count) {
@@ -53,6 +51,7 @@ void randShake(Vector2& randam, int& count) {
 
 	}
 }
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -121,31 +120,117 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 
 	const int beamNum = 4;//ビーム発射地点
+
+	int beamAlive[beamNum];//ビーム発射地点の生存フラグ
 	Circle beamPoint[beamNum];
-	beamPoint[0] = {
-		{0,0},
+
+	beamPoint[0] = {//ビーム1と連動
+	{0,0},
 		36.0f,
 		6.0f,
 		WHITE,
 	};
-	beamPoint[1] = {
-		{0,1440},
+	beamPoint[1] = {//ビーム0と連動
+	{2560,1440},
 		36.0f,
 		6.0f,
 		WHITE,
 	};
-	beamPoint[2] = {
-		{0,1440},
+	beamPoint[2] = {//ビーム3と連動
+	{0,1440},
 		36.0f,
 		6.0f,
-		WHITE,
+		RED,
 	};
-	beamPoint[3] = {
-		{2560,0},
+	beamPoint[3] = {//ビーム4と連動
+	{2560,0},
 		36.0f,
 		6.0f,
-		WHITE,
+		RED,
 	};
+
+	for (int i = 0; i < beamNum; i++) {
+		beamAlive[i] = true;
+	}
+
+	Beam beem;
+	beem.pos = { 0,0 };
+	beem.angle = { 0 };
+	beem.radian = { 0 };
+	beem.EndPos = { 0,0 };
+
+	beem.size = 0;
+
+	Beam beem2;
+
+	beem2.pos = { 0,0 };
+	beem2.angle = { 0,0 };
+	beem2.radian = { 0,0 };
+	beem2.EndPos = { 0,0 };
+
+	Beam beem3;
+	beem3.pos = { 0,0 };
+	beem3.angle = { 0,0 };
+	beem3.radian = { 0,0 };
+	beem3.EndPos = { 0,0 };
+
+	Beam beem4;
+	beem4.pos = { 0,0 };
+	beem4.angle = { 0 };
+	beem4.radian = { 0 };
+	beem4.EndPos = { 0,0 };
+
+	beem4.size = 0;
+
+	Beam beem5;
+
+	beem5.pos = { 0,0 };
+	beem5.angle = { 0,0 };
+	beem5.radian = { 0,0 };
+	beem5.EndPos = { 0,0 };
+
+	Beam beem6;
+	beem6.pos = { 0,0 };
+	beem6.angle = { 0,0 };
+	beem6.radian = { 0,0 };
+	beem6.EndPos = { 0,0 };
+
+	int atackFlag = false;
+	int preAtack = false;
+	int atackCount = 0;
+	int preCount = 0;
+
+	Vector2 starttoEnd = { 0 };
+	Vector2 toplayerB1 = { 0 };
+	float exteriorB1 = 0;
+
+	Vector2 starttoEnd2 = { 0 };
+	Vector2 toplayerB2 = { 0 };
+	float exteriorB2 = { 0 };
+
+	Vector2 endtoEnd = { 0 };
+	Vector2 toplayerB3 = { 0 };
+	float exteriorB3 = 0;
+
+	Vector2 starttoStart = { 0 };
+	Vector2 toplayerB4 = { 0 };
+	float exteriorB4 = 0;
+
+	Vector2 starttoEndS = { 0 };
+	Vector2 toplayerB1S = { 0 };
+	float exteriorB1S = 0;
+
+	Vector2 starttoEnd2S = { 0 };
+	Vector2 toplayerB2S = { 0 };
+	float exteriorB2S = { 0 };
+
+	Vector2 endtoEndS = { 0 };
+	Vector2 toplayerB3S = { 0 };
+	float exteriorB3S = 0;
+
+	Vector2 starttoStartS = { 0 };
+	Vector2 toplayerB4S = { 0 };
+	float exteriorB4S = 0;
 
 	Line line = {
 		{1000.0f,700.0f},
@@ -158,7 +243,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{-24.0f,24.0f},
 	};
 
-	float PressCount = 0;
+	int PressCount = 0;
 	int atackFrag = false;
 	float playerSpeed = 0;
 	Vector2 atackSpeed = { 0 };
@@ -248,7 +333,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ゲージ
 	Vector2 gaugeleft = { 30,30 };
 	Vector2 gaugeRight{ 30,30 };
-	int Whitep = Novice::LoadTexture("white1x1.png");
+	int WhiteP = Novice::LoadTexture("white1x1.png");
 
 	int stage[4]; //ステージセレクト
 	stage[0] = Novice::LoadTexture("./Resources/image/backGround1.png"); //ステージ左上
@@ -294,7 +379,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector2 boundPoint = { 2560,720 };//反射する座標、Xx1280、Yx720
 
-	int gamemode = 0;//ゲームモード管理 0でスタート前,1で第一ステージ
+	int gamemode = 2;//ゲームモード管理 0でスタート前,1で第一ステージ
 	int scrollMode = 0;//0でスクロールしない　1でスクロールする
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -404,7 +489,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			////画面端で跳ね返る
 			if (player.center.x <= 0 + player.radius) {//左方向
-				atackSpeed = { -atackSpeed.x,atackSpeed.y };//*0.9を入れる
+				atackSpeed = { -atackSpeed.x,atackSpeed.y };
 			}
 			if (player.center.x >= boundPoint.x - player.radius) {//右方向
 				atackSpeed = { -atackSpeed.x,atackSpeed.y };
@@ -427,15 +512,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			if (keys[DIK_SPACE]) {
 
-				PressCount+=0.5;
+				PressCount++;
 				//ゲージ
-				playerSpeed = PressCount *4;
+				playerSpeed = PressCount % 30;
 
 				if (pattern <= 1 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
 					gaugeRight.x = 30 + playerSpeed;
-				}
-				if (PressCount > 20) {
-					PressCount = 0;
 				}
 			}
 			//スペースを押してなおかつ止まっているとき
@@ -467,9 +549,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//プレイヤーを飛ばす
 				if (pattern <= 2) {
 
-					
+					playerSpeed *= 4;
 					mouse = { (float)mouseX + scroll.x,(float)mouseY + scroll.y };
-					
+					PressCount = 0;
 					playerAngle = VectorProduct(mouse, player.center);
 					atackSpeed = Multiply(Normalais(playerAngle), playerSpeed);
 
@@ -777,6 +859,131 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 
+			//ビーム
+			if (atackFlag == false) {
+				preCount++;
+			}
+			if (preCount == 60) {
+				preAtack = true;
+
+				beem.pos = { beamPoint[0].center.x,beamPoint[0].center.y};
+				beem.angle = {beamPoint[1].center.x - beem.pos.x, beamPoint[1].center.y - beem.pos.y};
+				beem.radian = Normalais(beem.angle);
+				beem.EndPos = Multiply(beem.radian, beem.size);
+
+				beem.EndPos.x += beem.pos.x;
+				beem.EndPos.y += beem.pos.y;
+
+
+				beem2.radian = { -beem.radian.y,beem.radian.x };
+				beem2.angle = Multiply(beem2.radian, 16);
+				beem2.pos = { beamPoint[1].center.x + beem2.angle.x, beamPoint[1].center.y + beem2.angle.y};
+				beem2.EndPos.x = beem.EndPos.x  + beem2.angle.x;
+				beem2.EndPos.y = beem.EndPos.y + beem2.angle.y;
+
+
+				beem3.radian = { beem.radian.y,-beem.radian.x };
+				beem3.angle = Multiply(beem3.radian, 16);
+				beem3.pos = { beamPoint[1].center.x + beem3.angle.x,beamPoint[1].center.y + beem3.angle.y };
+				beem3.EndPos.x = beem.EndPos.x + beem3.angle.x;
+				beem3.EndPos.y = beem.EndPos.y + beem3.angle.y;
+
+				beem4.pos = { beamPoint[2].center.x,beamPoint[2].center.y };
+				beem4.angle = { beamPoint[3].center.x - beem4.pos.x, beamPoint[3].center.y - beem4.pos.y };
+				beem4.radian = Normalais(beem4.angle);
+				beem4.EndPos = Multiply(beem4.radian, beem4.size);
+
+				beem4.EndPos.x += beem4.pos.x;
+				beem4.EndPos.y += beem4.pos.y;
+
+
+				beem5.radian = { -beem4.radian.y,beem4.radian.x };
+				beem5.angle = Multiply(beem5.radian, 16);
+				beem5.pos = { beamPoint[3].center.x + beem5.angle.x, beamPoint[3].center.y + beem5.angle.y };
+				beem5.EndPos.x = beem4.EndPos.x + beem5.angle.x;
+				beem5.EndPos.y = beem4.EndPos.y + beem5.angle.y;
+
+
+				beem6.radian = { beem4.radian.y,-beem4.radian.x };
+				beem6.angle = Multiply(beem6.radian, 16);
+				beem6.pos = { beamPoint[3].center.x + beem6.angle.x,beamPoint[3].center.y + beem6.angle.y };
+				beem6.EndPos.x = beem4.EndPos.x + beem6.angle.x;
+				beem6.EndPos.y = beem4.EndPos.y + beem6.angle.y;
+
+			}
+			if (preCount >= 120) {
+				atackFlag = true;
+				preAtack = false;
+				preCount = 0;
+			}
+			if (atackFlag == true) {
+				atackCount++;
+				Vector2 lineCenterSS = { (beem2.pos.x + beem3.pos.x) / 2.0f, (beem2.pos.y + beem3.pos.y) / 2.0f };
+				Vector2 lineCenterEE = { (beem2.EndPos.x + beem3.EndPos.x) / 2.0f, (beem2.EndPos.y + beem3.EndPos.y) / 2.0f };
+				Vector2 lineCenterSE1 = { (beem2.pos.x + beem2.EndPos.x) / 2.0f, (beem2.pos.y + beem2.EndPos.y) / 2.0f };
+				Vector2 lineCenterSE2 = { (beem3.pos.x + beem3.EndPos.x) / 2.0f, (beem3.pos.y + beem3.EndPos.y) / 2.0f };
+
+				Vector2 lineCenterSS2 = { (beem5.pos.x + beem6.pos.x) / 2.0f, (beem5.pos.y + beem6.pos.y) / 2.0f };
+				Vector2 lineCenterEE2 = { (beem5.EndPos.x + beem6.EndPos.x) / 2.0f, (beem5.EndPos.y + beem6.EndPos.y) / 2.0f };
+				Vector2 lineCenterSE3 = { (beem5.pos.x + beem5.EndPos.x) / 2.0f, (beem5.pos.y + beem5.EndPos.y) / 2.0f };
+				Vector2 lineCenterSE4 = { (beem6.pos.x + beem6.EndPos.x) / 2.0f, (beem6.pos.y + beem6.EndPos.y) / 2.0f };
+
+
+				starttoEnd = VectorProduct(beem2.pos, beem2.EndPos);
+				toplayerB1 = VectorProduct(player.center, beem2.pos);
+				exteriorB1 = Product(starttoEnd, toplayerB1);
+
+				starttoEnd = VectorProduct(beem2.pos, beem2.EndPos);
+				toplayerB1 = VectorProduct(player.center, beem2.pos);
+				exteriorB1 = Product(starttoEnd, toplayerB1);
+
+				starttoEnd2 = VectorProduct(beem3.EndPos, beem3.pos);
+				toplayerB2 = VectorProduct(player.center, beem3.EndPos);
+				exteriorB2 = Product(starttoEnd2, toplayerB2);
+
+				starttoStart = VectorProduct(beem3.pos, beem2.pos);
+				toplayerB3 = VectorProduct(player.center, beem3.pos);
+				exteriorB3 = Product(starttoStart, toplayerB3);
+
+				endtoEnd = VectorProduct(beem2.EndPos, beem3.EndPos);
+				toplayerB4 = VectorProduct(player.center, beem2.EndPos);
+				exteriorB4 = Product(endtoEnd, toplayerB4);
+
+
+				starttoEndS = VectorProduct(beem5.pos, beem5.EndPos);
+				toplayerB1S = VectorProduct(player.center, beem5.pos);
+				exteriorB1S = Product(starttoEndS, toplayerB1S);
+
+				starttoEndS = VectorProduct(beem5.pos, beem5.EndPos);
+				toplayerB1S = VectorProduct(player.center, beem5.pos);
+				exteriorB1S = Product(starttoEndS, toplayerB1S);
+
+				starttoEnd2S = VectorProduct(beem6.EndPos, beem6.pos);
+				toplayerB2S = VectorProduct(player.center, beem6.EndPos);
+				exteriorB2S = Product(starttoEnd2S, toplayerB2S);
+
+				starttoStartS = VectorProduct(beem6.pos, beem5.pos);
+				toplayerB3S = VectorProduct(player.center, beem6.pos);
+				exteriorB3S = Product(starttoStartS, toplayerB3S);
+
+				endtoEndS = VectorProduct(beem5.EndPos, beem6.EndPos);
+				toplayerB4S = VectorProduct(player.center, beem5.EndPos);
+				exteriorB4S = Product(endtoEndS, toplayerB4S);
+
+
+				if (exteriorB1 > 0.0f && exteriorB2 > 0.0f && exteriorB3 > 0.0f && exteriorB4 > 0.0f || exteriorB1 < 0.0f && exteriorB2 < 0.0f && exteriorB3 < 0.0f && exteriorB4 < 0.0f||
+					exteriorB1S > 0.0f && exteriorB2S > 0.0f && exteriorB3S > 0.0f && exteriorB4S > 0.0f || exteriorB1S < 0.0f && exteriorB2S < 0.0f && exteriorB3S < 0.0f && exteriorB4S < 0.0f) {
+					//自機の生死フラグ = false;
+					Novice::ScreenPrintf(40, 40, "Hit");
+				}
+			}
+
+			if (atackCount >= 30) {
+				atackFlag = false;
+				atackCount = 0;
+
+			}
+
 			//デバッグ用エンターで戻す
 			if (preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
 				pattern = 0;
@@ -861,6 +1068,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					Novice::DrawEllipse(nucleusSuctionPos[i].x - scroll.x, nucleusSuctionPos[i].y - scroll.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
 				}
 			}
+			
+			if (atackFlag == true) {//ビーム
+				Novice::DrawQuad(beem2.pos.x - scroll.x, beem2.pos.y - scroll.y, beem2.EndPos.x - scroll.x, beem2.EndPos.y - scroll.y, beem3.pos.x - scroll.x, beem3.pos.y - scroll.y, beem3.EndPos.x - scroll.x, beem3.EndPos.y - scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
+			}
+			if (atackFlag == true) {//ビーム2
+				Novice::DrawQuad(beem5.pos.x - scroll.x, beem5.pos.y - scroll.y, beem5.EndPos.x - scroll.x, beem5.EndPos.y - scroll.y, beem6.pos.x - scroll.x, beem6.pos.y - scroll.y, beem6.EndPos.x - scroll.x, beem6.EndPos.y - scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
+			}
+
+			for (int i = 0; i < beamNum; i++) {//ビームポイント
+				if (beamAlive[i] == true) {
+					Novice::DrawEllipse(beamPoint[i].center.x - scroll.x, beamPoint[i].center.y - scroll.y, beamPoint[i].radius, beamPoint[i].radius, 0, beamPoint[i].color, kFillModeSolid);
+				}
+			}
 
 			for (int i = 0; i < enemyNum; i++) {//敵
 				if (enemyAlive[i] == true) {
@@ -868,13 +1088,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 
-			//for (int i = 0; i < beamNum; i++) {//ビーム
-			//	if (enemyAlive[i] == true) {
-			//		Novice::DrawEllipse(enemy[i].center.x - scroll.x, enemy[i].center.y - scroll.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
-			//	}
-			//}
-
-			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, Whitep, WHITE);
+			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, WhiteP, WHITE);
 
 		}
 
