@@ -121,7 +121,7 @@
     <ClInclude Include="..\DirectXGame\math\Vector4.h">
       <Filter>KamataEngine\Include</Filter>
     </ClInclude>
-    <ClInclude Include="collision.h" />
+    <ClInclude Include="collisionfunc.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Boss3.h" />
   </ItemGroup>
