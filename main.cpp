@@ -381,7 +381,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector2 boundPoint = { 2560,720 };//反射する座標、Xx1280、Yx720
 
-	int gamemode = 2;//ゲームモード管理 0でスタート前,1で第一ステージ
+	int gamemode = 0;//ゲームモード管理 0でスタート前,1で第一ステージ2でボス１
 	int scrollMode = 0;//0でスクロールしない　1でスクロールする
 
 	int leftx = 0;
@@ -446,7 +446,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (scrollMode == 1) {
 				boundPoint = { 2559,1439 };
 			}
-
+//プレイヤーの操作
 			if (pattern == 0 || pattern == 5) {
 				if (leftx < -10000 || keys[DIK_A] != 0) {
 					player.center.x -= player.speed;
@@ -763,7 +763,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					}
 				}
 				//攻撃フラグをtureにする
-				if (Novice::IsTriggerButton(0, kPadButton11) || keys[DIK_V] && preKeys[DIK_V] == 0 || Novice::IsPressMouse(0)) {
+				if (Novice::IsTriggerButton(0, kPadButton9) || keys[DIK_V] && preKeys[DIK_V] == 0 || Novice::IsPressMouse(0)) {
 					mousePressTime++;
 					mousePress = true;
 					for (int i = 0; i < nucleusSuctionCount; i++) {
@@ -1037,7 +1037,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//デバッグ用エンターで戻す
-			if (Novice::IsPressButton(0, kPadButton10) || preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
+			if (Novice::IsPressButton(0, kPadButton11) || preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
 				pattern = 0;
 				for (int i = 0; i < nucleusSuctionCount; i++) {
 					throwFlag[i] = false;
