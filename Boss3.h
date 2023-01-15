@@ -5,7 +5,7 @@
 typedef struct Boss3 {
 	Vector2 Pos;
 	Vector2 radius;
-	Vector2 Beem;
+
 	Vector2 leftTop;
 	Vector2 rightTop;
 	Vector2 leftDown;
@@ -13,4 +13,10 @@ typedef struct Boss3 {
 
 	
 };
+typedef struct Baria {
+	Vector2 pos;
+	Vector2 HP;
+};
 void BossAtackRotate();
+
+void BossAtackBeem();
