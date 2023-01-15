@@ -15,6 +15,15 @@ typedef struct Object {
 	float Size;
 };
 
+typedef struct Beam {
+	Vector2 pos;
+	Vector2 EndPos;
+	Vector2 angle;
+	float size;
+	Vector2  radian;
+	Vector2 flag;
+};
+
 //長さの計算
 float Length(const Vector2& a);
 //ベクトルの正規化

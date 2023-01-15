@@ -41,6 +41,12 @@
     <ClCompile Include="Vec2.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
+    <ClCompile Include="Boss2.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+     <ClCompile Include="matrix.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\audio\Audio.h">
@@ -124,5 +130,6 @@
     <ClInclude Include="collisionfunc.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Boss3.h" />
+    <ClInclude Include="Boss2.h" />
   </ItemGroup>
 </Project>
