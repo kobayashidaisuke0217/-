@@ -391,6 +391,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int righty = 0;
 
 	int stickNo = 0;
+
+	bool beemHit = false;
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -513,16 +515,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			////画面端で跳ね返る
 			if (player.center.x <= 0 + player.radius) {//左方向
-				atackSpeed = { -atackSpeed.x,atackSpeed.y };
+				atackSpeed.x =  -atackSpeed.x*0.9;
 			}
 			if (player.center.x >= boundPoint.x - player.radius) {//右方向
-				atackSpeed = { -atackSpeed.x,atackSpeed.y };
+				atackSpeed.x = -atackSpeed.x * 0.9;
 			}
 			if (player.center.y <= player.radius) {//上方向
-				atackSpeed = { atackSpeed.x,-atackSpeed.y };
+				atackSpeed.y = -atackSpeed.y * 0.9;
 			}
 			if (player.center.y >= boundPoint.y - player.radius) {//下方向
-				atackSpeed = { atackSpeed.x,-atackSpeed.y };
+				atackSpeed.y = -atackSpeed.y * 0.9;
 			}
 
 			if (pattern == 0) {
@@ -534,14 +536,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					nucleus[i].color = WHITE;
 				}
 			}
-			if (Novice::IsPressButton(0, kPadButton8) || keys[DIK_SPACE]) {
+			if (Novice::IsPressButton(0, kPadButton10) || keys[DIK_SPACE]) {
 
 				PressCount++;
 				//ゲージ
-				playerSpeed = PressCount % 30;
+				playerSpeed = PressCount *4;
 
 				if (pattern <= 1 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
 					gaugeRight.x = 30 + playerSpeed;
+				}
+				if (PressCount >= 20) {
+					PressCount = 0;
 				}
 			}
 			//スペースを押してなおかつ止まっているとき
@@ -573,9 +578,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//プレイヤーを飛ばす
 				if (pattern <= 2) {
 
-					playerSpeed *= 4;
+					
 					mouse = { (float)mouseX + scroll.x,(float)mouseY + scroll.y };
-					PressCount = 0;
 					playerAngle = VectorProduct(mouse, player.center);
 					atackSpeed = Multiply(Normalais(playerAngle), playerSpeed);
 
@@ -595,7 +599,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//最期の点を求めてから最初の点に戻る
 			if (pattern == 3) {
 				if (playerEndSpeed <= 1.0) {
-					playerEndSpeed += 1 / 60.0f;
+					playerEndSpeed += 0.1f;
 				}
 				player.center.x = learp(easeInSine(playerEndSpeed), line.end.x, line.start.x);
 				player.center.y = learp(easeInSine(playerEndSpeed), line.end.y, line.start.y);
@@ -637,7 +641,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				Vector2 triangleDown = Add(line.start, lineStartToVertexAngle);
 
 				if (triangleSpeed <= 1.0) {
-					triangleSpeed += 1 / 30.0f;
+					triangleSpeed += 0.15;
 				}
 
 				line.end.x = learp(easeInSine(triangleSpeed), preLineEnd.x, triangleTop.x);
@@ -752,7 +756,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						throwPos[i].x = (Start[i].x + End[i].x + Vertex[i].x) / 3;
 						throwPos[i].y = (Start[i].y + End[i].y + Vertex[i].y) / 3;
 
-						playertheta[i] += 1 / 60.0f;
+						playertheta[i] += 1 / 30.0f;
 						theta += 1 / 10.0f;
 						throwPos[i] = { player.center.x + cosf(playertheta[i]) * 60,player.center.y + sinf(playertheta[i]) * 60 };
 						Matrix2x2 rotateMatrix = MakeRotateMatrix(theta);
@@ -973,20 +977,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (beamAttackchange > 10) {
 				beamAttackchange = 0;
 			}
-
+			
 			if (atackFlag == true) {
 				atackCount++;
-				Vector2 lineCenterSS = { (beam2.pos.x + beam3.pos.x) / 2.0f, (beam2.pos.y + beam3.pos.y) / 2.0f };
-				Vector2 lineCenterEE = { (beam2.EndPos.x + beam3.EndPos.x) / 2.0f, (beam2.EndPos.y + beam3.EndPos.y) / 2.0f };
-				Vector2 lineCenterSE1 = { (beam2.pos.x + beam2.EndPos.x) / 2.0f, (beam2.pos.y + beam2.EndPos.y) / 2.0f };
-				Vector2 lineCenterSE2 = { (beam3.pos.x + beam3.EndPos.x) / 2.0f, (beam3.pos.y + beam3.EndPos.y) / 2.0f };
-
-				Vector2 lineCenterSS2 = { (beam5.pos.x + beam6.pos.x) / 2.0f, (beam5.pos.y + beam6.pos.y) / 2.0f };
-				Vector2 lineCenterEE2 = { (beam5.EndPos.x + beam6.EndPos.x) / 2.0f, (beam5.EndPos.y + beam6.EndPos.y) / 2.0f };
-				Vector2 lineCenterSE3 = { (beam5.pos.x + beam5.EndPos.x) / 2.0f, (beam5.pos.y + beam5.EndPos.y) / 2.0f };
-				Vector2 lineCenterSE4 = { (beam6.pos.x + beam6.EndPos.x) / 2.0f, (beam6.pos.y + beam6.EndPos.y) / 2.0f };
-
-
+			
 				starttoEnd = VectorProduct(beam2.pos, beam2.EndPos);
 				toplayerB1 = VectorProduct(player.center, beam2.pos);
 				exteriorB1 = Product(starttoEnd, toplayerB1);
@@ -1033,6 +1027,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					exteriorB1S > 0.0f && exteriorB2S > 0.0f && exteriorB3S > 0.0f && exteriorB4S > 0.0f || exteriorB1S < 0.0f && exteriorB2S < 0.0f && exteriorB3S < 0.0f && exteriorB4S < 0.0f) {
 					//自機の生死フラグ = false;
 					Novice::ScreenPrintf(40, 40, "Hit");
+					beemHit = true;
 				}
 			}
 
@@ -1043,8 +1038,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//デバッグ用エンターで戻す
-			if (Novice::IsPressButton(0, kPadButton11) || preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
+			if (Novice::IsPressButton(0, kPadButton8) || preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
 				pattern = 0;
+				beemHit = false;
 				for (int i = 0; i < nucleusSuctionCount; i++) {
 					throwFlag[i] = false;
 				}
@@ -1146,11 +1142,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					Novice::DrawEllipse(enemy[i].center.x - scroll.x, enemy[i].center.y - scroll.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
 				}
 			}
-
+			if (beemHit == true) {
+				Novice::ScreenPrintf(30, 100, "HiT");
+			}
 			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, WhiteP, WHITE);
 
 		}
-
+		
 		///
 		/// ↑描画処理ここまで
 		///

@@ -44,7 +44,7 @@
     <ClCompile Include="Boss2.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
-     <ClCompile Include="matrix.cpp">
+    <ClCompile Include="matrix.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
   </ItemGroup>
