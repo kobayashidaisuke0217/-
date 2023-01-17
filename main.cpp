@@ -6,6 +6,7 @@
 
 const char kWindowTitle[] = "LC1B_08_コバヤシダイスケ";
 
+
 struct Circle {
 	Vector2 center;//中心
 	float radius;//半径
