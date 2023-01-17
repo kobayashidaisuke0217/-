@@ -41,9 +41,6 @@
     <ClCompile Include="Vec2.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
-    <ClCompile Include="Boss2.cpp">
-      <Filter>KamataEngine</Filter>
-    </ClCompile>
     <ClCompile Include="matrix.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
@@ -130,6 +127,5 @@
     <ClInclude Include="collisionfunc.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Boss3.h" />
-    <ClInclude Include="Boss2.h" />
   </ItemGroup>
 </Project>

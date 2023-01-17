@@ -197,6 +197,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	beam6.EndPos = { 0,0 };
 
 	int atackFlag = false;
+	int beamMode = 0;//0で十字、1で薙ぎ払い
 	int preAtack = false;
 	int atackCount = 0;
 	int preCount = 0;
@@ -333,6 +334,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		1920.0f,1080.0f
 	};
 
+	Vector2 randshake;
+	randshake.x = 0;
+	randshake.y = 0;
+
+	int stunOnFlag = false;
+	int shakeTimer = 60;//シェイク時間60
+
 	//ゲージ
 	Vector2 gaugeleft = { 30,30 };
 	Vector2 gaugeRight{ 30,30 };
@@ -394,6 +402,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int stickNo = 0;
 
 	bool beemHit = false;
+
+	float thetaBeam = 1.0f / 8.0f * M_PI;
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -416,6 +427,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
+		if (keys[DIK_Z]) {
+			gamemode = 2;
+		}
+		if (keys[DIK_X]) {
+			gamemode = 3;
+		}
+		if (keys[DIK_C]) {
+			stunOnFlag = true;
+		}
 
 		if (gamemode >= 1) {//ゲームスタート
 			if (gamemode == 1) {//ステージ1
@@ -430,19 +450,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				/*if (Novice::IsTriggerButton(0, kPadButton11) || keys[DIK_V]) {
 					gamemode = 2;
 				}*/
-				if (player.center.x >= 1000) {
-					gamemode = 2;
-				}
-				/*if (Novice::IsTriggerButton(0, kPadButton11) || keys[DIK_V]) {
-					gamemode = 2;
-				}*/
-				if (player.center.x >= 1000) {
+				if (player.center.x >= 2000) {
 					gamemode = 2;
 				}
 			}
 			if (gamemode == 2) {//ステージ2
 				scrollMode = 1;
 				beamAtackStart = true;
+				beamMode = 0;
 				for (int i = 0; i < enemyNum; i++) {
 					enemyAlive[i] = false;
 				}
@@ -450,6 +465,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				enemy[0].center.x = 1280;
 				enemy[0].center.y = 720;
 			}
+			if (gamemode == 3) {
+
+			}
+
+			Novice::ScreenPrintf(0, 0, "%d,%d", beamPoint[0].center.x, beamPoint[0].center.y);
 
 			if (scrollMode == 0) {
 				boundPoint = { 2559,719 };
@@ -457,7 +477,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (scrollMode == 1) {
 				boundPoint = { 2559,1439 };
 			}
-//プレイヤーの操作
+			//プレイヤーの操作
 			if (pattern == 0 || pattern == 5) {
 				if (leftx < -10000 || keys[DIK_A] != 0) {
 					player.center.x -= player.speed;
@@ -518,7 +538,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			////画面端で跳ね返る
 			if (player.center.x <= 0 + player.radius) {//左方向
-				atackSpeed.x =  -atackSpeed.x*0.9;
+				atackSpeed.x = -atackSpeed.x * 0.9;
 			}
 			if (player.center.x >= boundPoint.x - player.radius) {//右方向
 				atackSpeed.x = -atackSpeed.x * 0.9;
@@ -543,7 +563,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				PressCount++;
 				//ゲージ
-				playerSpeed = PressCount *4;
+				playerSpeed = PressCount * 4;
 
 				if (pattern <= 1 && atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f) {
 					gaugeRight.x = 30 + playerSpeed;
@@ -581,7 +601,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//プレイヤーを飛ばす
 				if (pattern <= 2) {
 
-					
+
 					mouse = { (float)mouseX + scroll.x,(float)mouseY + scroll.y };
 					playerAngle = VectorProduct(mouse, player.center);
 					atackSpeed = Multiply(Normalais(playerAngle), playerSpeed);
@@ -890,9 +910,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 
+			//スタン
+			if (stunOnFlag == true) {
+				pattern = 5;
+				shakeTimer--;
+				if (shakeTimer <= 255 && shakeTimer > 0) {
+					randshake.x = rand() % 11 - 5;
+					randshake.y = rand() % 11 - 5;
+				}
+				if (shakeTimer < 0) {
+					shakeTimer = 60;
+					stunOnFlag = false;
+				}
+			}
+
 			//ビーム
 			if (beamAtackStart == true) {
-				if (atackFlag == false) {
+				if (atackFlag == false && beamMode == 0) {
 					preCount++;
 				}
 				if (preCount == 60) {
@@ -1065,9 +1099,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 		//Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 0 - scroll.y, stage[0], 1, 1, 0.0f, GREEN);
-		Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 0 - scroll.y, stage[1], 1, 1, 0.0f, 0xFFFFFFFF);
-		Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 1 - scroll.y, stage[2], 1, 1, 0.0f, 0xFFFFFFFF);
-		Novice::DrawSprite(1280 * 1 - scroll.x, 720 * 1 - scroll.y, stage[3], 1, 1, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(1280 * 1 - scroll.x + randshake.x, 720 * 0 - scroll.y + randshake.y, stage[1], 1, 1, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(1280 * 0 - scroll.x + randshake.x, 720 * 1 - scroll.y + randshake.y, stage[2], 1, 1, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(1280 * 1 - scroll.x + randshake.x, 720 * 1 - scroll.y + randshake.y, stage[3], 1, 1, 0.0f, 0xFFFFFFFF);
 
 		if (gamemode == 0) {//ゲーム開始画面
 
@@ -1079,71 +1113,71 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			if (pattern == 1) {
-				Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, player.center.x - scroll.x, player.center.y - scroll.y, WHITE);
+				Novice::DrawLine(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, player.center.x - scroll.x + randshake.x, player.center.y - scroll.y + randshake.y, WHITE);
 			}
 			if (pattern == 2) {
-				Novice::DrawLine(player.center.x - scroll.x, player.center.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
-				Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
+				Novice::DrawLine(player.center.x - scroll.x + randshake.x, player.center.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
+				Novice::DrawLine(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
 			}
 			if (pattern == 3) {
-				Novice::DrawLine(line.end.x - scroll.x, line.end.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
-				Novice::DrawLine(line.start.x - scroll.x, line.start.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE);
-				Novice::DrawLine(line.end.x - scroll.x, line.end.y - scroll.y, player.center.x - scroll.x, player.center.y - scroll.y, WHITE);
+				Novice::DrawLine(line.end.x - scroll.x + randshake.x, line.end.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
+				Novice::DrawLine(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
+				Novice::DrawLine(line.end.x - scroll.x + randshake.x, line.end.y - scroll.y + randshake.y, player.center.x - scroll.x + randshake.x, player.center.y - scroll.y + randshake.y, WHITE);
 			}
 			if (pattern == 4) {
-				Novice::DrawTriangle(line.start.x - scroll.x, line.start.y - scroll.y, line.end.x - scroll.x, line.end.y - scroll.y, line.vertex.x - scroll.x, line.vertex.y - scroll.y, WHITE, kFillModeWireFrame);
+				Novice::DrawTriangle(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, line.end.x - scroll.x + randshake.x, line.end.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE, kFillModeWireFrame);
 			}
 			for (int i = 0; i < nucleusSuctionCount; i++) {
 				if (pattern == 5) {
 					if (throwFlag[i] == false) {
-						Novice::DrawTriangle(Start[i].x - scroll.x, Start[i].y - scroll.y, End[i].x - scroll.x, End[i].y - scroll.y, Vertex[i].x - scroll.x, Vertex[i].y - scroll.y, WHITE, kFillModeWireFrame);
+						Novice::DrawTriangle(Start[i].x - scroll.x + randshake.x, Start[i].y - scroll.y + randshake.y, End[i].x - scroll.x + randshake.x, End[i].y - scroll.y + randshake.y, Vertex[i].x - scroll.x + randshake.x, Vertex[i].y - scroll.y + randshake.y, WHITE, kFillModeWireFrame);
 					}//Novice::DrawTriangle(Start[i].x - scroll.x, Start[i].y - scroll.y, End[i].x - scroll.x, End[i].y - scroll.y, Vertex[i].x - scroll.x, Vertex[i].y - scroll.y, WHITE, kFillModeWireFrame);
 
 				}
 
 				if (throwDamageFlag[i] == true) {
-					Novice::DrawTriangle(Start[i].x - scroll.x, Start[i].y - scroll.y, End[i].x - scroll.x, End[i].y - scroll.y, Vertex[i].x - scroll.x, Vertex[i].y - scroll.y, WHITE, kFillModeWireFrame);
-					Novice::DrawEllipse(throwPos[i].x - scroll.x, throwPos[i].y - scroll.y, hitradius[i], hitradius[i], 0, RED, kFillModeWireFrame);
+					Novice::DrawTriangle(Start[i].x - scroll.x + randshake.x, Start[i].y - scroll.y + randshake.y, End[i].x - scroll.x + randshake.x, End[i].y - scroll.y + randshake.y, Vertex[i].x - scroll.x + randshake.x, Vertex[i].y - scroll.y + randshake.y, WHITE, kFillModeWireFrame);
+					Novice::DrawEllipse(throwPos[i].x - scroll.x + randshake.x, throwPos[i].y - scroll.y + randshake.y, hitradius[i], hitradius[i], 0, RED, kFillModeWireFrame);
 				}
 			}
 			for (int i = 0; i < bulletNum; i++) {//弾
 				if (bulletOnFlag[i] == true) {
-					Novice::DrawEllipse(bullet[i].center.x - scroll.x, bullet[i].center.y - scroll.y, bullet[i].radius, bullet[i].radius, 0.0f, BLACK, kFillModeSolid);
+					Novice::DrawEllipse(bullet[i].center.x - scroll.x + randshake.x, bullet[i].center.y - scroll.y + randshake.y, bullet[i].radius, bullet[i].radius, 0.0f, BLACK, kFillModeSolid);
 				}
 			}
 
 			if (playerFlag == true) {//自機(仮)
 				float monitorx = player.center.x - scroll.x;
 				float monitory = player.center.y - scroll.y;
-				Novice::DrawEllipse(monitorx, monitory, player.radius, player.radius, 0.0f, player.color, kFillModeSolid);
-				Novice::DrawEllipse(monitorx + mouseX / 1000, monitory + mouseY / 1000, 10, 10, 0, WHITE, kFillModeSolid);
+				Novice::DrawEllipse(monitorx + randshake.x, monitory + randshake.y, player.radius, player.radius, 0.0f, player.color, kFillModeSolid);
+				Novice::DrawEllipse(monitorx + mouseX / 1000 + randshake.x, monitory + mouseY / 1000 + randshake.y, 10, 10, 0, WHITE, kFillModeSolid);
 			}
 
 			for (int i = 0; i < max; i++) {
 				if (nucleusSuctionFlag[i] == false) {
-					Novice::DrawEllipse(nucleus[i].center.x - scroll.x, nucleus[i].center.y - scroll.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
+					Novice::DrawEllipse(nucleus[i].center.x - scroll.x + randshake.x, nucleus[i].center.y - scroll.y + randshake.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
 				}
 				else {
-					Novice::DrawEllipse(nucleusSuctionPos[i].x - scroll.x, nucleusSuctionPos[i].y - scroll.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
+					Novice::DrawEllipse(nucleusSuctionPos[i].x - scroll.x + randshake.x, nucleusSuctionPos[i].y - scroll.y + randshake.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
 				}
 			}
 
 			if (atackFlag == true) {//ビーム
-				Novice::DrawQuad(beam2.pos.x - scroll.x, beam2.pos.y - scroll.y, beam2.EndPos.x - scroll.x, beam2.EndPos.y - scroll.y, beam3.pos.x - scroll.x, beam3.pos.y - scroll.y, beam3.EndPos.x - scroll.x, beam3.EndPos.y - scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
+				Novice::DrawQuad(beam2.pos.x - scroll.x + randshake.x, beam2.pos.y - scroll.y + randshake.y, beam2.EndPos.x - scroll.x + randshake.x, beam2.EndPos.y - scroll.y + randshake.y, beam3.pos.x - scroll.x + randshake.x, beam3.pos.y - scroll.y + randshake.y, beam3.EndPos.x - scroll.x + randshake.x, beam3.EndPos.y - scroll.y + randshake.y, 0, 0, 1, 1, WhiteP, WHITE);
 			}
 			if (atackFlag == true) {//ビーム2
-				Novice::DrawQuad(beam5.pos.x - scroll.x, beam5.pos.y - scroll.y, beam5.EndPos.x - scroll.x, beam5.EndPos.y - scroll.y, beam6.pos.x - scroll.x, beam6.pos.y - scroll.y, beam6.EndPos.x - scroll.x, beam6.EndPos.y - scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
+				Novice::DrawQuad(beam5.pos.x - scroll.x + randshake.x, beam5.pos.y - scroll.y + randshake.y, beam5.EndPos.x - scroll.x + randshake.x, beam5.EndPos.y - scroll.y + randshake.y, beam6.pos.x - scroll.x + randshake.x, beam6.pos.y - scroll.y + randshake.y, beam6.EndPos.x - scroll.x + randshake.x, beam6.EndPos.y - scroll.y + randshake.y, 0, 0, 1, 1, WhiteP, WHITE);
 			}
 
 			for (int i = 0; i < beamNum; i++) {//ビームポイント
 				if (beamAlive[i] == true) {
-					Novice::DrawEllipse(beamPoint[i].center.x - scroll.x, beamPoint[i].center.y - scroll.y, beamPoint[i].radius, beamPoint[i].radius, 0, beamPoint[i].color, kFillModeSolid);
+					Novice::DrawEllipse(beamPoint[i].center.x - scroll.x + randshake.x, beamPoint[i].center.y - scroll.y + randshake.y, beamPoint[i].radius, beamPoint[i].radius, 0, beamPoint[i].color, kFillModeSolid);
 				}
 			}
 
 			for (int i = 0; i < enemyNum; i++) {//敵
 				if (enemyAlive[i] == true) {
-					Novice::DrawEllipse(enemy[i].center.x - scroll.x, enemy[i].center.y - scroll.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
+					Novice::DrawEllipse(enemy[i].center.x - scroll.x + randshake.x, enemy[i].center.y - scroll.y + randshake.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
 				}
 			}
 			if (beemHit == true) {
@@ -1152,7 +1186,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, WhiteP, WHITE);
 
 		}
-		
+
 		///
 		/// ↑描画処理ここまで
 		///
