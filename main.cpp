@@ -749,6 +749,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							nucleus[i].center.x = learp(easeInSine(triangleSpeed), nucleusPrePos[i].x, line.start.x);
 							nucleus[i].center.y = learp(easeInSine(triangleSpeed), nucleusPrePos[i].y, line.start.y);
 							nucleus[i].radius = learp(easeInSine(triangleSpeed), 32, 0);
+							if (triangleSpeed >= 1.0f) {
+								triangleSpeed = 1;
+							}
 
 							nucleusSuctionPos[i].x = (line.start.x + line.end.x + line.vertex.x) / 3;
 							nucleusSuctionPos[i].y = (line.start.y + line.end.y + line.vertex.y) / 3;
@@ -914,6 +917,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (stunOnFlag == true) {
 				pattern = 5;
 				shakeTimer--;
+				atackSpeed = { 0,0 };
 				if (shakeTimer <= 255 && shakeTimer > 0) {
 					randshake.x = rand() % 11 - 5;
 					randshake.y = rand() % 11 - 5;
