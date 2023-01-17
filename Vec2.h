@@ -22,6 +22,7 @@ typedef struct Beam {
 	float size;
 	Vector2  radian;
 	Vector2 flag;
+	
 };
 
 //’·‚³‚ÌŒvZ
@@ -38,4 +39,4 @@ Vector2 Add(const Vector2& a, const Vector2& b);
 //ŠOÏ‚ğ‹‚ß‚é
 
 Vector2 VectorProduct(const Vector2& a, const Vector2& b);
-float  Product(const Vector2& a, const Vector2& b);
+float  Product(const Vector2& a, const Vector2& b,const Vector2&c);

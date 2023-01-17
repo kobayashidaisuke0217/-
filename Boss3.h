@@ -19,10 +19,7 @@ typedef struct Baria {
 typedef struct Boss3 {
 	Vector2 Pos;
 	float radius;
-	Vector2 leftTop;
-	Vector2 rightTop;
-	Vector2 leftDown;
-	Vector2 rightDown;
+	
 	int HP;
 	int isAlive;
 	int patten;

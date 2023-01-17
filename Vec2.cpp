@@ -30,6 +30,8 @@ Vector2 Add(const Vector2& a, const Vector2& b) {
 Vector2 VectorProduct(const Vector2& a, const Vector2& b) {
 	return { a.x - b.x,a.y - b.y };
 }
-float  Product(const Vector2& a, const Vector2& b) {
-	return a.x * b.y - a.y * b.x;
+float  Product(const Vector2& a, const Vector2& b,const Vector2&c) {
+	Vector2 A= VectorProduct(a, b);
+	Vector2 B = VectorProduct(c, a);
+	return A.x * B.y - A.y * B.x;
 }

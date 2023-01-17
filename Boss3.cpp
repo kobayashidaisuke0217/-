@@ -1,10 +1,7 @@
 #include "Boss3.h"
 void Boss3reset(Boss3& boss, Baria& baria) {
 	boss.patten = 0;
-	boss.leftDown = { 0, 0};
-	boss.leftTop = { 0,0 };
-	boss.rightDown = { 0,0 };
-	boss.rightTop = { 0,0 };
+	
 	boss.Pos = { 1280,720 };
 	boss.radius = 128;
 	boss.HP = 100;
