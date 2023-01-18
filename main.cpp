@@ -3,30 +3,10 @@
 #include "collisionfunc.h"
 
 #include "matrix.h"
-
+#include "struct.h"
 const char kWindowTitle[] = "LC1B_08_コバヤシダイスケ";
 
 
-struct Circle {
-	Vector2 center;//中心
-	float radius;//半径
-	float speed;//速度
-	unsigned int color;
-	int HP;
-};
-
-struct Bullet {
-	Vector2 center;
-	float radius;
-	Vector2 speed;
-	unsigned int color;
-};
-
-struct Line {
-	Vector2 start;
-	Vector2 vertex;
-	Vector2 end;
-};
 
 float easeInSine(float x) {
 	return 1.0f - cosf((x * M_PI) / 2.0f);
@@ -184,39 +164,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	Vector2 beemStart = { 0 };
 
-	/*Beam beam2;
-
-	beam2.pos = { 0,0 };
-	beam2.angle = { 0,0 };
-	beam2.radian = { 0,0 };
-	beam2.EndPos = { 0,0 };
-
-	Beam beam3;
-	beam3.pos = { 0,0 };
-	beam3.angle = { 0,0 };
-	beam3.radian = { 0,0 };
-	beam3.EndPos = { 0,0 };
-
-	Beam beam4;
-	beam4.pos = { 0,0 };
-	beam4.angle = { 0 };
-	beam4.radian = { 0 };
-	beam4.EndPos = { 0,0 };
-
-	beam4.size = 0;
-
-	Beam beam5;
-
-	beam5.pos = { 0,0 };
-	beam5.angle = { 0,0 };
-	beam5.radian = { 0,0 };
-	beam5.EndPos = { 0,0 };
-
-	Beam beam6;
-	beam6.pos = { 0,0 };
-	beam6.angle = { 0,0 };
-	beam6.radian = { 0,0 };
-	beam6.EndPos = { 0,0 };*/
 
 	int atackFlag = false;
 	int beamMode = 0;//0で十字、1で薙ぎ払い
@@ -242,22 +189,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector2 toplayerB4 [4] = {0};
 	float exteriorB4[4] = { 0 };
 
-	/*Vector2 starttoEndS = { 0 };
-	Vector2 toplayerB1S = { 0 };
-	float exteriorB1S = 0;
+	float exteriorltB1[4] = { 0 };
+	float exteriorltB2[4] = { 0 };
+	float exteriorltB3[4] = { 0 };
+	float exteriorltB4[4] = { 0 };
 
-	Vector2 starttoEnd2S = { 0 };
-	Vector2 toplayerB2S = { 0 };
-	float exteriorB2S = { 0 };
+	float exteriorrtB1[4] = { 0 };
+	float exteriorrtB2[4] = { 0 };
+	float exteriorrtB3[4] = { 0 };
+	float exteriorrtB4[4] = { 0 };
 
-	Vector2 endtoEndS = { 0 };
-	Vector2 toplayerB3S = { 0 };
-	float exteriorB3S = 0;
+	float exteriorldB1[4] = { 0 };
+	float exteriorldB2[4] = { 0 };
+	float exteriorldB3[4] = { 0 };
+	float exteriorldB4[4] = { 0 };
 
-	Vector2 starttoStartS = { 0 };
-	Vector2 toplayerB4S = { 0 };
-	float exteriorB4S = 0;*/
-
+	float exteriorrdB1[4] = { 0 };
+	float exteriorrdB2[4] = { 0 };
+	float exteriorrdB3[4] = { 0 };
+	float exteriorrdB4[4] = { 0 };
 	Line line = {
 		{1000.0f,700.0f},
 		{500.0f,400.0f},
@@ -493,8 +443,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (gamemode == 3) {
 
 			}
-
-			Novice::ScreenPrintf(0, 0, "%d,%d", beamPoint[0].center.x, beamPoint[0].center.y);
 
 			if (scrollMode == 0) {
 				boundPoint = { 2559,719 };
@@ -1019,15 +967,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				if (atackFlag == true) {
 					atackCount++;
-
+					Vector2 PleftTop = { player.center.x - player.radius + 2,player.center.y - player.radius+2 };
+					Vector2 PleftDown = { player.center.x - player.radius+2,player.center.y + player.radius-2 };
+					Vector2 PrightTop = { player.center.x + player.radius-2,player.center.y - player.radius+2 };
+					Vector2 PrightDown = { player.center.x + player.radius-2,player.center.y + player.radius-2 };
 					
 					for (int i = 0; i < 4; i++) {
-						exteriorB1[i] = Product(BTop[i].pos, BTop[i].EndPos,player.center);
-						exteriorB2[i] = Product(BTop[i].EndPos, BDown[i].EndPos, player.center);
-						exteriorB3[i] = Product(BDown[i].EndPos, BDown[i].pos, player.center);
-						exteriorB4[i] = Product(BDown[i].pos, BTop[i].pos, player.center);
-						if (RectColisionHit(exteriorB1[i], exteriorB2[i],exteriorB3[i],exteriorB4[i])==true) {
-							//自機の生死フラグ = false;
+					
+						if(RectCollisionHit(beam[i].pos,beam[i].EndPos,player.center,32,player.radius)==true){//自機の生死フラグ = false;
 						Novice::ScreenPrintf(40, 40, "Hit");
 						beemHit = true;
 				}

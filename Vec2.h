@@ -25,6 +25,12 @@ typedef struct Beam {
 	
 };
 
+typedef struct nLine {
+	Vector2 start;
+	Vector2 end;
+	unsigned int color;
+};
+
 //長さの計算
 float Length(const Vector2& a);
 //ベクトルの正規化
@@ -40,3 +46,6 @@ Vector2 Add(const Vector2& a, const Vector2& b);
 
 Vector2 VectorProduct(const Vector2& a, const Vector2& b);
 float  Product(const Vector2& a, const Vector2& b,const Vector2&c);
+//内積
+float Dot(const Vector2* lhs, const Vector2* rhs);
+Vector2 ClosestPoint(const nLine* line, const Vector2* point);

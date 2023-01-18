@@ -25,8 +25,13 @@ bool CircleCollisinDistance(const Object& a, const Object& b, const int d) {
 		return false;
 	}
 }
-bool RectColisionHit(float &a, float &b, float &c, float &d) {
-	if (a >= 0.0f && b > 0.0f && c > 0.0f && d > 0.0f || a < 0.0f && b < 0.0f && c < 0.0f && d < 0.0f) {
+bool RectCollisionHit(const Vector2& start, const Vector2& end, const Vector2& pos, const float& radius, const float& radius2) {
+	nLine capsuleLine = { start, end, WHITE };
+	Vector2 closestPoint = ClosestPoint(&capsuleLine, &pos);
+	Vector2 closestPointToCenter = {
+	  pos.x - closestPoint.x, pos.y - closestPoint.y };
+	float sumRadius = radius + radius2;
+	if (Dot(&closestPointToCenter, &closestPointToCenter) < sumRadius * sumRadius) {
 		return true;
 	}
 	else {
