@@ -967,11 +967,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				if (atackFlag == true) {
 					atackCount++;
-					Vector2 PleftTop = { player.center.x - player.radius + 2,player.center.y - player.radius+2 };
-					Vector2 PleftDown = { player.center.x - player.radius+2,player.center.y + player.radius-2 };
-					Vector2 PrightTop = { player.center.x + player.radius-2,player.center.y - player.radius+2 };
-					Vector2 PrightDown = { player.center.x + player.radius-2,player.center.y + player.radius-2 };
-					
+				
 					for (int i = 0; i < 4; i++) {
 					
 						if(RectCollisionHit(beam[i].pos,beam[i].EndPos,player.center,32,player.radius)==true){//自機の生死フラグ = false;
