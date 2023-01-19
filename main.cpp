@@ -4,6 +4,7 @@
 
 #include "matrix.h"
 #include "struct.h"
+#include "Boss3.h"
 const char kWindowTitle[] = "LC1B_08_コバヤシダイスケ";
 
 
@@ -377,9 +378,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float thetaBeam = 1.0f / 8.0f * M_PI;
 
 
-
-
+	//ボス
+	Boss3 rastboss;
+	Baria rasBossBaria;
 	
+	rastboss.patten = 0;
+
+	rastboss.Pos = { 1280,720 };
+	rastboss.radius = 128;
+	rastboss.HP = 100;
+	rastboss.isAlive = true;
+	rasBossBaria.alpha = 0;
+	rasBossBaria.breakCount = 0;
+	rasBossBaria.count = 0;
+	rasBossBaria.Flag = false;
+	rasBossBaria.HP = 0;
+	rasBossBaria.pos = { 0,0 };
+	rasBossBaria.leftTop = { 0,0 };
+	rasBossBaria.rightTop = { 0,0 };
+	rasBossBaria.leftDown = { 0,0 };
+	rasBossBaria.rightDown = { 0, 0 };
+	rasBossBaria.isAlive = false;
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -400,6 +419,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]) {
 				gamemode = 1;
 			}
+			Boss3Reset(rastboss,rasBossBaria);
 		}
 
 		if (keys[DIK_Z]) {
@@ -441,13 +461,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				enemy[0].center.y = 720;
 			}
 			if (gamemode == 3) {
+				for (int i = 0; i < enemyNum; i++) {
+					enemyAlive[i] = false;
+				}
+				scrollMode = 1;
 
+				if (rastboss.isAlive == true) {
+					if (CircleCollisinHit(player.center, player.radius, rastboss.Pos, rastboss.radius) == true) {
+						atackSpeed = { 0,0 };
+						pattern = 0;
+					}
+				}
 			}
 
 			if (scrollMode == 0) {
 				boundPoint = { 2559,719 };
 			}
-			if (scrollMode == 1) {
+			if (scrollMode >= 1) {
 				boundPoint = { 2559,1439 };
 			}
 			//プレイヤーの操作
@@ -523,8 +553,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (player.center.y >= boundPoint.y - player.radius) {//下方向
 				atackSpeed.y = -atackSpeed.y * 0.8;
 			}
-
-			if (pattern == 0) {
+			for (int i = 0; i < enemyNum; i++) {
+				if (enemyAlive[i] == true) {
+					if (CircleCollisinHit(player.center, player.radius, enemy[i].center, enemy[i].radius) == true) {
+						atackSpeed = { 0,0 };
+						pattern = 0;
+					}
+				}
+			}
+				if (pattern == 0) {
 				atackSpeed = { 0,0 };
 				for (int i = 0; i < max; i++) {
 					nucleus[i].center = nucleusPrePos[i];
@@ -1099,7 +1136,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, WhiteP, WHITE);
 
 		}
-
+		 if (gamemode == 3) {
+			Novice::DrawEllipse(rastboss.Pos.x-scroll.x, rastboss.Pos.y-scroll.y, rastboss.radius, rastboss.radius, 0, RED, kFillModeWireFrame);
+			Novice::ScreenPrintf(30, 300, "stage3");
+		}
 		///
 		
 		/// ↑描画処理ここまで

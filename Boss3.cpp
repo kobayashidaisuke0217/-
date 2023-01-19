@@ -1,19 +1,28 @@
 #include "Boss3.h"
-void Boss3reset(Boss3& boss, Baria& baria) {
+void Boss3Reset(Boss3& boss, Baria& baria) {
 	boss.patten = 0;
-	
+
 	boss.Pos = { 1280,720 };
 	boss.radius = 128;
 	boss.HP = 100;
 	boss.isAlive = true;
 	baria.alpha = 0;
+	baria.breakCount = 0;
+	baria.count = 0;
+	baria.Flag = false;
+	baria.HP = 0;
+	baria.pos = { 0,0 };
+	baria.leftDown = { 0,0 };
+	baria.leftTop = { 0,0 };
+	baria.rightDown = { 0,0 };
+	baria.rightTop = { 0,0 };
 }
 void BossAtackRotatet(Boss3 &a, Vector2 &player) {
 
 }
 
 
-void BossBaria(Boss3& a,Vector2 &Atack,float &atackRadius ,Baria &baria,bool &AtackFlag) {
+void BossBaria(Boss3& a,Vector2 &Atack,float &atackRadius ,Baria &baria,bool &AtackFlag,int &atackCount) {
 	if (baria.isAlive == true) {
 		baria.count++;
 		if (baria.alpha > 0) {
@@ -33,7 +42,7 @@ void BossBaria(Boss3& a,Vector2 &Atack,float &atackRadius ,Baria &baria,bool &At
 			baria.isAlive = false;
 		}
    }
-	if (baria.count >= 240) {
+	if (baria.count >= 480) {
 		baria.count = 0;
 	}
 	if (baria.isAlive == false) {
@@ -41,6 +50,7 @@ void BossBaria(Boss3& a,Vector2 &Atack,float &atackRadius ,Baria &baria,bool &At
 	}
 	if (baria.breakCount >= 500) {
 		baria.breakCount = 0;
+		baria.HP = 5;
 		baria.isAlive = true;
 	}
 }

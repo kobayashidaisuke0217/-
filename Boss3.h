@@ -23,6 +23,7 @@ typedef struct Boss3 {
 	int HP;
 	int isAlive;
 	int patten;
+	int BossRandCount;
 	enum choice {
 		rotate,
 		baria,
@@ -30,7 +31,7 @@ typedef struct Boss3 {
 	};
 	
 };
-void Boss3Rest();
+void Boss3Reset(Boss3& boss,Baria &baria);
 void BossAtackRotate();
-void BossBaria();
+void BossBaria(Boss3& a, Vector2& Atack, float& atackRadius, Baria& baria, bool& AtackFlag, int& atackCoun);
 void BossPattern();
