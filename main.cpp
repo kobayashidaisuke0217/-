@@ -35,6 +35,16 @@ void randShake(Vector2& randam, int& count) {
 	}
 }
 
+
+unsigned int GetColor(int red, int green, int blue, int alpha) {
+	unsigned int hex = 0x00000000;
+	red = red << 24;
+	green = green << 16;
+	blue = blue << 8;
+	alpha = alpha << 0;
+
+	return hex = red + green + blue + alpha;
+}
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -174,41 +184,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int beamSize = 32;//ビームの太さ
 	int beamAttackchange = 0;//ビーム攻撃の場所変更
 
-	Vector2 starttoEnd[4] = {0};
-	Vector2 toplayerB1[4] = {0};
-	float exteriorB1[4] = { 0 };
-
-	Vector2 starttoEnd2[4] = {0};
-	Vector2 toplayerB2 [4] = {0};
-	float exteriorB2 [4] = {0};
-
-	Vector2 endtoEnd [4] = {0};
-	Vector2 toplayerB3 [4] = {0};
-	float exteriorB3[4] = { 0 };
-
-	Vector2 starttoStart [4] = {0};
-	Vector2 toplayerB4 [4] = {0};
-	float exteriorB4[4] = { 0 };
-
-	float exteriorltB1[4] = { 0 };
-	float exteriorltB2[4] = { 0 };
-	float exteriorltB3[4] = { 0 };
-	float exteriorltB4[4] = { 0 };
-
-	float exteriorrtB1[4] = { 0 };
-	float exteriorrtB2[4] = { 0 };
-	float exteriorrtB3[4] = { 0 };
-	float exteriorrtB4[4] = { 0 };
-
-	float exteriorldB1[4] = { 0 };
-	float exteriorldB2[4] = { 0 };
-	float exteriorldB3[4] = { 0 };
-	float exteriorldB4[4] = { 0 };
-
-	float exteriorrdB1[4] = { 0 };
-	float exteriorrdB2[4] = { 0 };
-	float exteriorrdB3[4] = { 0 };
-	float exteriorrdB4[4] = { 0 };
+	
 	Line line = {
 		{1000.0f,700.0f},
 		{500.0f,400.0f},
@@ -332,7 +308,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector2 throwPos[4];
 
 	float hitradius[4];
-	int throwDamageFlag[4] = { false };
+	bool throwDamageFlag[4] = { false };
 	for (int i = 0; i < 4; i++)
 	{
 		throwPos[i] = { 0,0 };
@@ -351,7 +327,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int triangleBreak = false;
 
-	int playerFlag = true;//自機生存フラグ
+	bool playerFlag = true;//自機生存フラグ
 
 	int enemyAlive[enemyNum] = { true };//敵生存フラグ
 	int enemyScreenIn[enemyNum];//敵が画面内に居るか
@@ -384,21 +360,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
 	rastboss.patten = 0;
 
-	rastboss.Pos = { 1280,720 };
+	rastboss.pos = { 1280,720 };
+	rastboss.pos = { 1280,720 };
+	rastboss.leftDown = { 0,0 };
+	rastboss.leftTop = { 0,0 };
+	rastboss.rightDown = { 0,0 };
+	rastboss.rightTop = { 0,0 };
 	rastboss.radius = 128;
 	rastboss.HP = 100;
 	rastboss.isAlive = true;
+
 	rasBossBaria.alpha = 0;
 	rasBossBaria.breakCount = 0;
 	rasBossBaria.count = 0;
 	rasBossBaria.Flag = false;
 	rasBossBaria.HP = 0;
 	rasBossBaria.pos = { 0,0 };
+	rasBossBaria.Endpos = { 0,0 };
 	rasBossBaria.leftTop = { 0,0 };
 	rasBossBaria.rightTop = { 0,0 };
 	rasBossBaria.leftDown = { 0,0 };
 	rasBossBaria.rightDown = { 0, 0 };
 	rasBossBaria.isAlive = false;
+	rasBossBaria.size = 00;
+
+
+
+	
+	
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -442,9 +431,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						enemy[i].speed *= -1;
 					}
 				}
-				/*if (Novice::IsTriggerButton(0, kPadButton11) || keys[DIK_V]) {
-					gamemode = 2;
-				}*/
+				
 				if (player.center.x >= 2000) {
 					gamemode = 2;
 				}
@@ -464,10 +451,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				for (int i = 0; i < enemyNum; i++) {
 					enemyAlive[i] = false;
 				}
+				BossBaria(rastboss, rasBossBaria);
+				for (int i = 0; i < nucleusSuctionCount; i++) {
+					BossBariaCollision(rasBossBaria,throwPos[i],hitradius[i],nucleusSuctionCount,throwDamageFlag[i]);
+				}
 				scrollMode = 1;
-
+				beamAtackStart = true;
+				beamMode = 0;
 				if (rastboss.isAlive == true) {
-					if (CircleCollisinHit(player.center, player.radius, rastboss.Pos, rastboss.radius) == true) {
+					if (CircleCollisinHit(player.center, player.radius, rastboss.pos, rastboss.radius) == true) {
 						atackSpeed = { 0,0 };
 						pattern = 0;
 					}
@@ -584,7 +576,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 			//スペースを押してなおかつ止まっているとき
-			if (Novice::IsTriggerButton(0, kPadButton9) || preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 /*&& atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f*/) {
+			if (Novice::IsTriggerButton(0, kPadButton9) || preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 ) {
 				//一つ目の点を求める
 				if (pattern == 0) {
 					playerEndSpeed = 0;
@@ -894,7 +886,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						bulletInductionTimer[i]--;
 						bulletAngle[i] = { (float)player.center.x - bullet[i].center.x, (float)player.center.y - bullet[i].center.y };
 					}
-					if (CircleCollisinHit(bullet[i].center, bullet[i].radius, player.center, player.radius) == true) {//ボールと弾がぶつかったとき
+					if (CircleCollisinHit(bullet[i].center, bullet[i].radius, player.center, player.radius) == true) {//プレイヤーと弾がぶつかったとき
 						//playerFlag = false;//生存判定をfalseにする
 						bulletInductionTimer[i] = 10;
 						bulletInductionOnFlag[i] = false;
@@ -1010,6 +1002,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						if(RectCollisionHit(beam[i].pos,beam[i].EndPos,player.center,32,player.radius)==true){//自機の生死フラグ = false;
 						Novice::ScreenPrintf(40, 40, "Hit");
 						beemHit = true;
+						atackSpeed.x = atackSpeed.x * 0.8;
+						atackSpeed.y = atackSpeed.y * 0.8;
 				}
 					}
 			
@@ -1137,8 +1131,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		}
 		 if (gamemode == 3) {
-			Novice::DrawEllipse(rastboss.Pos.x-scroll.x, rastboss.Pos.y-scroll.y, rastboss.radius, rastboss.radius, 0, RED, kFillModeWireFrame);
-			Novice::ScreenPrintf(30, 300, "stage3");
+			Novice::DrawEllipse(rastboss.pos.x-scroll.x, rastboss.pos.y-scroll.y, rastboss.radius, rastboss.radius, 0, RED, kFillModeWireFrame);
+			if (rasBossBaria.isAlive == true) {
+				Novice::DrawQuad(rasBossBaria.leftTop.x-scroll.x, rasBossBaria.leftTop.y - scroll.y, rasBossBaria.leftDown.x - scroll.x, rasBossBaria.leftDown.y - scroll.y, rasBossBaria.rightTop.x - scroll.x, rasBossBaria.rightTop.y - scroll.y, rasBossBaria.rightDown.x - scroll.x, rasBossBaria.rightDown.y - scroll.y, 0, 0, 1, 1, WhiteP,GetColor(255,0,0,rasBossBaria.alpha));
+			}
+			Novice::ScreenPrintf(30, 300, "%f",rasBossBaria.leftTop.y);
 		}
 		///
 		

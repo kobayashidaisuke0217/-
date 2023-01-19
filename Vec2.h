@@ -49,3 +49,5 @@ float  Product(const Vector2& a, const Vector2& b,const Vector2&c);
 //ì‡êœ
 float Dot(const Vector2* lhs, const Vector2* rhs);
 Vector2 ClosestPoint(const nLine* line, const Vector2* point);
+
+Vector2 vectorInverse(const Vector2& v, const Vector2& a, const Vector2& b);
