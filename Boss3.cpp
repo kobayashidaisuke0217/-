@@ -1,5 +1,5 @@
 #include "Boss3.h"
-void Boss3reset(Boss3& boss, Baria& baria) {
+void Boss3Reset(Boss3& boss, Baria& baria) {
 	boss.patten = 0;
 	
 	boss.Pos = { 1280,720 };

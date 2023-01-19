@@ -30,7 +30,7 @@ typedef struct Boss3 {
 	};
 	
 };
-void Boss3Rest();
+void Boss3Reset(Boss3& boss,Baria& baria);
 void BossAtackRotate();
 void BossBaria();
 void BossPattern();
