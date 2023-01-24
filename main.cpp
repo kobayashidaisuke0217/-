@@ -5,6 +5,10 @@
 #include "matrix.h"
 #include "struct.h"
 #include "Boss3.h"
+#include "Player.h"
+#include "Nucleus.h"
+#include "Enemy.h"
+#include "BeamPoint.h"
 const char kWindowTitle[] = "LC1B_08_コバヤシダイスケ";
 
 
@@ -55,121 +59,88 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 	int mousePress = false;
-	Circle player = {//自機
-		{500,300},
-	36.0f,
-	6.0f,
-	  RED ,
-	  100,
-	};
-	Circle nucleus[12];
-	Vector2 nucleusPrePos[12];
-	Vector2 nucleusSuctionPos[12];
-	int nucleusSuctionCount = 0;
-	int max = 12;
-	int nucleusCountfrag[12] = { false };
+	Circle circleReset = { 0,0,0,0,RED,100 };
+
+	Player* player = new Player({ 500,300,36.0f,6,RED,100 });
+
+	Nucleus* nucleus[12];
+
+	for (int i = 0; i < 12; i++) {
+		nucleus[i] = new Nucleus(circleReset);
+	}
 
 	int mousePressTime = 0;
-	for (int i = 0; i < max; i++) {
-		nucleus[0].center = { 300, 180 };
-		nucleus[1].center = { 1000, 180 };
-		nucleus[2].center = { 640, 540 };
-		//右上
-		nucleus[3].center = { 1580, 180 };
-		nucleus[4].center = { 2280, 180 };
-		nucleus[5].center = { 1920, 540 };
-		//左下
-		nucleus[6].center = { 300, 1260 };
-		nucleus[7].center = { 1000, 1260 };
-		nucleus[8].center = { 640, 900 };
-		//右下
-		nucleus[9].center = { 1580 , 1260 };
-		nucleus[10].center = { 2280 , 1260 };
-		nucleus[11].center = { 1920, 900 };
-		nucleus[i].radius = 36.0f;
-		nucleus[i].color = WHITE;
-		nucleusPrePos[i] = nucleus[i].center;
-		nucleusSuctionPos[i] = nucleus[i].center;
+	nucleus[0]->nucleus.center = { 300, 180 };
+	nucleus[1]->nucleus.center = { 1000, 180 };
+	nucleus[2]->nucleus.center = { 640, 540 };
+	//右上
+	nucleus[3]->nucleus.center = { 1580, 180 };
+	nucleus[4]->nucleus.center = { 2280, 180 };
+	nucleus[5]->nucleus.center = { 1920, 540 };
+	//左下
+	nucleus[6]->nucleus.center = { 300, 1260 };
+	nucleus[7]->nucleus.center = { 1000, 1260 };
+	nucleus[8]->nucleus.center = { 640, 900 };
+	//右下
+	nucleus[9]->nucleus.center = { 1580 , 1260 };
+	nucleus[10]->nucleus.center = { 2280 , 1260 };
+	nucleus[11]->nucleus.center = { 1920, 900 };
+	for (int i = 0; i < nucleus[0]->max; i++) {
+		nucleus[i]->nucleus.radius = 36.0f;
+		nucleus[i]->nucleus.color = WHITE;
+		nucleus[i]->nucleusPrePos = nucleus[i]->nucleus.center;
+		nucleus[i]->nucleusSuctionPos = nucleus[i]->nucleus.center;
 	}
 
 	const int enemyNum = 3;
-	Circle enemy[enemyNum];
-	enemy[0] = {//敵
-	{600,300},
-		36.0f,
-		6.0f,
-		WHITE,
-	};
-	enemy[1] = {//敵
-	{1400,100},
-		36.0f,
-		6.0f,
-		WHITE,
-	};
-	enemy[2] = {//敵
-	{2000,200},
-		36.0f,
-		6.0f,
-		WHITE,
-	};
+	Enemy* enemy[enemyNum];
+
+	for (int i = 0; i < enemyNum; i++) {
+		enemy[i] = new Enemy(circleReset);
+	}
+	enemy[0]->enemy = { 600,300,36.0f,6.0f,WHITE,100 };
+	enemy[1]->enemy = { 1400,100,36.0f,6.0f,WHITE,100 };
+	enemy[2]->enemy = { 2000,200,36.0f,6.0f,WHITE,100 };
 
 	const int beamNum = 4;//ビーム発射地点
-
-	int beamAlive[beamNum];//ビーム発射地点の生存フラグ
-	int beamAtackStart = false;//ビーム開始
-	Circle beamPoint[beamNum];
-
-	beamPoint[0] = {//ビーム1と連動
-	{0,0},
-		36.0f,
-		6.0f,
-		WHITE,
-	};
-	beamPoint[1] = {//ビーム0と連動
-	{2560,1440},
-		36.0f,
-		6.0f,
-		WHITE,
-	};
-	beamPoint[2] = {//ビーム3と連動
-	{0,1440},
-		36.0f,
-		6.0f,
-		RED,
-	};
-	beamPoint[3] = {//ビーム4と連動
-	{2560,0},
-		36.0f,
-		6.0f,
-		RED,
-	};
+	BeamPoint* beamPoint[beamNum];
 
 	for (int i = 0; i < beamNum; i++) {
-		beamAlive[i] = true;
+		beamPoint[i] = new BeamPoint(circleReset);
 	}
+
+	beamPoint[0]->beamPoint = { 0,0,36.0f,6.0f,RED,100 };
+	beamPoint[1]->beamPoint = { 2560,1440,36.0f,6.0f,RED,100 };
+	beamPoint[2]->beamPoint = { 0,1440,36.0f,6.0f,RED,100 };
+	beamPoint[3]->beamPoint = { 2560,0,36.0f,6.0f,RED,100 };
+
+	for (int i = 0; i < beamNum; i++) {
+		beamPoint[i]->beamAlive = true;
+	}
+	beamPoint[0]->beamAtackStart = false;
 
 	Beam beam[4];
 	Beam BTop[4];
 	Beam BDown[4];
 	for (int i = 0; i < 4; i++) {
-		beam[i].pos = {0,0};
-		beam[i].angle = {0};
-		beam[i].radian = {0};
-		beam[i].EndPos = {0,0};
-		
+		beam[i].pos = { 0,0 };
+		beam[i].angle = { 0 };
+		beam[i].radian = { 0 };
+		beam[i].EndPos = { 0,0 };
+
 		BTop[i].pos = { 0,0 };
 		BTop[i].angle = { 0 };
 		BTop[i].radian = { 0 };
 		BTop[i].EndPos = { 0,0 };
 
-						
+
 
 		BDown[i].pos = { 0,0 };
 		BDown[i].angle = { 0 };
 		BDown[i].radian = { 0 };
 		BDown[i].EndPos = { 0,0 };
 
-		
+
 
 		beam[i].size = 2500;
 	}
@@ -184,7 +155,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int beamSize = 32;//ビームの太さ
 	int beamAttackchange = 0;//ビーム攻撃の場所変更
 
-	
+
 	Line line = {
 		{1000.0f,700.0f},
 		{500.0f,400.0f},
@@ -272,8 +243,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	Vector2 scroll;//スクロール
-	scroll.x = player.center.x;
-	scroll.y = player.center.y;
+	scroll.x = player->player.center.x;
+	scroll.y = player->player.center.y;
 
 	Vector2  scrollwall{ //スクロール開始
 		640.0f,360.0f
@@ -360,7 +331,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ボス
 	Boss3 rastboss;
 	Baria rasBossBaria;
-	
+
 	rastboss.patten = 0;
 
 	rastboss.pos = { 1280,720 };
@@ -389,8 +360,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-	
-	
+
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -411,7 +382,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]) {
 				gamemode = 1;
 			}
-			Boss3Reset(rastboss,rasBossBaria);
+			Boss3Reset(rastboss, rasBossBaria);
 		}
 
 		if (keys[DIK_Z]) {
@@ -427,46 +398,44 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (gamemode >= 1) {//ゲームスタート
 			if (gamemode == 1) {//ステージ1
 				scrollMode = 0;
-				beamAtackStart = false;
+				beamPoint[0]->beamAtackStart = false;
 				for (int i = 0; i < enemyNum; i++) {
-					enemy[i].center.y += enemy[i].speed;
-					if (enemy[i].center.y <= 100 || enemy[i].center.y >= 620) {
-						enemy[i].speed *= -1;
+					enemy[i]->enemy.center.y += enemy[i]->enemy.speed;
+					if (enemy[i]->enemy.center.y <= 100 || enemy[i]->enemy.center.y >= 620) {
+						enemy[i]->enemy.speed *= -1;
 					}
 				}
-				
-				if (player.center.x >= 2000) {
+
+				if (player->player.center.x >= 2000) {
 					gamemode = 2;
 				}
 			}
 			if (gamemode == 2) {//ステージ2
 				scrollMode = 1;
-				beamAtackStart = true;
+				beamPoint[0]->beamAtackStart = true;
 				beamMode = 0;
 				for (int i = 0; i < enemyNum; i++) {
 					enemyAlive[i] = false;
 				}
-				enemyAlive[0] = true;
-				enemy[0].center.x = 1280;
-				enemy[0].center.y = 720;
+				if (rastboss.isAlive == true) {
+					if (CircleCollisinHit(player->player.center, player->player.radius, rastboss.pos, rastboss.radius) == true) {
+						atackSpeed = { 0,0 };
+						pattern = 0;
+					}
+				}
 			}
 			if (gamemode == 3) {
 				for (int i = 0; i < enemyNum; i++) {
 					enemyAlive[i] = false;
 				}
+
 				BossBaria(rastboss, rasBossBaria);
-				for (int i = 0; i < nucleusSuctionCount; i++) {
-					BossBariaCollision(rasBossBaria,throwPos[i],hitradius[i],nucleusSuctionCount,throwDamageFlag[i]);
+				for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
+					BossBariaCollision(rasBossBaria, throwPos[i], hitradius[i], nucleus[0]->nucleusSuctionCount, throwDamageFlag[i]);
 				}
 				scrollMode = 1;
-				beamAtackStart = true;
+				beamPoint[0]->beamAtackStart = true;
 				beamMode = 0;
-				if (rastboss.isAlive == true) {
-					if (CircleCollisinHit(player.center, player.radius, rastboss.pos, rastboss.radius) == true) {
-						atackSpeed = { 0,0 };
-						pattern = 0;
-					}
-				}
 			}
 
 			if (scrollMode == 0) {
@@ -478,93 +447,94 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//プレイヤーの操作
 			if (pattern == 0 || pattern == 5) {
 				if (leftx < -10000 || keys[DIK_A] != 0) {
-					player.center.x -= player.speed;
-					if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
-						scroll.x -= player.speed;
+					player->player.center.x -= player->player.speed;
+					if (player->player.center.x >= scrollwall.x && player->player.center.x <= scrollwallend.x) {
+						scroll.x -= player->player.speed;
 					}
 				}
 				// 右キーを押したら右に動かす
 				if (leftx > 10000 || keys[DIK_D] != 0) {
-					player.center.x += player.speed;
-					if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
-						scroll.x += player.speed;
+					player->player.center.x += player->player.speed;
+					if (player->player.center.x >= scrollwall.x && player->player.center.x <= scrollwallend.x) {
+						scroll.x += player->player.speed;
 					}
 				}
 				// 上キーを押したら上に動かす
 				if (lefty < -10000 || keys[DIK_W] != 0) {
-					player.center.y -= player.speed;
-					if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
-						scroll.y -= player.speed;
+					player->player.center.y -= player->player.speed;
+					if (player->player.center.y >= scrollwall.y && player->player.center.y <= scrollwallend.y && scrollMode == 1) {
+						scroll.y -= player->player.speed;
 					}
 				}
 				// 下キーを押したら下に動かす
 				if (lefty > 10000 || keys[DIK_S] != 0) {
-					player.center.y += player.speed;
-					if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
-						scroll.y += player.speed;
+					player->player.center.y += player->player.speed;
+					if (player->player.center.y >= scrollwall.y && player->player.center.y <= scrollwallend.y && scrollMode == 1) {
+						scroll.y += player->player.speed;
 					}
 				}
 			}
 
 			//通常移動時の移動可能範囲
-			if (player.center.x >= boundPoint.x - player.radius) { //右方向
-				player.center.x = boundPoint.x - player.radius;
+			if (player->player.center.x >= boundPoint.x - player->player.radius) { //右方向
+				player->player.center.x = boundPoint.x - player->player.radius;
 			}
-			if (player.center.x <= 0 + player.radius) { //左方向
-				player.center.x = 0 + player.radius;
+			if (player->player.center.x <= 0 + player->player.radius) { //左方向
+				player->player.center.x = 0 + player->player.radius;
 			}
-			if (player.center.y <= player.radius) { //上方向
-				player.center.y = player.radius;
+			if (player->player.center.y <= player->player.radius) { //上方向
+				player->player.center.y = player->player.radius;
 			}
-			if (player.center.y >= boundPoint.y - player.radius) { //下方向
-				player.center.y = boundPoint.y - player.radius;
+			if (player->player.center.y >= boundPoint.y - player->player.radius) { //下方向
+				player->player.center.y = boundPoint.y - player->player.radius;
 			}
 
 			///スクロール終了時の座標修正
-			if (player.center.x <= scrollwall.x) {
+			if (player->player.center.x <= scrollwall.x) {
 				scroll.x = 0.0f;
 			}
-			if (player.center.x >= 1920.0f) {
+			if (player->player.center.x >= 1920.0f) {
 				scroll.x = 1280.0f;
 			}
-			if (player.center.y <= scrollwall.y) {
+			if (player->player.center.y <= scrollwall.y) {
 				scroll.y = 0.0f;
 			}
-			if (player.center.y >= 1080.0f) {
+			if (player->player.center.y >= 1080.0f) {
 				scroll.y = 720.0f;
 			}
 
 			////画面端で跳ね返る
-			if (player.center.x <= 0 + player.radius) {//左方向
+			if (player->player.center.x <= 0 + player->player.radius) {//左方向
 				atackSpeed.x = -atackSpeed.x * 0.9;
-				atackSpeed.x =  -atackSpeed.x*0.8;
-			}
-			if (player.center.x >= boundPoint.x - player.radius) {//右方向
 				atackSpeed.x = -atackSpeed.x * 0.8;
 			}
-			if (player.center.y <= player.radius) {//上方向
+			if (player->player.center.x >= boundPoint.x - player->player.radius) {//右方向
+				atackSpeed.x = -atackSpeed.x * 0.8;
+			}
+			if (player->player.center.y <= player->player.radius) {//上方向
 				atackSpeed.y = -atackSpeed.y * 0.8;
 			}
-			if (player.center.y >= boundPoint.y - player.radius) {//下方向
+			if (player->player.center.y >= boundPoint.y - player->player.radius) {//下方向
 				atackSpeed.y = -atackSpeed.y * 0.8;
 			}
 			for (int i = 0; i < enemyNum; i++) {
 				if (enemyAlive[i] == true) {
-					if (CircleCollisinHit(player.center, player.radius, enemy[i].center, enemy[i].radius) == true) {
+					if (CircleCollisinHit(player->player.center, player->player.radius, enemy[i]->enemy.center, enemy[i]->enemy.radius) == true) {
 						atackSpeed = { 0,0 };
 						pattern = 0;
 					}
 				}
 			}
-				if (pattern == 0) {
+			if (pattern == 0) {
 				atackSpeed = { 0,0 };
-				for (int i = 0; i < max; i++) {
-					nucleus[i].center = nucleusPrePos[i];
+				for (int i = 0; i < nucleus[0]->max; i++) {
+					nucleus[i]->nucleus.center = nucleus[i]->nucleusPrePos;
 					nucleusSuctionFlag[i] = false;
-					nucleus[i].radius = 36.0f;
-					nucleus[i].color = WHITE;
+					nucleus[i]->nucleus.radius = 36.0f;
+					nucleus[i]->nucleus.color = WHITE;
 				}
 			}
+
 			if (Novice::IsPressButton(0, kPadButton10) || keys[DIK_SPACE]) {
 
 				PressCount++;
@@ -579,25 +549,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 			//スペースを押してなおかつ止まっているとき
-			if (Novice::IsTriggerButton(0, kPadButton9) || preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 ) {
+			if (Novice::IsTriggerButton(0, kPadButton9) || preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 /*&& atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f*/) {
 				//一つ目の点を求める
 				if (pattern == 0) {
 					playerEndSpeed = 0;
 					triangleSpeed = 0;
-					line.start = player.center;
+					line.start = player->player.center;
 					atackSpeed = { 0,0 };
 					pattern = 1;
 				}
 				//二つ目の点を求める
 				else if (pattern == 1) {
-					line.vertex = player.center;
+					line.vertex = player->player.center;
 					preLineVertex = line.vertex;
 					atackSpeed = { 0,0 };
 					pattern = 2;
 				}
 				//三つ目の点を求める
 				else if (pattern == 2) {
-					line.end = player.center;
+					line.end = player->player.center;
 					preLineEnd = line.end;
 					atackSpeed = { 0,0 };
 					pattern = 3;
@@ -607,9 +577,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//プレイヤーを飛ばす
 				if (pattern <= 2) {
 
-
 					mouse = { (float)mouseX + scroll.x,(float)mouseY + scroll.y };
-					playerAngle = VectorProduct(mouse, player.center);
+					playerAngle = VectorProduct(mouse, player->player.center);
 					atackSpeed = Multiply(Normalais(playerAngle), playerSpeed);
 
 				}
@@ -618,11 +587,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//プレイヤーのスピードを計算
 			if (pattern <= 2) {
 				atackSpeed = Multiply(atackSpeed, stop);
-				if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
-					scroll.x = player.center.x - 640;
+				if (player->player.center.x >= scrollwall.x && player->player.center.x <= scrollwallend.x) {
+					scroll.x = player->player.center.x - 640;
 				}
-				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
-					scroll.y = player.center.y - 360;
+				if (player->player.center.y >= scrollwall.y && player->player.center.y <= scrollwallend.y && scrollMode == 1) {
+					scroll.y = player->player.center.y - 360;
 				}
 			}
 			//最期の点を求めてから最初の点に戻る
@@ -630,13 +599,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (playerEndSpeed <= 1.0) {
 					playerEndSpeed += 0.1f;
 				}
-				player.center.x = learp(easeInSine(playerEndSpeed), line.end.x, line.start.x);
-				player.center.y = learp(easeInSine(playerEndSpeed), line.end.y, line.start.y);
-				if (player.center.x >= scrollwall.x && player.center.x <= scrollwallend.x) {
-					scroll.x = player.center.x - 640;
+				player->player.center.x = learp(easeInSine(playerEndSpeed), line.end.x, line.start.x);
+				player->player.center.y = learp(easeInSine(playerEndSpeed), line.end.y, line.start.y);
+				if (player->player.center.x >= scrollwall.x && player->player.center.x <= scrollwallend.x) {
+					scroll.x = player->player.center.x - 640;
 				}
-				if (player.center.y >= scrollwall.y && player.center.y <= scrollwallend.y && scrollMode == 1) {
-					scroll.y = player.center.y - 360;
+				if (player->player.center.y >= scrollwall.y && player->player.center.y <= scrollwallend.y && scrollMode == 1) {
+					scroll.y = player->player.center.y - 360;
 				}
 				if (playerEndSpeed >= 1.0f) {
 					pattern = 4;
@@ -645,13 +614,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				playertheta[1] = 1.0f / 2.0f * M_PI;
 				playertheta[2] = M_PI;
 				playertheta[3] = 3.0f / 2.0f * M_PI;
-				nucleusSuctionCount = 0;
+				nucleus[0]->nucleusSuctionCount = 0;
 				for (int i = 0; i < 4; i++) {
 					throwDamageFlag[i] = false;
 					throwFlag[i] = false;
 				}
 				for (int i = 0; i < 12; i++) {
-					nucleusCountfrag[i] = false;
+					nucleus[i]->nucleusCountfrag = false;
 
 				}
 			}
@@ -687,46 +656,46 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			}
 
-			player.center = Add(player.center, atackSpeed);
+			player->player.center = Add(player->player.center, atackSpeed);
 
 
 			//三角形と核の当たり判定を計算する
-			for (int i = 0; i < max; i++) {
-				
-				exterior[i] = Product(line.start,line.end,nucleus[i].center);
+			for (int i = 0; i < nucleus[0]->max; i++) {
 
-				exterior2[i] = Product(line.end, line.vertex,nucleus[i].center);
+				exterior[i] = Product(line.start, line.end, nucleus[i]->nucleus.center);
 
-				exterior3[i] = Product(line.vertex,line.start,nucleus[i].center);
+				exterior2[i] = Product(line.end, line.vertex, nucleus[i]->nucleus.center);
+
+				exterior3[i] = Product(line.vertex, line.start, nucleus[i]->nucleus.center);
 				if (pattern == 4) {
 					if (exterior[i] > 0.0f && exterior2[i] > 0.0f && exterior3[i] > 0.0f || exterior[i] < 0.0f && exterior2[i] < 0.0f && exterior3[i] < 0.0f) {
-						nucleus[i].color = BLUE;
+						nucleus[i]->nucleus.color = BLUE;
 						nucleusSuctionFlag[i] = true;
-						if (nucleusCountfrag[i] == false) {
-							nucleusSuctionCount++;
-							if (nucleusSuctionCount >= 4) {
-								nucleusSuctionCount = 4;
+						if (nucleus[i]->nucleusCountfrag == false) {
+							nucleus[i]->nucleusSuctionCount++;
+							if (nucleus[i]->nucleusSuctionCount >= 4) {
+								nucleus[i]->nucleusSuctionCount = 4;
 							}
-							nucleusCountfrag[i] = true;
+							nucleus[i]->nucleusCountfrag = true;
 						}
 					}
 					else {
-						nucleus[i].color = WHITE;
+						nucleus[i]->nucleus.color = WHITE;
 
 					}
 				}
 			}
 
 
-			triangleBreak = lineSearch(nucleusSuctionFlag, max);
+			triangleBreak = lineSearch(nucleusSuctionFlag, nucleus[0]->max);
 			//三角形と敵の当たり判定
 			for (int i = 0; i < 2; i++) {
-				
-				enemyexterior[i] = Product(line.start, line.vertex,enemy[i].center);
-				enemyexterior2[i] = Product(line.vertex, line.end,enemy[i].center);
 
-				
-				enemyexterior3[i] = Product(line.end,line.start,enemy[i].center);
+				enemyexterior[i] = Product(line.start, line.vertex, enemy[i]->enemy.center);
+				enemyexterior2[i] = Product(line.vertex, line.end, enemy[i]->enemy.center);
+
+
+				enemyexterior3[i] = Product(line.end, line.start, enemy[i]->enemy.center);
 
 				if (pattern == 4) {
 					if (enemyexterior[i] > 0.0f && enemyexterior2[i] > 0.0f && enemyexterior3[i] > 0.0f || enemyexterior[i] < 0.0f && enemyexterior2[i] < 0.0f && enemyexterior3[i] < 0.0f) {
@@ -739,29 +708,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 
 			}
-			for (int i = 0; i < max; i++) {
+			for (int i = 0; i < nucleus[0]->max; i++) {
 				if (pattern >= 4) {
 					if (triangleBreak == true) {
 						if (nucleusSuctionFlag[i] == true) {
 
 
-							nucleus[i].center.x = learp(easeInSine(triangleSpeed), nucleusPrePos[i].x, line.start.x);
-							nucleus[i].center.y = learp(easeInSine(triangleSpeed), nucleusPrePos[i].y, line.start.y);
-							nucleus[i].radius = learp(easeInSine(triangleSpeed), 32, 0);
+							nucleus[i]->nucleus.center.x = learp(easeInSine(triangleSpeed), nucleus[i]->nucleusPrePos.x, line.start.x);
+							nucleus[i]->nucleus.center.y = learp(easeInSine(triangleSpeed), nucleus[i]->nucleusPrePos.y, line.start.y);
+							nucleus[i]->nucleus.radius = learp(easeInSine(triangleSpeed), 32, 0);
 							if (triangleSpeed >= 1.0f) {
 								triangleSpeed = 1;
 							}
 
-							nucleusSuctionPos[i].x = (line.start.x + line.end.x + line.vertex.x) / 3;
-							nucleusSuctionPos[i].y = (line.start.y + line.end.y + line.vertex.y) / 3;
+							nucleus[i]->nucleusSuctionPos.x = (line.start.x + line.end.x + line.vertex.x) / 3;
+							nucleus[i]->nucleusSuctionPos.y = (line.start.y + line.end.y + line.vertex.y) / 3;
 
 
 							if (triangleSpeed >= 1.0f) {
 
 								pattern = 5;
 							}
-
-
 						}
 					}
 					else {
@@ -769,21 +736,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						for (int j = 0; j < 4; j++) {
 							throwFlag[j] = false;
 						}
-						nucleus[i].radius = 36;
+						nucleus[i]->nucleus.radius = 36;
 					}
 				}
 			}
 
 			//攻撃の準備をする
 			if (pattern == 5) {
-				for (int i = 0; i < nucleusSuctionCount; i++) {
+				for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
 					if (throwFlag[i] == false) {
 						throwPos[i].x = (Start[i].x + End[i].x + Vertex[i].x) / 3;
 						throwPos[i].y = (Start[i].y + End[i].y + Vertex[i].y) / 3;
 
 						playertheta[i] += 1 / 30.0f;
 						theta += 1 / 10.0f;
-						throwPos[i] = { player.center.x + cosf(playertheta[i]) * 60,player.center.y + sinf(playertheta[i]) * 60 };
+						throwPos[i] = { player->player.center.x + cosf(playertheta[i]) * 60,player->player.center.y + sinf(playertheta[i]) * 60 };
 						Matrix2x2 rotateMatrix = MakeRotateMatrix(theta);
 
 						Start[i] = MatrixMultiply(originalLine.start, rotateMatrix);
@@ -801,7 +768,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (Novice::IsTriggerButton(0, kPadButton9) || keys[DIK_V] && preKeys[DIK_V] == 0 || Novice::IsPressMouse(0)) {
 					mousePressTime++;
 					mousePress = true;
-					for (int i = 0; i < nucleusSuctionCount; i++) {
+					for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
 
 						if (throwFlag[i] == false) {
 							throwAngle[i] = { (float)mouseX - throwPos[i].x + scroll.x,(float)mouseY - throwPos[i].y + scroll.y };
@@ -811,9 +778,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 							throwFlag[i] = true;
-							if (throwFlag[nucleusSuctionCount - 1] == true) {
+							if (throwFlag[nucleus[0]->nucleusSuctionCount - 1] == true) {
 								pattern = 0;
-								for (int j = 0; j < max; j++) {
+								for (int j = 0; j < nucleus[0]->max; j++) {
 									nucleusSuctionFlag[j] = false;
 								}
 							}
@@ -824,7 +791,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//攻撃処理
-			for (int i = 0; i < nucleusSuctionCount; i++) {
+			for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
 				if (throwDamageFlag[i] == true) {
 					throwPos[i] = Add(throwPos[i], throwSpeed[i]);
 					theta += 1 / 10.0f;
@@ -849,7 +816,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//攻撃とエネミーの当たり判定
 				for (int j = 0; j < 2; j++) {
 					if (enemyAlive[j] == true && throwDamageFlag[i] == true) {
-						if (CircleCollisinHit(throwPos[i], hitradius[i], enemy[j].center, enemy[j].radius) == true && throwFlag[i] == true) {
+						if (CircleCollisinHit(throwPos[i], hitradius[i], enemy[j]->enemy.center, enemy[j]->enemy.radius) == true && throwFlag[i] == true) {
 							enemyAlive[j] = false;
 							throwDamageFlag[i] = false;
 						}
@@ -859,7 +826,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//画面内の敵を感知
 			for (int i = 0; i < enemyNum; i++) {
-				if (enemy[i].center.x > player.center.x - 1280 / 2 && enemy[i].center.x < player.center.x + 1280 / 2) {
+				if (enemy[i]->enemy.center.x > player->player.center.x - 1280 / 2 && enemy[i]->enemy.center.x < player->player.center.x + 1280 / 2) {
 					enemyScreenIn[i] = true;
 				}
 				else {
@@ -871,7 +838,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int j = 0; j < enemyNum; j++) {
 				for (int i = 0; i < bulletNum; i++) {
 					if (bulletOnFlag[i] == false && bullettimer[j] <= 0 && enemyAlive[j] == true && enemyScreenIn[j] == true) {
-						bullet[i].center = { enemy[j].center.x ,enemy[j].center.y };
+						bullet[i].center = { enemy[j]->enemy.center.x ,enemy[j]->enemy.center.y };
 						bulletOnFlag[i] = true;
 						bullettimer[j] = 80 + 20 * i;
 						bulletInductionOnFlag[i] = true;
@@ -887,9 +854,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					bullet[i].center = Add(bullet[i].center, bullet[i].speed);
 					if (bulletInductionOnFlag[i] == true) {//誘導時間忠
 						bulletInductionTimer[i]--;
-						bulletAngle[i] = { (float)player.center.x - bullet[i].center.x, (float)player.center.y - bullet[i].center.y };
+						bulletAngle[i] = { (float)player->player.center.x - bullet[i].center.x, (float)player->player.center.y - bullet[i].center.y };
 					}
-					if (CircleCollisinHit(bullet[i].center, bullet[i].radius, player.center, player.radius) == true) {//プレイヤーと弾がぶつかったとき
+					if (CircleCollisinHit(bullet[i].center, bullet[i].radius, player->player.center, player->player.radius) == true) {//ボールと弾がぶつかったとき
 						//playerFlag = false;//生存判定をfalseにする
 						bulletInductionTimer[i] = 10;
 						bulletInductionOnFlag[i] = false;
@@ -912,6 +879,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 
+
 			//スタン
 			if (stunOnFlag == true) {
 				pattern = 5;
@@ -929,7 +897,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ビーム
 			beemStart = { 1280 ,720 };
-			if (beamAtackStart == true) {
+			if (beamPoint[0]->beamAtackStart == true) {
 				if (atackFlag[0] == false && beamMode == 0) {
 					preCount++;
 				}
@@ -944,7 +912,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					preAtack = true;
 					for (int i = 0; i < 4; i++) {
 						beam[i].pos = beemStart;
-						beam[i].angle = { beemStart.x - beamPoint[i].center.x,beemStart.y - beamPoint[i].center.y };
+						beam[i].angle = { beemStart.x - beamPoint[i]->beamPoint.center.x,beemStart.y - beamPoint[i]->beamPoint.center.y };
 						beam[i].radian = Normalais(beam[i].angle);
 						beam[i].EndPos = Multiply(beam[i].radian, beam[i].size);
 
@@ -973,33 +941,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 
 				if (beamAttackchange <= 5) {
-					beamPoint[0] = {//ビーム1と連動
-						{0,0},36.0f,6.0f,WHITE,
-					};
-					beamPoint[1] = {//ビーム0と連動
-					{2560,1440},36.0f,6.0f,WHITE,
-					};
-					beamPoint[2] = {//ビーム3と連動
-					{0,1440},36.0f,6.0f,RED,
-					};
-					beamPoint[3] = {//ビーム4と連動
-					{2560,0},36.0f,6.0f,RED,
-					};
+					beamPoint[0]->beamPoint = { 0,0,36.0f,6.0f,RED,100 };
+					beamPoint[1]->beamPoint = { 2560,1440,36.0f,6.0f,RED,100 };
+					beamPoint[2]->beamPoint = { 0,1440,36.0f,6.0f,RED,100 };
+					beamPoint[3]->beamPoint = { 2560,0,36.0f,6.0f,RED,100 };
 				}
 				if (beamAttackchange > 5) {
-					beamPoint[0] = {//ビーム1と連動
-					{0,720},36.0f,6.0f,WHITE,
-					};
-					beamPoint[1] = {//ビーム0と連動
-					{2560,720},36.0f,6.0f,WHITE,
-					};
-					beamPoint[2] = {//ビーム3と連動
-					{1280,0},36.0f,6.0f,RED,
-					};
-					beamPoint[3] = {//ビーム4と連動
-					{1280,1440},36.0f,6.0f,RED,
-					};
+					beamPoint[0]->beamPoint = { 0,720,36.0f,6.0f,RED,100 };
+					beamPoint[1]->beamPoint = { 2560,720,36.0f,6.0f,RED,100 };
+					beamPoint[2]->beamPoint = { 1280,0,36.0f,6.0f,RED,100 };
+					beamPoint[2]->beamPoint = { 1280,1440,36.0f,6.0f,RED,100 };
 				}
+
 				if (beamAttackchange > 10) {
 					beamAttackchange = 0;
 				}
@@ -1009,7 +962,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 					for (int i = 0; i < 4; i++) {
 
-						if (RectCollisionHit(beam[i].pos, beam[i].EndPos, player.center, 32, player.radius) == true) {//自機の生死フラグ = false;
+						if (RectCollisionHit(beam[i].pos, beam[i].EndPos, player->player.center, 32, player->player.radius) == true) {//自機の生死フラグ = false;
 							Novice::ScreenPrintf(40, 40, "Hit");
 							beemHit = true;
 							atackSpeed.x = atackSpeed.x * 0.8;
@@ -1030,12 +983,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (Novice::IsPressButton(0, kPadButton8) || preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
 				pattern = 0;
 				beemHit = false;
-				for (int i = 0; i < nucleusSuctionCount; i++) {
+				for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
 					throwFlag[i] = false;
 				}
-				for (int i = 1; i < max; i++) {
-					nucleus[i].radius = 36;
-					nucleus[i].center = nucleusPrePos[i];
+				for (int i = 1; i < nucleus[0]->max; i++) {
+					nucleus[i]->nucleus.radius = 36;
+					nucleus[i]->nucleus.center = nucleus[i]->nucleusPrePos;
 				}
 				enemyAlive[0] = true;
 			}
@@ -1064,21 +1017,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			if (pattern == 1) {
-				Novice::DrawLine(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, player.center.x - scroll.x + randshake.x, player.center.y - scroll.y + randshake.y, WHITE);
+				Novice::DrawLine(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, player->player.center.x - scroll.x + randshake.x, player->player.center.y - scroll.y + randshake.y, WHITE);
 			}
 			if (pattern == 2) {
-				Novice::DrawLine(player.center.x - scroll.x + randshake.x, player.center.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
+				Novice::DrawLine(player->player.center.x - scroll.x + randshake.x, player->player.center.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
 				Novice::DrawLine(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
 			}
 			if (pattern == 3) {
 				Novice::DrawLine(line.end.x - scroll.x + randshake.x, line.end.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
 				Novice::DrawLine(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE);
-				Novice::DrawLine(line.end.x - scroll.x + randshake.x, line.end.y - scroll.y + randshake.y, player.center.x - scroll.x + randshake.x, player.center.y - scroll.y + randshake.y, WHITE);
+				Novice::DrawLine(line.end.x - scroll.x + randshake.x, line.end.y - scroll.y + randshake.y, player->player.center.x - scroll.x + randshake.x, player->player.center.y - scroll.y + randshake.y, WHITE);
 			}
 			if (pattern == 4) {
 				Novice::DrawTriangle(line.start.x - scroll.x + randshake.x, line.start.y - scroll.y + randshake.y, line.end.x - scroll.x + randshake.x, line.end.y - scroll.y + randshake.y, line.vertex.x - scroll.x + randshake.x, line.vertex.y - scroll.y + randshake.y, WHITE, kFillModeWireFrame);
 			}
-			for (int i = 0; i < nucleusSuctionCount; i++) {
+			for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
 				if (pattern == 5) {
 					if (throwFlag[i] == false) {
 						Novice::DrawTriangle(Start[i].x - scroll.x + randshake.x, Start[i].y - scroll.y + randshake.y, End[i].x - scroll.x + randshake.x, End[i].y - scroll.y + randshake.y, Vertex[i].x - scroll.x + randshake.x, Vertex[i].y - scroll.y + randshake.y, WHITE, kFillModeWireFrame);
@@ -1098,22 +1051,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			if (playerFlag == true) {//自機(仮)
-				float monitorx = player.center.x - scroll.x;
-				float monitory = player.center.y - scroll.y;
-				Novice::DrawEllipse(monitorx + randshake.x, monitory + randshake.y, player.radius, player.radius, 0.0f, player.color, kFillModeSolid);
+				float monitorx = player->player.center.x - scroll.x;
+				float monitory = player->player.center.y - scroll.y;
+				Novice::DrawEllipse(monitorx + randshake.x, monitory + randshake.y, player->player.radius, player->player.radius, 0.0f, player->player.color, kFillModeSolid);
 				Novice::DrawEllipse(monitorx + mouseX / 1000 + randshake.x, monitory + mouseY / 1000 + randshake.y, 10, 10, 0, WHITE, kFillModeSolid);
 			}
 
-			for (int i = 0; i < max; i++) {
+			for (int i = 0; i < nucleus[0]->max; i++) {
 				if (nucleusSuctionFlag[i] == false) {
-					Novice::DrawEllipse(nucleus[i].center.x - scroll.x + randshake.x, nucleus[i].center.y - scroll.y + randshake.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
+					Novice::DrawEllipse(nucleus[i]->nucleus.center.x - scroll.x + randshake.x, nucleus[i]->nucleus.center.y - scroll.y + randshake.y, nucleus[i]->nucleus.radius, nucleus[i]->nucleus.radius, 0, nucleus[i]->nucleus.color, kFillModeSolid);
 				}
 				else {
-					Novice::DrawEllipse(nucleusSuctionPos[i].x - scroll.x + randshake.x, nucleusSuctionPos[i].y - scroll.y + randshake.y, nucleus[i].radius, nucleus[i].radius, 0, nucleus[i].color, kFillModeSolid);
+					Novice::DrawEllipse(nucleus[i]->nucleusSuctionPos.x - scroll.x + randshake.x, nucleus[i]->nucleusSuctionPos.y - scroll.y + randshake.y, nucleus[i]->nucleus.radius, nucleus[i]->nucleus.radius, 0, nucleus[i]->nucleus.color, kFillModeSolid);
 				}
 			}
 
-			
+
 			if (atackFlag[0] == true) {
 
 				for (int i = 0; i < 4; i++) {
@@ -1132,14 +1085,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			for (int i = 0; i < beamNum; i++) {//ビームポイント
-				if (beamAlive[i] == true) {
-					Novice::DrawEllipse(beamPoint[i].center.x - scroll.x + randshake.x, beamPoint[i].center.y - scroll.y + randshake.y, beamPoint[i].radius, beamPoint[i].radius, 0, beamPoint[i].color, kFillModeSolid);
+				if (beamPoint[i]->beamAlive == true) {
+					Novice::DrawEllipse(beamPoint[i]->beamPoint.center.x - scroll.x + randshake.x, beamPoint[i]->beamPoint.center.y - scroll.y + randshake.y, beamPoint[i]->beamPoint.radius, beamPoint[i]->beamPoint.radius, 0, beamPoint[i]->beamPoint.color, kFillModeSolid);
 				}
 			}
 
 			for (int i = 0; i < enemyNum; i++) {//敵
 				if (enemyAlive[i] == true) {
-					Novice::DrawEllipse(enemy[i].center.x - scroll.x + randshake.x, enemy[i].center.y - scroll.y + randshake.y, enemy[i].radius, enemy[i].radius, 0, BLUE, kFillModeSolid);
+					Novice::DrawEllipse(enemy[i]->enemy.center.x - scroll.x + randshake.x, enemy[i]->enemy.center.y - scroll.y + randshake.y, enemy[i]->enemy.radius, enemy[i]->enemy.radius, 0, BLUE, kFillModeSolid);
 				}
 			}
 			if (beemHit == true) {
@@ -1147,16 +1100,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, WhiteP, WHITE);
 
-		}
-		 if (gamemode == 3) {
-			Novice::DrawEllipse(rastboss.pos.x-scroll.x, rastboss.pos.y-scroll.y, rastboss.radius, rastboss.radius, 0, RED, kFillModeWireFrame);
-			if (rasBossBaria.isAlive == true) {
-				Novice::DrawQuad(rasBossBaria.leftTop.x-scroll.x, rasBossBaria.leftTop.y - scroll.y, rasBossBaria.leftDown.x - scroll.x, rasBossBaria.leftDown.y - scroll.y, rasBossBaria.rightTop.x - scroll.x, rasBossBaria.rightTop.y - scroll.y, rasBossBaria.rightDown.x - scroll.x, rasBossBaria.rightDown.y - scroll.y, 0, 0, 1, 1, WhiteP,GetColor(255,0,0,rasBossBaria.alpha));
+			if (gamemode == 3) {
+				Novice::DrawEllipse(rastboss.pos.x - scroll.x, rastboss.pos.y - scroll.y, rastboss.radius, rastboss.radius, 0, RED, kFillModeWireFrame);
+				if (rasBossBaria.isAlive == true) {
+					Novice::DrawQuad(rasBossBaria.leftTop.x - scroll.x, rasBossBaria.leftTop.y - scroll.y, rasBossBaria.leftDown.x - scroll.x, rasBossBaria.leftDown.y - scroll.y, rasBossBaria.rightTop.x - scroll.x, rasBossBaria.rightTop.y - scroll.y, rasBossBaria.rightDown.x - scroll.x, rasBossBaria.rightDown.y - scroll.y, 0, 0, 1, 1, WhiteP, GetColor(255, 0, 0, rasBossBaria.alpha));
+				}
+				Novice::ScreenPrintf(30, 300, "%f", rasBossBaria.leftTop.y);
 			}
-			Novice::ScreenPrintf(30, 300, "%f",rasBossBaria.leftTop.y);
 		}
 		///
-		
 		/// ↑描画処理ここまで
 		///
 
