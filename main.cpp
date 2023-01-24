@@ -176,7 +176,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector2 beemStart = { 0 };
 
 
-	int atackFlag = false;
+	int atackFlag[2] = { false };
 	int beamMode = 0;//0で十字、1で薙ぎ払い
 	int preAtack = false;
 	int atackCount = 0;
@@ -927,36 +927,43 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//ビーム
 			beemStart = { 1280 ,720 };
 			if (beamAtackStart == true) {
-				if (atackFlag == false && beamMode == 0) {
+				if (atackFlag[0] == false && beamMode == 0) {
 					preCount++;
 				}
+				if (preCount >= 10 && preCount <= 30 || preCount >= 50 && preCount <= 70 || preCount >= 90 && preCount <= 110) {
+					atackFlag[1] = true;
+				}
+				else {
+					atackFlag[1] = false;
+				}
+
 				if (preCount == 60) {
 					preAtack = true;
 					for (int i = 0; i < 4; i++) {
 						beam[i].pos = beemStart;
-						beam[i].angle = { beemStart.x- beamPoint[i].center.x,beemStart.y- beamPoint[i].center.y };
+						beam[i].angle = { beemStart.x - beamPoint[i].center.x,beemStart.y - beamPoint[i].center.y };
 						beam[i].radian = Normalais(beam[i].angle);
 						beam[i].EndPos = Multiply(beam[i].radian, beam[i].size);
-					
+
 						beam[i].EndPos.x += beam[i].pos.x;
 						beam[i].EndPos.y += beam[i].pos.y;
 
-						BTop[i].radian = { -beam[i].radian.y,beam[i].radian.x};
+						BTop[i].radian = { -beam[i].radian.y,beam[i].radian.x };
 						BTop[i].angle = Multiply(BTop[i].radian, 32);
 						BTop[i].pos = { beam[i].pos.x + BTop[i].angle.x,beam[i].pos.y + BTop[i].angle.y };
-						BTop[i].EndPos = { beam[i].EndPos.x + BTop[i].angle.x,beam[i].EndPos.y+BTop[i].angle.y};
-						
+						BTop[i].EndPos = { beam[i].EndPos.x + BTop[i].angle.x,beam[i].EndPos.y + BTop[i].angle.y };
+
 						BDown[i].radian = { beam[i].radian.y,-beam[i].radian.x };
-						BDown[i].angle = Multiply(BDown[i].radian, 32); 
+						BDown[i].angle = Multiply(BDown[i].radian, 32);
 						BDown[i].pos = { beam[i].pos.x + BDown[i].angle.x,beam[i].pos.y + BDown[i].angle.y };
 						BDown[i].EndPos = { beam[i].EndPos.x + BDown[i].angle.x,beam[i].EndPos.y + BDown[i].angle.y };
-						
-					
+
+
 
 					}
 				}
-				if (preCount >= 120) {
-					atackFlag = true;
+				if (preCount >= 130) {
+					atackFlag[0] = true;
 					preAtack = false;
 					beamAttackchange += 1;
 					preCount = 0;
@@ -994,24 +1001,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					beamAttackchange = 0;
 				}
 
-				if (atackFlag == true) {
+				if (atackFlag[0] == true) {
 					atackCount++;
-				
+
 					for (int i = 0; i < 4; i++) {
-					
-						if(RectCollisionHit(beam[i].pos,beam[i].EndPos,player.center,32,player.radius)==true){//自機の生死フラグ = false;
-						Novice::ScreenPrintf(40, 40, "Hit");
-						beemHit = true;
-						atackSpeed.x = atackSpeed.x * 0.8;
-						atackSpeed.y = atackSpeed.y * 0.8;
-				}
+
+						if (RectCollisionHit(beam[i].pos, beam[i].EndPos, player.center, 32, player.radius) == true) {//自機の生死フラグ = false;
+							Novice::ScreenPrintf(40, 40, "Hit");
+							beemHit = true;
+							atackSpeed.x = atackSpeed.x * 0.8;
+							atackSpeed.y = atackSpeed.y * 0.8;
+						}
 					}
-			
-					
+
+
 				}
 
 				if (atackCount >= 30) {
-					atackFlag = false;
+					atackFlag[0] = false;
 					atackCount = 0;
 				}
 			}
@@ -1104,10 +1111,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			
-			if (atackFlag == true) {
+			if (atackFlag[0] == true) {
 
 				for (int i = 0; i < 4; i++) {
 					Novice::DrawQuad(BTop[i].pos.x - scroll.x, BTop[i].pos.y - scroll.y, BTop[i].EndPos.x - scroll.x, BTop[i].EndPos.y - scroll.y, BDown[i].pos.x - scroll.x, BDown[i].pos.y - scroll.y, BDown[i].EndPos.x - scroll.x, BDown[i].EndPos.y - scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
+
+				}
+
+			}
+			if (atackFlag[1] == true) {
+
+				for (int i = 0; i < 4; i++) {
+					Novice::DrawQuad(BTop[i].pos.x - scroll.x, BTop[i].pos.y - scroll.y, BTop[i].EndPos.x - scroll.x, BTop[i].EndPos.y - scroll.y, BDown[i].pos.x - scroll.x, BDown[i].pos.y - scroll.y, BDown[i].EndPos.x - scroll.x, BDown[i].EndPos.y - scroll.y, 0, 0, 1, 1, WhiteP, 0xFFFF33);
 
 				}
 
