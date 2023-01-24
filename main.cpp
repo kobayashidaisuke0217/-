@@ -353,6 +353,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool beemHit = false;
 	float thetaBeam = 1.0f / 8.0f * M_PI;
 
+	int fadeoutFlag = false;
+
+
 
 	//ボス
 	Boss3 rastboss;
