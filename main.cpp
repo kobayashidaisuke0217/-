@@ -249,6 +249,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int fadeoutTime = 0;
 
 
+	int nucleusSuctionCount = 0;
+	int nucleusSuctionFlag[12] = { false };
 
 	//ボス
 	Boss3 lastboss;
@@ -402,8 +404,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 
 				BossBaria(lastboss, rasBossBaria);
-				for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
-					BossBariaCollision(rasBossBaria, throwPos[i], hitradius[i], nucleus[0]->nucleusSuctionCount, throwDamageFlag[i]);
+				for (int i = 0; i < nucleusSuctionCount; i++) {
+					BossBariaCollision(rasBossBaria, throwPos[i], hitradius[i], nucleusSuctionCount, throwDamageFlag[i]);
 				}
 				scrollMode = 1;
 				beamPoint[0]->beamAtackStart = true;
@@ -475,7 +477,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				triangle->atackSpeed = { 0,0 };
 				for (int i = 0; i < nucleus[0]->max; i++) {
 					nucleus[i]->nucleus.center = nucleus[i]->nucleusPrePos;
-					nucleus[i]->nucleusSuctionFlag = false;
+					//nucleus[i]->nucleusSuctionFlag = false;
+					nucleusSuctionFlag[i] = false;
 					nucleus[i]->nucleus.radius = 36.0f;
 					nucleus[i]->nucleus.color = WHITE;
 				}
@@ -560,7 +563,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				playertheta[1] = 1.0f / 2.0f * M_PI;
 				playertheta[2] = M_PI;
 				playertheta[3] = 3.0f / 2.0f * M_PI;
-				nucleus[0]->nucleusSuctionCount = 0;
+				nucleusSuctionCount = 0;
 				for (int i = 0; i < 4; i++) {
 					throwDamageFlag[i] = false;
 					throwFlag[i] = false;
@@ -616,11 +619,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (triangle->pattern == 4) {
 					if (nucleus[i]->exterior > 0.0f && nucleus[i]->exterior2 > 0.0f && nucleus[i]->exterior3 > 0.0f || nucleus[i]->exterior < 0.0f && nucleus[i]->exterior2 < 0.0f && nucleus[i]->exterior3 < 0.0f) {
 						nucleus[i]->nucleus.color = BLUE;
-						nucleus[i]->nucleusSuctionFlag = true;
+						//nucleus[i]->nucleusSuctionFlag = true;
+						nucleusSuctionFlag[i] = true;
 						if (nucleus[i]->nucleusCountfrag == false) {
-							nucleus[i]->nucleusSuctionCount++;
-							if (nucleus[i]->nucleusSuctionCount >= 4) {
-								nucleus[i]->nucleusSuctionCount = 4;
+							nucleusSuctionCount++;
+							if (nucleusSuctionCount >= 4) {
+								nucleusSuctionCount = 4;
 							}
 							nucleus[i]->nucleusCountfrag = true;
 						}
@@ -632,8 +636,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 
-
-			triangleBreak = lineSearch(&nucleus[0]->nucleusCountfrag, nucleus[0]->max);
+			
+				triangleBreak = lineSearch(nucleusSuctionFlag, nucleus[0]->max);
+			
 			//三角形と敵の当たり判定
 			for (int i = 0; i < 2; i++) {
 
@@ -657,8 +662,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < nucleus[0]->max; i++) {
 				if (triangle->pattern >= 4) {
 					if (triangleBreak == true) {
-						if (nucleus[i]->nucleusSuctionFlag == true) {
-
+						/*if (nucleus[i]->nucleusSuctionFlag == true) {*/
+						if(nucleusSuctionFlag[i]==true){
 
 							nucleus[i]->nucleus.center.x = learp(easeInSine(triangle->triangleSpeed), nucleus[i]->nucleusPrePos.x, triangle->line.start.x);
 							nucleus[i]->nucleus.center.y = learp(easeInSine(triangle->triangleSpeed), nucleus[i]->nucleusPrePos.y, triangle->line.start.y);
@@ -689,7 +694,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//攻撃の準備をする
 			if (triangle->pattern == 5) {
-				for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
+				for (int i = 0; i < nucleusSuctionCount; i++) {
 					if (throwFlag[i] == false) {
 						throwPos[i].x = (Start[i].x + End[i].x + Vertex[i].x) / 3;
 						throwPos[i].y = (Start[i].y + End[i].y + Vertex[i].y) / 3;
@@ -714,7 +719,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (Novice::IsTriggerButton(0, kPadButton9) || keys[DIK_V] && preKeys[DIK_V] == 0 || Novice::IsPressMouse(0)) {
 					mousePressTime++;
 					mousePress = true;
-					for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
+					for (int i = 0; i < nucleusSuctionCount; i++) {
 
 						if (throwFlag[i] == false) {
 							throwAngle[i] = { (float)triangle->mouseX - throwPos[i].x + scroll.x,(float)triangle->mouseY - throwPos[i].y + scroll.y };
@@ -724,10 +729,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 							throwFlag[i] = true;
-							if (throwFlag[nucleus[0]->nucleusSuctionCount - 1] == true) {
+							if (throwFlag[nucleusSuctionCount - 1] == true) {
 								triangle->pattern = 0;
 								for (int j = 0; j < nucleus[0]->max; j++) {
-									nucleus[j]->nucleusSuctionFlag = false;
+									//nucleus[j]->nucleusSuctionFlag = false;
+									nucleusSuctionFlag[i] = false;
 								}
 							}
 							break;
@@ -737,7 +743,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//攻撃処理
-			for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
+			for (int i = 0; i < nucleusSuctionCount; i++) {
 				if (throwDamageFlag[i] == true) {
 					throwPos[i] = Add(throwPos[i], throwSpeed[i]);
 					theta += 1 / 10.0f;
@@ -896,7 +902,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					beamPoint[0]->beamPoint = { 0,720,36.0f,6.0f,RED,100 };
 					beamPoint[1]->beamPoint = { 2560,720,36.0f,6.0f,RED,100 };
 					beamPoint[2]->beamPoint = { 1280,0,36.0f,6.0f,RED,100 };
-					beamPoint[2]->beamPoint = { 1280,1440,36.0f,6.0f,RED,100 };
+					beamPoint[3]->beamPoint = { 1280,1440,36.0f,6.0f,RED,100 };
 				}
 
 				if (beams[0]->beamAttackchange > 10) {
@@ -929,7 +935,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (Novice::IsPressButton(0, kPadButton8) || preKeys[DIK_RETURN] && keys[DIK_RETURN] == 0) {
 				triangle->pattern = 0;
 				beemHit = false;
-				for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
+				for (int i = 0; i < nucleusSuctionCount; i++) {
 					throwFlag[i] = false;
 				}
 				for (int i = 1; i < nucleus[0]->max; i++) {
@@ -975,7 +981,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (triangle->pattern == 4) {
 				Novice::DrawTriangle(triangle->line.start.x - scroll.x + RandShake.x, triangle->line.start.y - scroll.y + RandShake.y, triangle->line.end.x - scroll.x + RandShake.x, triangle->line.end.y - scroll.y + RandShake.y, triangle->line.vertex.x - scroll.x + RandShake.x, triangle->line.vertex.y - scroll.y + RandShake.y, WHITE, kFillModeWireFrame);
 			}
-			for (int i = 0; i < nucleus[0]->nucleusSuctionCount; i++) {
+			for (int i = 0; i < nucleusSuctionCount; i++) {
 				if (triangle->pattern == 5) {
 					if (throwFlag[i] == false) {
 						Novice::DrawTriangle(Start[i].x - scroll.x + RandShake.x, Start[i].y - scroll.y + RandShake.y, End[i].x - scroll.x + RandShake.x, End[i].y - scroll.y + RandShake.y, Vertex[i].x - scroll.x + RandShake.x, Vertex[i].y - scroll.y + RandShake.y, WHITE, kFillModeWireFrame);
@@ -1002,7 +1008,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			for (int i = 0; i < nucleus[0]->max; i++) {
-				if (nucleus[i]->nucleusSuctionFlag == false) {
+				//if (nucleus[i]->nucleusSuctionFlag == false) {
+				if(nucleusSuctionFlag[i]==false){
 					Novice::DrawEllipse(nucleus[i]->nucleus.center.x - scroll.x + RandShake.x, nucleus[i]->nucleus.center.y - scroll.y + RandShake.y, nucleus[i]->nucleus.radius, nucleus[i]->nucleus.radius, 0, nucleus[i]->nucleus.color, kFillModeSolid);
 				}
 				else {
