@@ -2,4 +2,7 @@
 
 Enemy::Enemy(Circle enemy) {
 	this->enemy = enemy;
+
+	enemyAlive = true;
+	enemyScreenIn = false;
 }

@@ -13,5 +13,14 @@ public:
 	int nucleusSuctionCount;
 	int max;
 	int nucleusCountfrag;
+
+	float exterior;
+	float exterior2;
+	float exterior3;
+
+	float enemyexterior;
+	float enemyexterior2;
+	float enemyexterior3;
+	int nucleusSuctionFlag;
 };
 

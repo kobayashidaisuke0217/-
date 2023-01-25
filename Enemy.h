@@ -9,4 +9,6 @@ public:
 public:
 	Circle enemy;
 
+	int enemyAlive;//“G¶‘¶ƒtƒ‰ƒO
+	int enemyScreenIn;//“G‚ª‰æ–Ê“à‚É‹‚é‚©
 };

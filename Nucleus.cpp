@@ -11,4 +11,13 @@ Nucleus::Nucleus(Circle nucleus) {
 	nucleusCountfrag = false;
 	nucleusPrePos = { 0,0 };
 	nucleusSuctionPos = { 0,0 };
+
+	float exterior = { 0 };
+	float exterior2 = { 0 };
+	float exterior3 = { 0 };
+
+	float enemyexterior;
+	float enemyexterior2;
+	float enemyexterior3;
+	int nucleusSuctionFlag = false;
 }
