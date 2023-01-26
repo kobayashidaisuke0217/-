@@ -1,5 +1,5 @@
 #include "Boss3.h"
-void Boss3Reset(Boss3& boss, Baria& baria) {
+void Boss3Reset(Boss3& boss, Baria& baria,BossBeam &beam) {
 	boss.patten = 0;
 
 	boss.pos = { 1280,720 };
@@ -28,7 +28,17 @@ void Boss3Reset(Boss3& boss, Baria& baria) {
 	baria.size = 20;
 	baria.isAlive = false;
 
-	
+	beam.count = 0;
+	beam.EndPos = { 0,0 };
+	beam.flag = false;
+	beam.leftDown = { 0,0 };
+	beam.leftTop={ 0,0 };
+	beam.ob = { 0,0 };
+	beam.pos = { 0,0 };
+	beam.rightDown = { 0,0 };
+	beam.rightTop = { 0,0 };
+	beam.theta = 0;
+	beam.size = 16;
 }
 void BossAtackRotatet(Boss3 &a) {
 
@@ -119,4 +129,39 @@ void BossBaria(Boss3& boss, Baria& baria ) {
 
 void BossPattern(Boss3& a) {
 	
+}
+void BossBeamAtack(Boss3& boss, BossBeam& beam, Vector2& player) {
+	beam.count++;
+	if (beam.count >= 120) {
+		beam.flag = true;
+	}
+	if (beam.flag == true) {
+		beam.pos.x = boss.pos.x;
+		beam.pos.y = boss.pos.y - boss.radius;
+
+		//if (player.x >= 1280) {
+			beam.theta -= 1.0f / 120.0f;
+		//}
+		/*else {
+			beam.theta += 1.0f / 120.0f;
+		}*/
+		beam.ob = { beam.pos.x + cosf(beam.theta) * 40,beam.pos.y + sinf(beam.theta) * 40 };
+		Vector2 beamangle = { beam.ob.x - beam.pos.x,beam.ob.y - beam.pos.y };
+		Vector2 beamradian = Normalais(beamangle);
+		beam.EndPos = Multiply(beamradian, 2000);
+		beam.EndPos.x += beam.pos.x;
+		beam.EndPos.y += beam.pos.y;
+
+		Vector2 beamTopAngle = { -beamradian.y,beamradian.x };
+		Vector2 beamTopRadian = Multiply(beamTopAngle, beam.size);
+		beam.leftTop = { beam.pos.x + beamTopRadian.x,beam.pos.y + beamTopRadian.y };
+		beam.rightTop.x = beam.EndPos.x + beamTopRadian.x;
+		beam.rightTop.y = beam.EndPos.y + beamTopRadian.y;
+
+		Vector2 beamDownAngle = { beamradian.y,-beamradian.x };
+		Vector2 beamDownRadian = Multiply(beamDownAngle, beam.size);
+		beam.leftDown = { beam.pos.x + beamDownRadian.x,beam.pos.y + beamDownRadian.y };
+		beam.rightDown.x = beam.EndPos.x + beamDownRadian.x;
+		beam.rightDown.y = beam.EndPos.y + beamDownRadian.y;
+	}
 }

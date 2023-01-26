@@ -67,7 +67,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Beam beamReset = { 0,0,0,0,0,0,0,0,0,0,0 };
 	Bullet bulletReset = { 300,400,32,0,0,RED };
 
-	Player* player = new Player({ 500,300,36.0f,6,RED,100 });
+	Player* player = new Player({ 500,300,36.0f,6,RED,100 },{0,0});
 
 	Nucleus* nucleus[12];
 
@@ -251,7 +251,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ボス
 	Boss3 lastboss;
 	Baria rasBossBaria;
-
+	BossBeam bossBeam;
 	lastboss.patten = 0;
 
 	lastboss.pos = { 1280,720 };
@@ -280,7 +280,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-
+	bossBeam.count = 0;
+	bossBeam.EndPos = { 0,0 };
+	bossBeam.flag = false;
+	bossBeam.leftDown = { 0,0 };
+	bossBeam.leftTop = { 0,0 };
+	bossBeam.ob = { 0,0 };
+	bossBeam.pos = { 0,0 };
+	bossBeam.rightDown = { 0,0 };
+	bossBeam.rightTop = { 0,0 };
+	bossBeam.theta = 0;
+	bossBeam.size = 16;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -328,7 +338,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					gamemode = 1;
 				}
 			}
-			Boss3Reset(lastboss, rasBossBaria);
+			Boss3Reset(lastboss, rasBossBaria,bossBeam);
 		}
 
 		if (keys[DIK_Z]) {
@@ -389,8 +399,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 				if (lastboss.isAlive == true) {
 					if (CircleCollisinHit(player->player.center, player->player.radius, lastboss.pos, lastboss.radius) == true) {
-						triangle->atackSpeed = { 0,0 };
-						triangle->pattern = 0;
+						triangle->atackSpeed.x =  -triangle->atackSpeed.x*0.7 ;
+						triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
+						
 					}
 				}
 			}
@@ -398,7 +409,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				for (int i = 0; i < enemyNum; i++) {
 					enemy[i]->enemyAlive = false;
 				}
-
+				BossBeamAtack(lastboss, bossBeam, player->player.center);
+				if (bossBeam.flag == true) {
+					if(RectCollisionHit(bossBeam.pos, bossBeam.EndPos, player->player.center, player->player.radius, bossBeam.size)==true) {
+						gamemode = 0;
+					}
+				}
 				BossBaria(lastboss, rasBossBaria);
 				for (int i = 0; i < nucleusSuctionCount; i++) {
 					BossBariaCollision(rasBossBaria, throwPos[i], hitradius[i], nucleusSuctionCount, throwDamageFlag[i]);
@@ -763,7 +779,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				}
 				//攻撃とエネミーの当たり判定
-				for (int j = 0; j < 2; j++) {
+				for (int j = 0; j < 3; j++) {
 					if (enemy[j]->enemyAlive == true && throwDamageFlag[i] == true) {
 						if (CircleCollisinHit(throwPos[i], hitradius[i], enemy[j]->enemy.center, enemy[j]->enemy.radius) == true && throwFlag[i] == true) {
 							enemy[j]->enemyAlive = false;
@@ -1049,7 +1065,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, WhiteP, WHITE);
 
 			if (gamemode == 3) {
-				Novice::DrawEllipse(lastboss.pos.x - player->scroll.x, lastboss.pos.y - player->scroll.y, lastboss.radius, lastboss.radius, 0, RED, kFillModeWireFrame);
+				if (bossBeam.flag == true) {
+					Novice::DrawQuad(bossBeam.leftTop.x -player-> scroll.x, bossBeam.leftTop.y - player->scroll.y, bossBeam.rightTop.x - player->scroll.x, bossBeam.rightTop.y - player->scroll.y, bossBeam.leftDown.x - player->scroll.x, bossBeam.leftDown.y - player->scroll.y, bossBeam.rightDown.x - player->scroll.x, bossBeam.rightDown.y - player->scroll.y, 0, 0, 1, 1, WhiteP, BLUE);
+				}
+				Novice::DrawEllipse(lastboss.pos.x - player->scroll.x , lastboss.pos.y - player->scroll.y, lastboss.radius, lastboss.radius, 0, RED, kFillModeWireFrame);
 				if (rasBossBaria.isAlive == true) {
 					Novice::DrawQuad(rasBossBaria.leftTop.x - player->scroll.x, rasBossBaria.leftTop.y - player->scroll.y, rasBossBaria.leftDown.x - player->scroll.x, rasBossBaria.leftDown.y - player->scroll.y, rasBossBaria.rightTop.x - player->scroll.x, rasBossBaria.rightTop.y - player->scroll.y, rasBossBaria.rightDown.x - player->scroll.x, rasBossBaria.rightDown.y - player->scroll.y, 0, 0, 1, 1, WhiteP, GetColor(255, 0, 0, rasBossBaria.alpha));
 				}

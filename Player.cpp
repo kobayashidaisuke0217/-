@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player(Circle player) {
+Player::Player(Circle player,Vector2 scroll) {
 	this->player = player;
 	scroll = { 0,0 };
 }
