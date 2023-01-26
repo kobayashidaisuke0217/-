@@ -364,30 +364,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				if (player->player.center.x >= 2500) {
 					fadeoutFlag[0] = true;
-
-					if (fadeoutFlag[0] == true && fadeoutFlag[1] == false) {
-						fadeoutClar += 0x5;
-
-					}
-					if (fadeoutClar >= 256)
-					{
-						fadeoutClar = 0;
-					}
-
-					if (fadeoutClar == 255)
-					{
-						fadeoutClar = 255;
-						fadeoutFlag[1] = true;
-						fadeoutTime++;
-						if (fadeoutTime == 40)
-						{
-							fadeoutFlag[0] = false;
-							fadeoutFlag[1] = false;
-							fadeoutTime = 0;
-							gamemode = 2;
-						}
-					}
-
+				}
+				if (fadeoutFlag[0] == true && fadeoutFlag[1] == false) {
+					fadeoutClar += 0x5;
+				}
+				if (fadeoutFlag[0] == true && fadeoutClar >= 256)
+				{
+					fadeoutClar = 0;
+				}
+				if (fadeoutClar == 250)
+				{
+					fadeoutClar = 255;
+					fadeoutFlag[1] = true;
+				}
+				if (fadeoutFlag[1] == true)
+				{
+					fadeoutTime++;
+				}
+				if (fadeoutTime == 40)
+				{
+					fadeoutFlag[0] = false;
+					fadeoutFlag[1] = false;
+					fadeoutTime = 0;
+					gamemode = 2;
 				}
 			}
 			if (gamemode == 2) {//ステージ2
