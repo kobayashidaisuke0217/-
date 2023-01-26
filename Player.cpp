@@ -2,9 +2,10 @@
 
 Player::Player(Circle player) {
 	this->player = player;
+	scroll = { 0,0 };
 }
 
-void Player::Move(char keys[], char preKeys[], int leftx, int lefty, Vector2 scrollStart, Vector2 scrollEnd, Vector2 scroll, int scrollMode) {
+void Player::Move(char keys[], char preKeys[], int leftx, int lefty, Vector2 scrollStart, Vector2 scrollEnd, int scrollMode) {
 	if (leftx < -10000 || keys[DIK_A] != 0) {
 		player.center.x -= player.speed;
 		if (player.center.x >= scrollStart.x && player.center.x <= scrollEnd.x) {

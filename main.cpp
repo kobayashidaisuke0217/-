@@ -171,10 +171,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		bullet[i]->bullettimer = 80 + 20 * i;
 	}
 
-	Vector2 scroll;//スクロール
-	scroll.x = player->player.center.x;
-	scroll.y = player->player.center.y;
-
 	Vector2  scrollWall{ //スクロール開始
 		640.0f,360.0f
 	};
@@ -420,7 +416,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			//プレイヤーの操作
 			if (triangle->pattern == 0 || triangle->pattern == 5) {
-				player->Move(keys, preKeys, leftx, lefty, scrollWall, scrollWallEnd, scroll, scrollMode);
+				player->Move(keys, preKeys, leftx, lefty, scrollWall, scrollWallEnd, scrollMode);
 			}
 
 			//通常移動時の移動可能範囲
@@ -439,16 +435,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			///スクロール終了時の座標修正
 			if (player->player.center.x <= scrollWall.x) {
-				scroll.x = 0.0f;
+				player->scroll.x = 0.0f;
 			}
 			if (player->player.center.x >= 1920.0f) {
-				scroll.x = 1280.0f;
+				player->scroll.x = 1280.0f;
 			}
 			if (player->player.center.y <= scrollWall.y) {
-				scroll.y = 0.0f;
+				player->scroll.y = 0.0f;
 			}
 			if (player->player.center.y >= 1080.0f) {
-				scroll.y = 720.0f;
+				player->scroll.y = 720.0f;
 			}
 
 			////画面端で跳ね返る
@@ -465,6 +461,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (player->player.center.y >= boundPoint.y - player->player.radius) {//下方向
 				triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.8;
 			}
+
 			for (int i = 0; i < enemyNum; i++) {
 				if (enemy[i]->enemyAlive == true) {
 					if (CircleCollisinHit(player->player.center, player->player.radius, enemy[i]->enemy.center, enemy[i]->enemy.radius) == true) {
@@ -526,7 +523,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//プレイヤーを飛ばす
 				if (triangle->pattern <= 2) {
 
-					triangle->mouse = { (float)triangle->mouseX + scroll.x,(float)triangle->mouseY + scroll.y };
+					triangle->mouse = { (float)triangle->mouseX + player->scroll.x,(float)triangle->mouseY + player->scroll.y };
 					triangle->playerAngle = VectorProduct(triangle->mouse, player->player.center);
 					triangle->atackSpeed = Multiply(Normalais(triangle->playerAngle), triangle->playerSpeed);
 
@@ -537,10 +534,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (triangle->pattern <= 2) {
 				triangle->atackSpeed = Multiply(triangle->atackSpeed, triangle->stop);
 				if (player->player.center.x >= scrollWall.x && player->player.center.x <= scrollWallEnd.x) {
-					scroll.x = player->player.center.x - 640;
+					player->scroll.x = player->player.center.x - 640;
 				}
 				if (player->player.center.y >= scrollWall.y && player->player.center.y <= scrollWallEnd.y && scrollMode == 1) {
-					scroll.y = player->player.center.y - 360;
+					player->scroll.y = player->player.center.y - 360;
 				}
 			}
 			//最期の点を求めてから最初の点に戻る
@@ -551,10 +548,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				player->player.center.x = learp(easeInSine(triangle->playerEndSpeed), triangle->line.end.x, triangle->line.start.x);
 				player->player.center.y = learp(easeInSine(triangle->playerEndSpeed), triangle->line.end.y, triangle->line.start.y);
 				if (player->player.center.x >= scrollWall.x && player->player.center.x <= scrollWallEnd.x) {
-					scroll.x = player->player.center.x - 640;
+					player->scroll.x = player->player.center.x - 640;
 				}
 				if (player->player.center.y >= scrollWall.y && player->player.center.y <= scrollWallEnd.y && scrollMode == 1) {
-					scroll.y = player->player.center.y - 360;
+					player->scroll.y = player->player.center.y - 360;
 				}
 				if (triangle->playerEndSpeed >= 1.0f) {
 					triangle->pattern = 4;
@@ -722,7 +719,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					for (int i = 0; i < nucleusSuctionCount; i++) {
 
 						if (throwFlag[i] == false) {
-							throwAngle[i] = { (float)triangle->mouseX - throwPos[i].x + scroll.x,(float)triangle->mouseY - throwPos[i].y + scroll.y };
+							throwAngle[i] = { (float)triangle->mouseX - throwPos[i].x + player->scroll.x,(float)triangle->mouseY - throwPos[i].y + player->scroll.y };
 							throwradian[i] = Normalais(throwAngle[i]);
 							throwSpeed[i] = Multiply(throwradian[i], 16);
 							throwDamageFlag[i] = true;
@@ -953,9 +950,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 		//Novice::DrawSprite(1280 * 0 - scroll.x, 720 * 0 - scroll.y, stage[0], 1, 1, 0.0f, GREEN);
-		Novice::DrawSprite(1280 * 1 - scroll.x + RandShake.x, 720 * 0 - scroll.y + RandShake.y, stage[1], 1, 1, 0.0f, 0xFFFFFFFF);
-		Novice::DrawSprite(1280 * 0 - scroll.x + RandShake.x, 720 * 1 - scroll.y + RandShake.y, stage[2], 1, 1, 0.0f, 0xFFFFFFFF);
-		Novice::DrawSprite(1280 * 1 - scroll.x + RandShake.x, 720 * 1 - scroll.y + RandShake.y, stage[3], 1, 1, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(1280 * 1 - player->scroll.x + RandShake.x, 720 * 0 - player->scroll.y + RandShake.y, stage[1], 1, 1, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(1280 * 0 - player->scroll.x + RandShake.x, 720 * 1 - player->scroll.y + RandShake.y, stage[2], 1, 1, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(1280 * 1 - player->scroll.x + RandShake.x, 720 * 1 - player->scroll.y + RandShake.y, stage[3], 1, 1, 0.0f, 0xFFFFFFFF);
 
 		if (gamemode == 0) {//ゲーム開始画面
 
@@ -967,42 +964,42 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			if (triangle->pattern == 1) {
-				Novice::DrawLine(triangle->line.start.x - scroll.x + RandShake.x, triangle->line.start.y - scroll.y + RandShake.y, player->player.center.x - scroll.x + RandShake.x, player->player.center.y - scroll.y + RandShake.y, WHITE);
+				Novice::DrawLine(triangle->line.start.x - player->scroll.x + RandShake.x, triangle->line.start.y - player->scroll.y + RandShake.y, player->player.center.x - player->scroll.x + RandShake.x, player->player.center.y - player->scroll.y + RandShake.y, WHITE);
 			}
 			if (triangle->pattern == 2) {
-				Novice::DrawLine(player->player.center.x - scroll.x + RandShake.x, player->player.center.y - scroll.y + RandShake.y, triangle->line.vertex.x - scroll.x + RandShake.x, triangle->line.vertex.y - scroll.y + RandShake.y, WHITE);
-				Novice::DrawLine(triangle->line.start.x - scroll.x + RandShake.x, triangle->line.start.y - scroll.y + RandShake.y, triangle->line.vertex.x - scroll.x + RandShake.x, triangle->line.vertex.y - scroll.y + RandShake.y, WHITE);
+				Novice::DrawLine(player->player.center.x - player->scroll.x + RandShake.x, player->player.center.y - player->scroll.y + RandShake.y, triangle->line.vertex.x - player->scroll.x + RandShake.x, triangle->line.vertex.y - player->scroll.y + RandShake.y, WHITE);
+				Novice::DrawLine(triangle->line.start.x - player->scroll.x + RandShake.x, triangle->line.start.y - player->scroll.y + RandShake.y, triangle->line.vertex.x - player->scroll.x + RandShake.x, triangle->line.vertex.y - player->scroll.y + RandShake.y, WHITE);
 			}
 			if (triangle->pattern == 3) {
-				Novice::DrawLine(triangle->line.end.x - scroll.x + RandShake.x, triangle->line.end.y - scroll.y + RandShake.y, triangle->line.vertex.x - scroll.x + RandShake.x, triangle->line.vertex.y - scroll.y + RandShake.y, WHITE);
-				Novice::DrawLine(triangle->line.start.x - scroll.x + RandShake.x, triangle->line.start.y - scroll.y + RandShake.y, triangle->line.vertex.x - scroll.x + RandShake.x, triangle->line.vertex.y - scroll.y + RandShake.y, WHITE);
-				Novice::DrawLine(triangle->line.end.x - scroll.x + RandShake.x, triangle->line.end.y - scroll.y + RandShake.y, player->player.center.x - scroll.x + RandShake.x, player->player.center.y - scroll.y + RandShake.y, WHITE);
+				Novice::DrawLine(triangle->line.end.x - player->scroll.x + RandShake.x, triangle->line.end.y - player->scroll.y + RandShake.y, triangle->line.vertex.x - player->scroll.x + RandShake.x, triangle->line.vertex.y - player->scroll.y + RandShake.y, WHITE);
+				Novice::DrawLine(triangle->line.start.x - player->scroll.x + RandShake.x, triangle->line.start.y - player->scroll.y + RandShake.y, triangle->line.vertex.x - player->scroll.x + RandShake.x, triangle->line.vertex.y - player->scroll.y + RandShake.y, WHITE);
+				Novice::DrawLine(triangle->line.end.x - player->scroll.x + RandShake.x, triangle->line.end.y - player->scroll.y + RandShake.y, player->player.center.x - player->scroll.x + RandShake.x, player->player.center.y - player->scroll.y + RandShake.y, WHITE);
 			}
 			if (triangle->pattern == 4) {
-				Novice::DrawTriangle(triangle->line.start.x - scroll.x + RandShake.x, triangle->line.start.y - scroll.y + RandShake.y, triangle->line.end.x - scroll.x + RandShake.x, triangle->line.end.y - scroll.y + RandShake.y, triangle->line.vertex.x - scroll.x + RandShake.x, triangle->line.vertex.y - scroll.y + RandShake.y, WHITE, kFillModeWireFrame);
+				Novice::DrawTriangle(triangle->line.start.x - player->scroll.x + RandShake.x, triangle->line.start.y - player->scroll.y + RandShake.y, triangle->line.end.x - player->scroll.x + RandShake.x, triangle->line.end.y - player->scroll.y + RandShake.y, triangle->line.vertex.x - player->scroll.x + RandShake.x, triangle->line.vertex.y - player->scroll.y + RandShake.y, WHITE, kFillModeWireFrame);
 			}
 			for (int i = 0; i < nucleusSuctionCount; i++) {
 				if (triangle->pattern == 5) {
 					if (throwFlag[i] == false) {
-						Novice::DrawTriangle(Start[i].x - scroll.x + RandShake.x, Start[i].y - scroll.y + RandShake.y, End[i].x - scroll.x + RandShake.x, End[i].y - scroll.y + RandShake.y, Vertex[i].x - scroll.x + RandShake.x, Vertex[i].y - scroll.y + RandShake.y, WHITE, kFillModeWireFrame);
+						Novice::DrawTriangle(Start[i].x - player->scroll.x + RandShake.x, Start[i].y - player->scroll.y + RandShake.y, End[i].x - player->scroll.x + RandShake.x, End[i].y - player->scroll.y + RandShake.y, Vertex[i].x - player->scroll.x + RandShake.x, Vertex[i].y - player->scroll.y + RandShake.y, WHITE, kFillModeWireFrame);
 					}//Novice::DrawTriangle(Start[i].x - scroll.x, Start[i].y - scroll.y, End[i].x - scroll.x, End[i].y - scroll.y, Vertex[i].x - scroll.x, Vertex[i].y - scroll.y, WHITE, kFillModeWireFrame);
 
 				}
 
 				if (throwDamageFlag[i] == true) {
-					Novice::DrawTriangle(Start[i].x - scroll.x + RandShake.x, Start[i].y - scroll.y + RandShake.y, End[i].x - scroll.x + RandShake.x, End[i].y - scroll.y + RandShake.y, Vertex[i].x - scroll.x + RandShake.x, Vertex[i].y - scroll.y + RandShake.y, WHITE, kFillModeWireFrame);
-					Novice::DrawEllipse(throwPos[i].x - scroll.x + RandShake.x, throwPos[i].y - scroll.y + RandShake.y, hitradius[i], hitradius[i], 0, RED, kFillModeWireFrame);
+					Novice::DrawTriangle(Start[i].x - player->scroll.x + RandShake.x, Start[i].y - player->scroll.y + RandShake.y, End[i].x - player->scroll.x + RandShake.x, End[i].y - player->scroll.y + RandShake.y, Vertex[i].x - player->scroll.x + RandShake.x, Vertex[i].y - player->scroll.y + RandShake.y, WHITE, kFillModeWireFrame);
+					Novice::DrawEllipse(throwPos[i].x - player->scroll.x + RandShake.x, throwPos[i].y - player->scroll.y + RandShake.y, hitradius[i], hitradius[i], 0, RED, kFillModeWireFrame);
 				}
 			}
 			for (int i = 0; i < bulletNum; i++) {//弾
 				if (bullet[i]->bulletOnFlag == true) {
-					Novice::DrawEllipse(bullet[i]->bullet.center.x - scroll.x + RandShake.x, bullet[i]->bullet.center.y - scroll.y + RandShake.y, bullet[i]->bullet.radius, bullet[i]->bullet.radius, 0.0f, BLACK, kFillModeSolid);
+					Novice::DrawEllipse(bullet[i]->bullet.center.x - player->scroll.x + RandShake.x, bullet[i]->bullet.center.y - player->scroll.y + RandShake.y, bullet[i]->bullet.radius, bullet[i]->bullet.radius, 0.0f, BLACK, kFillModeSolid);
 				}
 			}
 
 			if (playerFlag == true) {//自機(仮)
-				float monitorx = player->player.center.x - scroll.x;
-				float monitory = player->player.center.y - scroll.y;
+				float monitorx = player->player.center.x - player->scroll.x;
+				float monitory = player->player.center.y - player->scroll.y;
 				Novice::DrawEllipse(monitorx + RandShake.x, monitory + RandShake.y, player->player.radius, player->player.radius, 0.0f, player->player.color, kFillModeSolid);
 				Novice::DrawEllipse(monitorx + triangle->mouseX / 1000 + RandShake.x, monitory + triangle->mouseY / 1000 + RandShake.y, 10, 10, 0, WHITE, kFillModeSolid);
 			}
@@ -1010,10 +1007,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < nucleus[0]->max; i++) {
 				//if (nucleus[i]->nucleusSuctionFlag == false) {
 				if(nucleusSuctionFlag[i]==false){
-					Novice::DrawEllipse(nucleus[i]->nucleus.center.x - scroll.x + RandShake.x, nucleus[i]->nucleus.center.y - scroll.y + RandShake.y, nucleus[i]->nucleus.radius, nucleus[i]->nucleus.radius, 0, nucleus[i]->nucleus.color, kFillModeSolid);
+					Novice::DrawEllipse(nucleus[i]->nucleus.center.x - player->scroll.x + RandShake.x, nucleus[i]->nucleus.center.y - player->scroll.y + RandShake.y, nucleus[i]->nucleus.radius, nucleus[i]->nucleus.radius, 0, nucleus[i]->nucleus.color, kFillModeSolid);
 				}
 				else {
-					Novice::DrawEllipse(nucleus[i]->nucleusSuctionPos.x - scroll.x + RandShake.x, nucleus[i]->nucleusSuctionPos.y - scroll.y + RandShake.y, nucleus[i]->nucleus.radius, nucleus[i]->nucleus.radius, 0, nucleus[i]->nucleus.color, kFillModeSolid);
+					Novice::DrawEllipse(nucleus[i]->nucleusSuctionPos.x - player->scroll.x + RandShake.x, nucleus[i]->nucleusSuctionPos.y - player->scroll.y + RandShake.y, nucleus[i]->nucleus.radius, nucleus[i]->nucleus.radius, 0, nucleus[i]->nucleus.color, kFillModeSolid);
 				}
 			}
 
@@ -1021,7 +1018,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (beams[0]->atackFlag == true) {
 
 				for (int i = 0; i < 4; i++) {
-					Novice::DrawQuad(beams[i]->BTop.pos.x - scroll.x, beams[i]->BTop.pos.y - scroll.y, beams[i]->BTop.EndPos.x - scroll.x, beams[i]->BTop.EndPos.y - scroll.y, beams[i]->BDown.pos.x - scroll.x, beams[i]->BDown.pos.y - scroll.y, beams[i]->BDown.EndPos.x - scroll.x, beams[i]->BDown.EndPos.y - scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
+					Novice::DrawQuad(beams[i]->BTop.pos.x - player->scroll.x, beams[i]->BTop.pos.y - player->scroll.y, beams[i]->BTop.EndPos.x - player->scroll.x, beams[i]->BTop.EndPos.y - player->scroll.y, beams[i]->BDown.pos.x - player->scroll.x, beams[i]->BDown.pos.y - player->scroll.y, beams[i]->BDown.EndPos.x - player->scroll.x, beams[i]->BDown.EndPos.y - player->scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
 
 				}
 
@@ -1029,7 +1026,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (beams[1]->atackFlag == true) {
 
 				for (int i = 0; i < 4; i++) {
-					Novice::DrawQuad(beams[i]->BTop.pos.x - scroll.x, beams[i]->BTop.pos.y - scroll.y, beams[i]->BTop.EndPos.x - scroll.x, beams[i]->BTop.EndPos.y - scroll.y, beams[i]->BDown.pos.x - scroll.x, beams[i]->BDown.pos.y - scroll.y, beams[i]->BDown.EndPos.x - scroll.x, beams[i]->BDown.EndPos.y - scroll.y, 0, 0, 1, 1, WhiteP, 0xFFFF33);
+					Novice::DrawQuad(beams[i]->BTop.pos.x - player->scroll.x, beams[i]->BTop.pos.y - player->scroll.y, beams[i]->BTop.EndPos.x - player->scroll.x, beams[i]->BTop.EndPos.y - player->scroll.y, beams[i]->BDown.pos.x - player->scroll.x, beams[i]->BDown.pos.y - player->scroll.y, beams[i]->BDown.EndPos.x - player->scroll.x, beams[i]->BDown.EndPos.y - player->scroll.y, 0, 0, 1, 1, WhiteP, 0xFFFF33);
 
 				}
 
@@ -1037,13 +1034,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			for (int i = 0; i < beamNum; i++) {//ビームポイント
 				if (beamPoint[i]->beamAlive == true) {
-					Novice::DrawEllipse(beamPoint[i]->beamPoint.center.x - scroll.x + RandShake.x, beamPoint[i]->beamPoint.center.y - scroll.y + RandShake.y, beamPoint[i]->beamPoint.radius, beamPoint[i]->beamPoint.radius, 0, beamPoint[i]->beamPoint.color, kFillModeSolid);
+					Novice::DrawEllipse(beamPoint[i]->beamPoint.center.x - player->scroll.x + RandShake.x, beamPoint[i]->beamPoint.center.y - player->scroll.y + RandShake.y, beamPoint[i]->beamPoint.radius, beamPoint[i]->beamPoint.radius, 0, beamPoint[i]->beamPoint.color, kFillModeSolid);
 				}
 			}
 
 			for (int i = 0; i < enemyNum; i++) {//敵
 				if (enemy[i]->enemyAlive == true) {
-					Novice::DrawEllipse(enemy[i]->enemy.center.x - scroll.x + RandShake.x, enemy[i]->enemy.center.y - scroll.y + RandShake.y, enemy[i]->enemy.radius, enemy[i]->enemy.radius, 0, BLUE, kFillModeSolid);
+					Novice::DrawEllipse(enemy[i]->enemy.center.x - player->scroll.x + RandShake.x, enemy[i]->enemy.center.y - player->scroll.y + RandShake.y, enemy[i]->enemy.radius, enemy[i]->enemy.radius, 0, BLUE, kFillModeSolid);
 				}
 			}
 			if (beemHit == true) {
@@ -1052,9 +1049,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Novice::DrawQuad(gaugeleft.x, gaugeleft.y, gaugeleft.x, gaugeleft.y + 30, gaugeRight.x, gaugeRight.y, gaugeRight.x, gaugeRight.y + 30, 0, 0, 100, 100, WhiteP, WHITE);
 
 			if (gamemode == 3) {
-				Novice::DrawEllipse(lastboss.pos.x - scroll.x, lastboss.pos.y - scroll.y, lastboss.radius, lastboss.radius, 0, RED, kFillModeWireFrame);
+				Novice::DrawEllipse(lastboss.pos.x - player->scroll.x, lastboss.pos.y - player->scroll.y, lastboss.radius, lastboss.radius, 0, RED, kFillModeWireFrame);
 				if (rasBossBaria.isAlive == true) {
-					Novice::DrawQuad(rasBossBaria.leftTop.x - scroll.x, rasBossBaria.leftTop.y - scroll.y, rasBossBaria.leftDown.x - scroll.x, rasBossBaria.leftDown.y - scroll.y, rasBossBaria.rightTop.x - scroll.x, rasBossBaria.rightTop.y - scroll.y, rasBossBaria.rightDown.x - scroll.x, rasBossBaria.rightDown.y - scroll.y, 0, 0, 1, 1, WhiteP, GetColor(255, 0, 0, rasBossBaria.alpha));
+					Novice::DrawQuad(rasBossBaria.leftTop.x - player->scroll.x, rasBossBaria.leftTop.y - player->scroll.y, rasBossBaria.leftDown.x - player->scroll.x, rasBossBaria.leftDown.y - player->scroll.y, rasBossBaria.rightTop.x - player->scroll.x, rasBossBaria.rightTop.y - player->scroll.y, rasBossBaria.rightDown.x - player->scroll.x, rasBossBaria.rightDown.y - player->scroll.y, 0, 0, 1, 1, WhiteP, GetColor(255, 0, 0, rasBossBaria.alpha));
 				}
 				Novice::ScreenPrintf(30, 300, "%f", rasBossBaria.leftTop.y);
 			}
@@ -1062,6 +1059,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (fadeoutFlag[0] == true) {
 			Novice::DrawBox(0, 0, 1280, 720, 0, fadeoutClar, kFillModeSolid);
 		}
+
+		Novice::ScreenPrintf(20, 20, "%d", player->scroll.x);
 		///
 		/// ↑描画処理ここまで
 		///
