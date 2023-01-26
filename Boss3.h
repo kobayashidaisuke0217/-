@@ -58,9 +58,9 @@ typedef struct BossBeam {
 	Vector2 ob;
 	bool flag;
 	float size;
-	Vector2 parob;
-	float partheta;
-	Particle par[30];
+	//Vector2 parob;
+	//float partheta;
+	//Particle par[30];
 };
 
 

@@ -43,7 +43,7 @@ void Boss3Reset(Boss3& boss, Baria& baria,BossBeam &beam) {
 	beam.rightTop = { 0,0 };
 	beam.theta = 0;
 	beam.size = 16;
-	beam.parob = { 0,0 };
+	/*beam.parob = { 0,0 };
 	beam.partheta = 0;
 	for (int i = 0; i < 30; i++) {
 		beam.par[i].isAlive = false;
@@ -52,7 +52,7 @@ void Boss3Reset(Boss3& boss, Baria& baria,BossBeam &beam) {
 		beam.par[i].speed = 0;
 		beam.par[i].startPos = {0,0};
 		
-	}
+	}*/
 }
 void BossAtackRotatet(Boss3 &a) {
 

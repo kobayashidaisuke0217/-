@@ -291,7 +291,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bossBeam.rightTop = { 0,0 };
 	bossBeam.theta = 0;
 	bossBeam.size = 16;
-	bossBeam.parob = { 0,0 };
+	/*bossBeam.parob = { 0,0 };
 	bossBeam.partheta = 0;
 	for (int i = 0; i < 30; i++) {
 		bossBeam.par[i].isAlive = false;
@@ -300,7 +300,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		bossBeam.par[i].speed = 0;
 		bossBeam.par[i].startPos = { 0,0 };
 
-	}
+	}*/
 	/*bossBeam.parob = { 0,0 };
 	bossBeam.partheta = 0;*/
 	// ウィンドウの×ボタンが押されるまでループ
@@ -1076,11 +1076,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			if (gamemode == 3) {
 				if (bossBeam.flag == true) {
-					for (int i = 0; i < 30; i++) {
+					/*for (int i = 0; i < 30; i++) {
 						if (bossBeam.par[i].isAlive == true) {
 							Novice::DrawEllipse(bossBeam.par[i].pos.x-player->scroll.x, bossBeam.par[i].pos.y-player->scroll.y, bossBeam.par[i].size, bossBeam.par[i].size, 0, WHITE, kFillModeSolid);
 						}
-					}
+					}*/
 					Novice::DrawQuad(bossBeam.leftTop.x -player-> scroll.x, bossBeam.leftTop.y - player->scroll.y, bossBeam.rightTop.x - player->scroll.x, bossBeam.rightTop.y - player->scroll.y, bossBeam.leftDown.x - player->scroll.x, bossBeam.leftDown.y - player->scroll.y, bossBeam.rightDown.x - player->scroll.x, bossBeam.rightDown.y - player->scroll.y, 0, 0, 1, 1, WhiteP, BLUE);
 				}
 				Novice::DrawEllipse(lastboss.pos.x - player->scroll.x , lastboss.pos.y - player->scroll.y, lastboss.radius, lastboss.radius, 0, RED, kFillModeWireFrame);
