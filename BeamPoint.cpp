@@ -2,4 +2,5 @@
 
 BeamPoint::BeamPoint(Circle beamPoint) {
 	this->beamPoint = beamPoint;
+	beamAlive = true;
 }

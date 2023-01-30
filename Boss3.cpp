@@ -14,7 +14,7 @@ void Boss3Reset(Boss3& boss, Baria& baria,BossBeam &beam) {
 	boss.HP = 100;
 	boss.isAlive = true;
 	boss.select = 0;
-	boss.selectCount = 0;
+	boss.selectCount = 999;
 
 
 	baria.alpha = 0;
@@ -141,10 +141,24 @@ void BossBaria(Boss3& boss, Baria& baria ) {
 	}
 }
 
-void BossPattern(Boss3& boss) {
-	boss.selectCount++;
-	if (boss.selectCount < 240) {
-		boss.select = rand() % 1+1;
+void BossPattern(Boss3& boss,BossBeam& beam,Vector2 &player,Baria &baria) {
+	
+	if (boss.selectCount > 1000) {
+		boss.select = rand() % 2+1;
+		boss.selectCount = 0;
+	}
+	
+	else {
+		boss.selectCount++;
+	}
+	if (boss.selectCount >= 940) {
+		boss.select = 0;
+	}
+	if (boss.select == 1) {
+		BossBeamAtack(boss,beam,player);
+	}
+	else if (boss.select == 2) {
+		BossBaria(boss, baria);
 	}
 }
 void BossBeamAtack(Boss3& boss, BossBeam& beam, Vector2& player) {
@@ -173,9 +187,13 @@ void BossBeamAtack(Boss3& boss, BossBeam& beam, Vector2& player) {
 	if (beam.count >= 120) {
 		beam.flag = true;
 	}
-	if (beam.count > 500) {
+	
+	if (beam.count >= 940) {
 		beam.flag = false;
+		beam.theta = 0;
+		beam.count = 0;
 	}
+	
 
 	if (beam.flag == true) {
 		beam.pos.x = boss.pos.x;

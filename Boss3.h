@@ -67,7 +67,7 @@ typedef struct BossBeam {
 void Boss3Reset(Boss3& boss,Baria &baria,BossBeam &beam);
 void BossAtackRotate();
 void BossBaria(Boss3& a,  Baria& baria);
-void BossPattern();
+void BossPattern(Boss3& boss, BossBeam& beam, Vector2& player, Baria& baria);
 
 void BossBariaCollision(Baria& baria, Vector2& atack, float& radius,int& count, bool& flag);
 void BossBeamAtack(Boss3& boss, BossBeam& beam, Vector2 &player);
