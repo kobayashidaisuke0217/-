@@ -67,7 +67,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Beam beamReset = { 0,0,0,0,0,0,0,0,0,0,0 };
 	Bullet bulletReset = { 300,400,32,0,0,RED };
 
-	Player* player = new Player({ 500,300,36.0f,6,RED,100 },{0,0});
+	Player* player = new Player({ 100,300,36.0f,6,RED,100 },{0,0});
 
 	Nucleus* nucleus[12];
 
@@ -197,6 +197,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	stage[2] = Novice::LoadTexture("./Resources/image/backGround3.png"); //ステージ左下
 	stage[3] = Novice::LoadTexture("./Resources/image/backGround4.png"); //ステージ右下
 
+	int tutorial[4]; 
+	tutorial[0] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
+	tutorial[1] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
+	tutorial[2] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
+	tutorial[3] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
+	
 	Vector2 Start[4];
 	Vector2 Vertex[4];
 	Vector2 End[4];
@@ -292,6 +298,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bossBeam.theta = 0;
 	bossBeam.size = 16;
 
+	int tutorialPosx[4] = { 640,1500,2000,0 };
+	int tutorialPosy[4] = { -360,-360,-360,-360 };
+	int tutorialCount = { 0 };
+	int tutorialSpeed = { 6 };
+	
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -361,7 +373,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						enemy[i]->enemy.speed *= -1;
 					}
 				}
-
+				
+				if (player->player.center.x > 320 && tutorialPosy[tutorialCount] <= 0) {
+					tutorialPosy[tutorialCount] += tutorialSpeed;
+				}
+				if (tutorialPosy[tutorialCount] == 0) {
+					tutorialCount += 1;
+				}
+				if (player->player.center.x > 1400 && tutorialPosy[tutorialCount] <= 0 && tutorialCount ==1) {
+					tutorialPosy[tutorialCount] += tutorialSpeed;
+				}
+				if (tutorialPosy[tutorialCount] == 0) {
+					tutorialCount += 1;
+				}
+				if (player->player.center.x > 1600 && tutorialPosy[tutorialCount] <= 0 && tutorialCount == 2) {
+					tutorialPosy[tutorialCount] += tutorialSpeed;
+				}
 				if (player->player.center.x >= 2500) {
 					fadeoutFlag[0] = true;
 				}
@@ -418,6 +445,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				for (int i = 0; i < nucleusSuctionCount; i++) {
 					BossBariaCollision(rasBossBaria, throwPos[i], hitradius[i], nucleusSuctionCount, throwDamageFlag[i]);
 				}
+				/*for (int i = 0; i < 4; i++) {
+					if (throwDamageFlag[i] == true) {
+						if (enemy[j]->enemyAlive == true && throwDamageFlag[i] == true) {
+							if (CircleCollisinHit(throwPos[i], hitradius[i], enemy[j]->enemy.center, enemy[j]->enemy.radius) == true && throwFlag[i] == true) {
+								enemy[j]->enemyAlive = false;
+								throwDamageFlag[i] = false;
+								lastboss.HP -= 2;
+							}
+						}
+					}
+				}*/
 				scrollMode = 1;
 				beamPoint[0]->beamAtackStart = true;
 				beams[0]->beamMode = 0;
@@ -783,6 +821,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						if (CircleCollisinHit(throwPos[i], hitradius[i], enemy[j]->enemy.center, enemy[j]->enemy.radius) == true && throwFlag[i] == true) {
 							enemy[j]->enemyAlive = false;
 							throwDamageFlag[i] = false;
+							lastboss.HP -= 2;
 						}
 					}
 				}
@@ -975,9 +1014,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (gamemode >= 1) {//ゲームスタート
 			if (gamemode == 1) {//ステージ1
-
+				
 			}
-
+			for (int i = 0; i < 4; i++) {
+				Novice::DrawSprite(tutorialPosx[i] - player->scroll.x, tutorialPosy[i] - player->scroll.y, tutorial[i], 1, 1, 0.0f, 0xFFFFFFFF);
+			}
 			if (triangle->pattern == 1) {
 				Novice::DrawLine(triangle->line.start.x - player->scroll.x + RandShake.x, triangle->line.start.y - player->scroll.y + RandShake.y, player->player.center.x - player->scroll.x + RandShake.x, player->player.center.y - player->scroll.y + RandShake.y, WHITE);
 			}
