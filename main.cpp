@@ -901,18 +901,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ビーム
 			beams[0]->beemStart = { 1280 ,720 };
-			
+			if (beamPoint[0]->beamAtackStart == true) {
+				if (beams[0]->beamMode == 0) {
+					beamPreCount++;
+				}
 			for (int i = 0; i < 4; i++) {
-				if (beamPoint[0]->beamAtackStart == true) {
-					if (beams[0]->beamMode == 0) {
-						beamPreCount++;
-					}
+				
 					
 							if (beamPreCount >= 10 && beamPreCount <= 40 || beamPreCount >= 60 && beamPreCount <= 90) {
-								beams[i]->atackFlag = true;
+								
+								beams[i]->preAtack = true;
 							}
 							else {
-								beams[i]->atackFlag = false;
+								beams[i]->preAtack = false;
 							}
 
 					
@@ -922,7 +923,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			for (int i = 0; i < 4; i++) {
 				if (beamPreCount == 120 && beamPoint[i]->beamAlive == true) {
-					beams[i]->preAtack = true;
+					beams[i]->atackFlag = true;
 
 					beams[i]->beam.pos = beams[0]->beemStart;
 					beams[i]->beam.angle = { beamPoint[i]->beamPoint.center.x - beams[0]->beemStart.x ,beamPoint[i]->beamPoint.center.y - beams[0]->beemStart.y };
@@ -948,11 +949,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 			for (int i = 0; i < 4; i++) {
-					if (beamPreCount >= 200) {
-						beams[i]->atackFlag = true;
-						beams[i]->preAtack = false;
+					if (beamPreCount > 200) {
+						beams[i]->atackFlag = false;
+						beams[i]->preAtack = true;
 						beamAttackchange += 1;
 						beamPreCount = 0;
+					}
+					if (beamPreCount < 120) {
+						beams[i]->atackFlag = false;
 					}
 					if (beamPoint[i]->beamAlive == false) {
 					
@@ -1090,11 +1094,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			
 
 			for (int i = 0; i < beamNum; i++) {//ビームポイント
-				if (beams[i]->preAtack == true) {
+				if (beams[i]->atackFlag == true) {
 					Novice::DrawQuad(beams[i]->BTop.pos.x - player->scroll.x, beams[i]->BTop.pos.y - player->scroll.y, beams[i]->BTop.EndPos.x - player->scroll.x, beams[i]->BTop.EndPos.y - player->scroll.y, beams[i]->BDown.pos.x - player->scroll.x, beams[i]->BDown.pos.y - player->scroll.y, beams[i]->BDown.EndPos.x - player->scroll.x, beams[i]->BDown.EndPos.y - player->scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
 
 				}
-				if (beams[i]->atackFlag == true) {
+				if (beams[i]->preAtack == true) {
 
 					Novice::DrawQuad(beams[i]->BTop.pos.x - player->scroll.x, beams[i]->BTop.pos.y - player->scroll.y, beams[i]->BTop.EndPos.x - player->scroll.x, beams[i]->BTop.EndPos.y - player->scroll.y, beams[i]->BDown.pos.x - player->scroll.x, beams[i]->BDown.pos.y - player->scroll.y, beams[i]->BDown.EndPos.x - player->scroll.x, beams[i]->BDown.EndPos.y - player->scroll.y, 0, 0, 1, 1, WhiteP, 0xFFFF33);
 
