@@ -2,7 +2,7 @@
 
 Nucleus::Nucleus(Circle nucleus) {
 	nucleus.center = { 0,0 };
-	nucleus.radius = 36.0f;
+	nucleus.radius = 32.0f;
 	nucleus.speed = 0;
 	nucleus.color = RED;
 	nucleus.HP = 100;

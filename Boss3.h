@@ -35,8 +35,19 @@ typedef struct Boss3 {
 	float theta;
 	int selectCount;
 	int select;
-	
+	int preSelect;
+	int rotateRadius;
+	float rotateTheta;
+	int rotatePlus;
+	int thetaPlus;
+
+	Vector2 originarRT;
+	Vector2 originarRD;
+	Vector2 originarLT;
+	Vector2 originarLD;
 };
+
+
 typedef struct Particle {
 	Vector2 pos;
 	Vector2 startPos;
@@ -65,10 +76,14 @@ typedef struct BossBeam {
 
 
 void Boss3Reset(Boss3& boss,Baria &baria,BossBeam &beam);
-void BossAtackRotate();
-void BossBaria(Boss3& a,  Baria& baria);
-void BossPattern(Boss3& boss, BossBeam& beam, Vector2& player, Baria& baria);
+void BossAtackRotatet(Boss3& a);
 
+void Boss3BeamAtack(Boss3& boss, BossBeam& beam, BossBeam& beam2, Vector2& player);
+
+void BossBaria(Boss3& a,  Baria& baria);
+void Boss2Pattern(Boss3& boss, BossBeam& beam, Vector2& player, Baria& baria);
+
+void Boss3Pattern(Boss3& boss, BossBeam& beam, BossBeam& beam2,  Vector2& player, Baria& baria);
 void BossBariaCollision(Baria& baria, Vector2& atack, float& radius,int& count, bool& flag);
-void BossBeamAtack(Boss3& boss, BossBeam& beam, Vector2 &player);
+void Boss2BeamAtack(Boss3& boss, BossBeam& beam, Vector2 &player);
 float learp(float t, float s, float e);
