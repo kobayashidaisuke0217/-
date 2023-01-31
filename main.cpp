@@ -326,7 +326,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		
+		player->Hit();
 
 		if (gamemode == 0) {//ゲーム開始画面
 			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]) {
@@ -420,14 +420,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				enemy[0]->enemyAlive = true;
 				enemy[0]->enemy.center = { 1280, 720 };
 				if (lastboss.isAlive == true) {
-					if (CircleCollisinHit(player->player.center, player->player.radius, lastboss.pos, lastboss.radius) == true) {
+					if (CircleCollisinHit(player->player.center, player->player.radius, lastboss.pos, lastboss.radius) == true&&player->hit==false) {
 						triangle->atackSpeed.x =  -triangle->atackSpeed.x*0.7 ;
 						triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
+						player->hit = true;
 						
 					}
 				}
 			}
 			if (gamemode == 3) {
+				if (lastboss.isAlive == true) {
+					if (CircleCollisinHit(player->player.center, player->player.radius, lastboss.pos, lastboss.radius) == true && player->hit == false) {
+						triangle->atackSpeed.x = -triangle->atackSpeed.x * 0.7;
+						triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
+						player->hit = true;
+
+					}
+				}
 				for (int i = 0; i < enemyNum; i++) {
 					if (i >= 1) {
 						enemy[i]->enemyAlive = false;
@@ -438,8 +447,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				BossPattern(lastboss, bossBeam, player->player.center, rasBossBaria);
 				//BossBeamAtack(lastboss, bossBeam, player->player.center);
 				if (bossBeam.flag == true) {
-					if(RectCollisionHit(bossBeam.pos, bossBeam.EndPos, player->player.center, player->player.radius, bossBeam.size)==true) {
+					if(RectCollisionHit(bossBeam.pos, bossBeam.EndPos, player->player.center, player->player.radius, bossBeam.size)==true&&player->hit==false) {
 						gamemode = 0;
+						player->hit = true;
 					}
 				}
 				//BossBaria(lastboss, rasBossBaria);
@@ -985,11 +995,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				for (int i = 0; i < 4; i++) {
 					if (beams[i]->atackFlag == true) {
 						beams[i]->atackCount++;
-						if (RectCollisionHit(beams[i]->beam.pos, beams[i]->beam.EndPos, player->player.center, 32, player->player.radius) == true) {//自機の生死フラグ = false;
+						if (RectCollisionHit(beams[i]->beam.pos, beams[i]->beam.EndPos, player->player.center, 32, player->player.radius) == true&&player->hit==false) {//自機の生死フラグ = false;
 							Novice::ScreenPrintf(40, 40, "Hit");
 							beemHit = true;
 							triangle->atackSpeed.x = triangle->atackSpeed.x * 0.8;
 							triangle->atackSpeed.y = triangle->atackSpeed.y * 0.8;
+							player->hit = true;
 						}
 					}
 					if (beams[i]->atackCount >= 40) {
