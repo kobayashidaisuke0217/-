@@ -1,4 +1,7 @@
 #include "Boss3.h"
+float learp(float t, float s, float e) {
+	return (1.0f - t) * s + t * e;
+}
 void Boss3Reset(Boss3& boss, Baria& baria,BossBeam &beam) {
 	boss.patten = 0;
 
@@ -10,7 +13,8 @@ void Boss3Reset(Boss3& boss, Baria& baria,BossBeam &beam) {
 	boss.radius = 128;
 	boss.HP = 100;
 	boss.isAlive = true;
-
+	boss.select = 0;
+	boss.selectCount = 999;
 
 
 	baria.alpha = 0;
@@ -39,6 +43,16 @@ void Boss3Reset(Boss3& boss, Baria& baria,BossBeam &beam) {
 	beam.rightTop = { 0,0 };
 	beam.theta = 0;
 	beam.size = 16;
+	/*beam.parob = { 0,0 };
+	beam.partheta = 0;
+	for (int i = 0; i < 30; i++) {
+		beam.par[i].isAlive = false;
+		beam.par[i].pos = {0,0};
+		beam.par[i].size = 8;
+		beam.par[i].speed = 0;
+		beam.par[i].startPos = {0,0};
+		
+	}*/
 }
 void BossAtackRotatet(Boss3 &a) {
 
@@ -127,14 +141,60 @@ void BossBaria(Boss3& boss, Baria& baria ) {
 	}
 }
 
-void BossPattern(Boss3& a) {
+void BossPattern(Boss3& boss,BossBeam& beam,Vector2 &player,Baria &baria) {
 	
+	if (boss.selectCount > 1000) {
+		boss.select = rand() % 2+1;
+		boss.selectCount = 0;
+	}
+	
+	else {
+		boss.selectCount++;
+	}
+	if (boss.selectCount >= 940) {
+		boss.select = 0;
+	}
+	if (boss.select == 1) {
+		BossBeamAtack(boss,beam,player);
+	}
+	else if (boss.select == 2) {
+		BossBaria(boss, baria);
+	}
 }
 void BossBeamAtack(Boss3& boss, BossBeam& beam, Vector2& player) {
 	beam.count++;
+	/*beam.partheta += 1.0f / 20.0f;
+	beam.parob = { beam.pos.x + cosf(beam.partheta) * 20,beam.pos.y + sinf(beam.partheta) * 20 };
+	for (int i = 0; i < 30; i++) {
+		if (beam.par[i].isAlive == false) {
+			beam.par[i].pos = beam.parob;
+			beam.par[i].startPos = beam.parob;
+			beam.par[i].speed = 0;
+			beam.par[i].size = 8;
+			beam.par[i].isAlive = true;
+			break;
+		}
+		if (beam.par[i].isAlive == true) {
+			beam.par[i].speed += 1.0f / 30.0f;
+			beam.par[i].pos.x = learp(beam.par[i].speed, beam.par[i].startPos.x, beam.pos.x);
+			beam.par[i].pos.y = learp(beam.par[i].speed, beam.par[i].startPos.y, beam.pos.y);
+		
+		}
+		if (beam.par[i].speed >= 1.0f) {
+			beam.par[i].isAlive = false;
+		}
+	}*/
 	if (beam.count >= 120) {
 		beam.flag = true;
 	}
+	
+	if (beam.count >= 940) {
+		beam.flag = false;
+		beam.theta = 0;
+		beam.count = 0;
+	}
+	
+
 	if (beam.flag == true) {
 		beam.pos.x = boss.pos.x;
 		beam.pos.y = boss.pos.y - boss.radius;
