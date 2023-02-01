@@ -73,7 +73,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Bullet bulletReset = { 300,400,32,0,0,RED };
 
 	Player* player = new Player({ 500,300,32.0f,6,RED,100 },{0,0});
-
+	bool playerIsAlive = true;
 	Nucleus* nucleus[12];
 
 	for (int i = 0; i < 12; i++) {
@@ -241,7 +241,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector2 throwradian[4] = { 0 };
 	Vector2 throwAngle[4] = { 0 };
 	Vector2 throwSpeed[4] = { 0 };
-
+	int atackdamage = 0;
 	float triangleSide = 0;
 
 	int triangleBreak = false;
@@ -378,45 +378,63 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		player->Hit();
 		player->Reflect();
-		if (player->HP <= 0) {
-			gamemode = 8;
+		if (gamemode <= 7) {
+			if (player->HP <= 0) {
+				playerIsAlive = false;
+				gamemode = 8;
+			}
 		}
 		if (gamemode == 8) {
 			scrollMode = 2;
-			if (fadeOutAlpha == false) {
-				fadeoutFlag[0] = true;
-			}
-			if (fadeOutAlpha >= 254) {
-				if (player->HP <= 0) {
+			//fadeoutFlag[0] = true;
+			
+			
+				if ( playerIsAlive== false) {
 					gamemode = 9;
 				}
 				else {
 					gamemode = 10;
 				}
-			}
+			
 		}
 		if (gamemode == 9 || gamemode == 10 ) {
-			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]) {
+			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V] ) {
 
 				gamemode = 11;
 			}
 			
 		}
 		if (gamemode == 11) {
-			if (fadeOutAlpha == false) {
+			
 				fadeoutFlag[0] = true;
-			}
-			if (fadeOutAlpha >= 254) {
+			
+		/*	if (fadeOutAlpha >= 255) {
 				gamemode = 0;
-			}
+			}*/
 		}
 		if (fadeoutFlag[0] == true ) {
-			fadeOutAlpha += 2;
+			fadeOutAlpha += 5;
 
-		}if (fadeOutAlpha >= 255) {
+		}
+		if (fadeOutAlpha >= 255) {
 			fadeoutFlag[1] = true;
 			fadeoutFlag[0] = false;
+			if (gamemode == 100) {
+				gamemode = 1;
+			}
+			else if (gamemode == 11) {
+				gamemode = 0;
+				playerIsAlive = true;
+			}
+			else if (gamemode == 9 || gamemode == 10) {
+				gamemode = 11;
+			}
 			
+			else {
+
+
+				gamemode++;
+			}
 		}
 		else if (fadeOutAlpha <= 0) {
 			fadeoutFlag[1] = false;
@@ -425,12 +443,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			fadeoutDrawFlag = true;
 		}
 		if (fadeoutFlag[1] == true) {
-			fadeOutAlpha -= 2;
+			fadeOutAlpha -= 5;
 		}
 		
+		if (fadeOutAlpha >= 250) {
+			if (playerIsAlive == true) {
+				player->HP = 30;
+			}
+		}
+		if (fadeoutFlag[0] == true) {
+			fadeoutFlag[1] = false;
+		}
 		if (gamemode == 0) {//ゲーム開始画面
 			player->scroll = { 0,0 };
-			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]&& fadeoutFlag[0]==false) {
+			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]) {
 				gamemode = 100;
 				
 			}
@@ -438,37 +464,39 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 				lastboss.battleStart = false;
 			}
-			
+			player->Reset();
 			
 		}
 		if (gamemode == 100) {
-			if (fadeOutAlpha == false) {
+			
 				fadeoutFlag[0] = true;
-			}
-			if (fadeOutAlpha >= 254) {
+			
+
+
+			if (fadeOutAlpha >= 255) {
 				triangle->pattern = 0;
 
-				gamemode = 1;
+				
 			}
 		}
 		if (gamemode == 3 || gamemode == 5 || gamemode == 7 ) {
 			if (lastboss.isAlive == false) {
 				lastboss.battleStart = false;
-				gamemode += 1;
+				
 			}
 		}
 		
 		if (gamemode == 2 && fadeoutFlag[0] == false) {
 			triangle->pattern = 0;
 			player->Reset();
-			if (fadeOutAlpha == false) {
+			
 				fadeoutFlag[0] = true;
-			}
+			
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
 
-			if (fadeOutAlpha >= 254) {
+			if (fadeOutAlpha >= 255) {
 				triangle->pattern = 0;
 				gamemode = 3;
 			}
@@ -477,14 +505,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (gamemode == 4 ) {
 			triangle->pattern = 0;
 			player->Reset();
-			if (fadeOutAlpha == false) {
+			
 				fadeoutFlag[0] = true;
-			}
+			
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
 		
-			if (fadeOutAlpha >= 254 ) {
+			if (fadeOutAlpha >= 255 ) {
 				triangle->pattern = 0;
 				gamemode = 5;
 			}
@@ -493,14 +521,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (gamemode == 6 ) {
 			triangle->pattern = 0;
 			player->Reset();
-			if (fadeOutAlpha == false) {
+			
 				fadeoutFlag[0] = true;
-			}
+			
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
 			
-			if (fadeOutAlpha >= 254 ) {
+			if (fadeOutAlpha >= 255 ) {
 				triangle->pattern = 0;
 				gamemode = 7;
 			}
@@ -508,6 +536,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		if (gamemode >= 1) {//ゲームスタート
 			if (gamemode == 1) {//チュートリアル
+				fadeoutFlag[0] = false;
 				lastboss.battleStart = true;
 				scrollMode = 0;
 				beamPoint[0]->beamAtackStart = false;
@@ -519,19 +548,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 
 				if (player->player.center.x >= 2500) {
-					if (fadeOutAlpha == false) {
-						fadeoutFlag[0] = true;
-					}
+					lastboss.battleStart = false;
+					gamemode = 2;
 					
 				}
 				if (player->player.center.x >= 1000) {
-					if (fadeOutAlpha >= 254) {
-						lastboss.battleStart = false;
-						gamemode = 2;
+					if (fadeOutAlpha >= 255) {
+						
 					}
 				}
 			}
 			if (gamemode == 3) {//ステージ1
+				fadeoutFlag[0] = false;
 				BossSetpos(lastboss);
 				scrollMode = 1;
 				beamPoint[0]->beamAtackStart = true;
@@ -546,15 +574,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				
 			}
 			if (gamemode == 5) {//ステージ2
+				fadeoutFlag[0] = false;
 				BossSetpos(lastboss);
 				scrollMode = 1;
 				beamPoint[0]->beamAtackStart = true;
 				beams[0]->beamMode = 0;
-				/*if (lastboss.HP <= 0) {
-					lastboss.battleStart = false;
-					gamemode = 4;
-					
-				}*/
+				
 				if (lastboss.battleStart == true) {
 					Boss2Pattern(lastboss, bossBeam[0], player->player.center, rasBossBaria);
 					if (bossBeam[0].flag == true) {
@@ -587,6 +612,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 			if (gamemode == 7) {
+				fadeoutFlag[0] = false;
 				BossSetpos(lastboss);
 				if (lastboss.battleStart == true) {
 					if (lastboss.isAlive == true) {
@@ -843,6 +869,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							if (nucleusSuctionCount >= 4) {
 								nucleusSuctionCount = 4;
 							}
+							atackdamage = nucleusSuctionCount;
 							nucleus[i]->nucleusCountfrag = true;
 						}
 					}
@@ -998,7 +1025,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (throwDamageFlag[i] == true) {
 					if (CircleCollisinHit(throwPos[i], hitradius[i], lastboss.pos, lastboss.radius) == true) {
 						throwDamageFlag[i] = false;
-						lastboss.HP -= 1;
+						lastboss.HP -= atackdamage;
 					}
 				}
 				for (int j = 0; j < 4; j++) {
@@ -1210,11 +1237,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				for (int i = 0; i < nucleusSuctionCount; i++) {
 					throwFlag[i] = false;
 				}
-				/*for (int i = 1; i < nucleus[0]->max; i++) {
-					nucleus[i]->nucleus.radius = 32;
-					nucleus[i]->nucleus.center = nucleus[i]->nucleusPrePos;
-					nucleuspicRadius[i] = 1;
-				}*/
+				
 			}
 		}
 
@@ -1235,7 +1258,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Novice::DrawSprite(0, 0, kakomePic, 1, 1, 0, 0xffffffff);
 		}
 
-		if (gamemode >= 1 /*|| gamemode == 3||gamemode ==5||gamemode==7*/) {//ゲームスタート
+		if (gamemode == 1 || gamemode == 3||gamemode ==5||gamemode==7) {//ゲームスタート
 			if (gamemode == 1) {//ステージ1
 
 			}
@@ -1385,7 +1408,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (gamemode == 10) {
 			Novice::ScreenPrintf(40, 100, "gameClear");
 		}
-		Novice::ScreenPrintf(10, 40, "%d", player->HP);
+		Novice::ScreenPrintf(10, 40, "%d", gamemode);
 		
 		///
 		///

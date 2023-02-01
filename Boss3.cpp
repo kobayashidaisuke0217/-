@@ -5,19 +5,15 @@ float learp(float t, float s, float e) {
 void Boss3Reset(Boss3& boss, Baria& baria, BossBeam& beam) {
 	boss.patten = 0;
 
-	/*boss.pos = { 1280,720 };
-	boss.leftDown = { 0,0 };
-	boss.leftTop = { 0,0 };
-	boss.rightDown = { 0,0 };
-	boss.rightTop = { 0,0 };*/
+	
 	boss.radius = 128;
-	boss.HP = 1;
+	boss.HP = 100;
 	boss.isAlive = true;
 	boss.select = 0;
 	boss.selectCount = 860;
 	boss.rotateRadius = 0;
 	boss.rotateTheta = 0;
-	boss.rotatePlus = 5;
+	boss.rotatePlus = 100;
 	boss.thetaPlus = 0;
 	boss.originarRT = { boss.radius,-boss.radius };
 	boss.originarRD = { boss.radius,boss.radius };

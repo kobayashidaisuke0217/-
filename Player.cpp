@@ -48,7 +48,7 @@ void Player::Reflect() {
 	if (reflect == true) {
 		 reflectCount++;
 	}
-	if (reflectCount > 40) {
+	if (reflectCount > 60) {
 		reflect = false;
 		reflectCount = 0;
 	}
