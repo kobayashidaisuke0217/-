@@ -32,6 +32,7 @@ typedef struct Boss3 {
 	Vector2 leftDown;
 	Vector2 rightDown;
 
+	Vector2 returnPos;
 	float theta;
 	int selectCount;
 	int select;
@@ -40,6 +41,17 @@ typedef struct Boss3 {
 	float rotateTheta;
 	int rotatePlus;
 	int thetaPlus;
+
+	float DrawAngle;
+
+	float returnSpeed;
+
+	bool battleStart;
+
+
+
+
+
 
 	Vector2 originarRT;
 	Vector2 originarRD;
@@ -77,9 +89,12 @@ typedef struct BossBeam {
 
 void Boss3Reset(Boss3& boss,Baria &baria,BossBeam &beam);
 void BossAtackRotatet(Boss3& a);
-
+void RotatetReset(Boss3& boss);
+void Boss3BeamReset(BossBeam& beam,BossBeam& beam2);
+void Boss2BeamReset(BossBeam& beam);
 void Boss3BeamAtack(Boss3& boss, BossBeam& beam, BossBeam& beam2, Vector2& player);
-
+void Boss1Pattern(Boss3& boss, BossBeam& beam);
+void BossSetpos(Boss3& boss);
 void BossBaria(Boss3& a,  Baria& baria);
 void Boss2Pattern(Boss3& boss, BossBeam& beam, Vector2& player, Baria& baria);
 
