@@ -5,16 +5,16 @@ float learp(float t, float s, float e) {
 void Boss3Reset(Boss3& boss, Baria& baria, BossBeam& beam) {
 	boss.patten = 0;
 
-	boss.pos = { 1280,720 };
+	/*boss.pos = { 1280,720 };
 	boss.leftDown = { 0,0 };
 	boss.leftTop = { 0,0 };
 	boss.rightDown = { 0,0 };
-	boss.rightTop = { 0,0 };
+	boss.rightTop = { 0,0 };*/
 	boss.radius = 128;
-	boss.HP = 100;
+	boss.HP = 1;
 	boss.isAlive = true;
 	boss.select = 0;
-	boss.selectCount = 999;
+	boss.selectCount = 860;
 	boss.rotateRadius = 0;
 	boss.rotateTheta = 0;
 	boss.rotatePlus = 5;
@@ -24,6 +24,10 @@ void Boss3Reset(Boss3& boss, Baria& baria, BossBeam& beam) {
 	boss.originarLT = {-boss.radius,-boss.radius};
 	boss.originarLD = {-boss.radius,boss.radius};
 	boss.preSelect = 0;
+	boss.DrawAngle = 0;
+	boss.returnSpeed = 0;
+	boss.returnPos = { 0,0 };
+	boss.battleStart = false;
 
 	baria.alpha = 0;
 	baria.breakCount = 0;
@@ -64,16 +68,40 @@ void Boss3Reset(Boss3& boss, Baria& baria, BossBeam& beam) {
 		
 	}*/
 }
+void RotatetReset(Boss3& boss) {
+	boss.rotateRadius = 0;
+	boss.rotatePlus = 0;
+	boss.theta = 0;
+	boss.rotateTheta = 0;
+	boss.leftDown = { boss.pos.x - boss.radius,boss.pos.y + boss.radius };
+	boss.rightDown = { boss.pos.x + boss.radius,boss.pos.y + boss.radius };
+	boss.leftTop = { boss.pos.x - boss.radius,boss.pos.y - boss.radius };
+	boss.rightTop = { boss.pos.x + boss.radius,boss.pos.y - boss.radius };
+}
+void Boss3BeamReset(BossBeam& beam, BossBeam& beam2) {
+	beam.theta = 0;
+	beam.count = 0;
+	beam.flag = false;
+	beam2.theta = 0;
+	beam2.flag = false;
+	beam2.count = 0;
+}
+void Boss2BeamReset(BossBeam& beam) {
+	beam.theta = 0;
+	beam.count = 0;
+	beam.flag = false;
+}
+
 void BossAtackRotatet(Boss3 &a) {
 	
 	
 	if (a.rotateRadius <= 0) {
 		 a.rotatePlus = 1;
-		 a.thetaPlus = 1.0f / 30.0f;
+		 
 	}
 	if (a.rotateRadius >= 800) {
 		a.rotatePlus = -1;
-		a.thetaPlus = -(1.0f / 30.0f);
+		
 	}
 	a.theta += 1.0f/30.0f;
 	a.rotateRadius += a.rotatePlus;
@@ -93,25 +121,7 @@ void BossAtackRotatet(Boss3 &a) {
 	a.leftDown = Add(a.leftDown, a.pos);
 	a.rightTop = Add(a.rightTop, a.pos);
 	a.rightDown = Add(a.rightDown, a.pos);
-	/*Start[i] = Add(Start[i], throwPos[i]);
-	Vertex[i] = Add(Vertex[i], throwPos[i]);
-	End[i] = Add(End[i], throwPos[i]);*/
-	/*Vector2 rotatedLeftTop = MatrixMultiply(a.originarLT, rotateMatrix);
 	
-	a.leftTop.x += rotatedLeftTop.x;
-	a.leftTop.y += rotatedLeftTop.y;
-
-	Vector2 rotatedRightTop = MatrixMultiply(a.originarRT, rotateMatrix);
-	
-	a.rightTop.x += rotatedRightTop.x;
-	a.rightTop.y += rotatedRightTop.y;
-	Vector2 rotatedLeftDown = MatrixMultiply(a.originarLD, rotateMatrix);
-	a.leftDown.x += rotatedLeftDown.x;
-	a.leftDown.y += rotatedLeftDown.y;
-
-	Vector2 rotatedRightDown = MatrixMultiply(a.originarRD, rotateMatrix);
-	a.rightDown.x += rotatedRightDown.x;
-	a.rightDown.y += rotatedRightDown.y;*/
 
 }
 void BossBariaCollision(Baria& baria, Vector2& atack, float& radius, int& count, bool& flag) {
@@ -138,13 +148,6 @@ void BossBaria(Boss3& boss, Baria& baria ) {
 		if (baria.alpha < 30) {
 			baria.alpha = 30;
 		}
-		/*	if (AtackFlag == true) {
-				if (RectCollisionHit(baria.pos,baria.Endpos,Atack, atackRadius, baria.size) == true) {
-					AtackFlag = false;
-					baria.HP -= 1;
-					baria.alpha = 255;
-				}
-			}*/
 		
 
 		if (baria.count >= 480) {
@@ -199,12 +202,50 @@ void BossBaria(Boss3& boss, Baria& baria ) {
 		baria.alpha = 255;
 	}
 }
+void Boss1Pattern(Boss3& boss, BossBeam& beam,Vector2 player) {
+	if (boss.selectCount > 1000) {
 
+		boss.select = rand() % 3 + 1;
+		while (boss.preSelect == boss.select)
+		{
+			boss.select = rand() % 3 + 1;
+		}
+		boss.returnSpeed = 0;
+		boss.selectCount = 0;
+	}
+	else {
+		boss.selectCount++;
+	}
+	if (boss.selectCount >= 940) {
+		boss.preSelect = boss.select;
+		boss.select = 0;
+	}
+	if (boss.select == 1) {
+		Boss2BeamAtack(boss, beam, player);
+		boss.returnPos = boss.pos;
+	}
+	else if (boss.select == 3) {
+		BossAtackRotatet(boss);
+		boss.returnPos = boss.pos;
+	}
+
+	else if (boss.select == 0) {
+		if (boss.returnSpeed <= 1.0f) {
+			boss.returnSpeed += 1.0f / 30.0f;
+		}
+		if (boss.returnSpeed >= 1.0f) {
+			boss.returnSpeed = 1.0f;
+		}
+		if (boss.pos.x == 1280) {
+			RotatetReset(boss);
+		}
+		Boss2BeamReset(beam);
+		boss.pos = { learp(boss.returnSpeed,boss.returnPos.x , 1280),learp(boss.returnSpeed,boss.returnPos.y , 720) };
+
+	}
+}
 void Boss2Pattern(Boss3& boss,BossBeam& beam,Vector2 &player,Baria &baria) {
-	boss.leftDown = { boss.pos.x - boss.radius,boss.pos.y + boss.radius };
-	boss.rightDown = { boss.pos.x + boss.radius,boss.pos.y + boss.radius };
-	boss.leftTop = { boss.pos.x - boss.radius,boss.pos.y - boss.radius };
-	boss.rightTop = { boss.pos.x + boss.radius,boss.pos.y - boss.radius };
+	
 	if (boss.selectCount > 1000) {
 		
 		boss.select = rand() % 3+1;
@@ -212,6 +253,7 @@ void Boss2Pattern(Boss3& boss,BossBeam& beam,Vector2 &player,Baria &baria) {
 		{
 			boss.select = rand() % 3 + 1;
 		}
+		boss.returnSpeed = 0;
 		boss.selectCount = 0;
 	}
 	
@@ -224,16 +266,30 @@ void Boss2Pattern(Boss3& boss,BossBeam& beam,Vector2 &player,Baria &baria) {
 	}
 	if (boss.select == 1) {
 		Boss2BeamAtack(boss,beam,player);
+		boss.returnPos = boss.pos;
 	}
 	else if (boss.select == 2) {
 		BossBaria(boss, baria);
 		beam.flag = false;
+		boss.returnPos = boss.pos;
 	}
 	else if (boss.select == 3) {
 		BossAtackRotatet(boss);
+		boss.returnPos = boss.pos;
 	}
 	else if (boss.select == 0) {
-		boss.pos = { 1280,720 };
+		if (boss.returnSpeed <= 1.0f) {
+			boss.returnSpeed += 1.0f / 30.0f;
+		}
+		if (boss.returnSpeed >= 1.0f) {
+			boss.returnSpeed = 1.0f;
+		}
+		if (boss.pos.x == 1280) {
+			RotatetReset(boss);
+		}
+		Boss2BeamReset(beam);
+		boss.pos = { learp(boss.returnSpeed,boss.returnPos.x , 1280),learp(boss.returnSpeed,boss.returnPos.y , 720) };
+	
 	}
 }
 
@@ -247,6 +303,7 @@ void Boss3Pattern(Boss3& boss, BossBeam& beam,BossBeam& beam2,Vector2& player, B
 		{
 			boss.select = rand() % 5 + 1;
 		}
+		boss.returnSpeed = 0;
 		boss.selectCount = 0;
 	}
 
@@ -259,21 +316,32 @@ void Boss3Pattern(Boss3& boss, BossBeam& beam,BossBeam& beam2,Vector2& player, B
 	}
 	if (boss.select == 1||boss.select==4) {
 		Boss2BeamAtack(boss, beam, player);
-		
+		boss.returnPos = boss.pos;
 	}
 	else if (boss.select == 2) {
 		BossBaria(boss, baria);
-		
+		boss.returnPos = boss.pos;
 	}
 	else if (boss.select == 3) {
 		Boss3BeamAtack(boss, beam, beam2, player);
-	
+		boss.returnPos = boss.pos;
 	}
 	else if (boss.select == 5) {
 		BossAtackRotatet(boss);
+		boss.returnPos = boss.pos;
 	}
 	else if (boss.select == 0) {
-		boss.pos = { 1280,720 };
+		if (boss.returnSpeed <= 1.0f) {
+			boss.returnSpeed += 1.0f / 30.0f;
+		}
+		if (boss.returnSpeed >= 1.0f) {
+			boss.returnSpeed = 1.0f;
+		}
+		if (boss.pos.x == 1280) {
+			RotatetReset(boss);
+		}
+		Boss3BeamReset(beam,beam2);
+		boss.pos = { learp(boss.returnSpeed,boss.returnPos.x , 1280),learp(boss.returnSpeed,boss.returnPos.y , 720) };
 	}
 }
 void Boss2BeamAtack(Boss3& boss, BossBeam& beam ,Vector2& player) {
@@ -320,6 +388,7 @@ void Boss2BeamAtack(Boss3& boss, BossBeam& beam ,Vector2& player) {
 		beam.ob = { beam.pos.x + cosf(beam.theta) * 40,beam.pos.y + sinf(beam.theta) * 40 };
 		Vector2 beamangle = { beam.ob.x - beam.pos.x,beam.ob.y - beam.pos.y };
 		Vector2 beamradian = Normalais(beamangle);
+		boss.DrawAngle = atan2(beamradian.y, beamradian.x);
 		beam.EndPos = Multiply(beamradian, 2000);
 		beam.EndPos.x += beam.pos.x;
 		beam.EndPos.y += beam.pos.y;
@@ -335,6 +404,19 @@ void Boss2BeamAtack(Boss3& boss, BossBeam& beam ,Vector2& player) {
 		beam.leftDown = { beam.pos.x + beamDownRadian.x,beam.pos.y + beamDownRadian.y };
 		beam.rightDown.x = beam.EndPos.x + beamDownRadian.x;
 		beam.rightDown.y = beam.EndPos.y + beamDownRadian.y;
+		Matrix2x2 rotateMatrix = MakeRotateMatrix(boss.DrawAngle);
+
+		boss.leftTop = MatrixMultiply(boss.originarLT, rotateMatrix);
+
+		boss.leftDown = MatrixMultiply(boss.originarLD, rotateMatrix);
+
+		boss.rightTop = MatrixMultiply(boss.originarRT, rotateMatrix);
+
+		boss.rightDown = MatrixMultiply(boss.originarRD, rotateMatrix);
+		boss.leftTop = Add(boss.leftTop, boss.pos);
+		boss.leftDown = Add(boss.leftDown, boss.pos);
+		boss.rightTop = Add(boss.rightTop, boss.pos);
+		boss.rightDown = Add(boss.rightDown, boss.pos);
 	}
 }
 
@@ -357,7 +439,7 @@ void Boss3BeamAtack(Boss3& boss, BossBeam& beam,BossBeam& beam2 ,Vector2& player
 		beam.pos = boss.pos;
 		beam2.pos = boss.pos;
 		beam2.flag = true;
-
+		
 		if (player.x >= 1280) {
 		beam.theta -= 1.0f / 180.0f;
 		}
@@ -368,6 +450,7 @@ void Boss3BeamAtack(Boss3& boss, BossBeam& beam,BossBeam& beam2 ,Vector2& player
 		Vector2 beamangle = { beam.ob.x - beam.pos.x,beam.ob.y - beam.pos.y };
 		Vector2 beamradian = Normalais(beamangle);
 		beam.EndPos = Multiply(beamradian, 2000);
+		boss.DrawAngle = atan2(beamradian.y, beamradian.x);
 		beam.EndPos.x += beam.pos.x;
 		beam.EndPos.y += beam.pos.y;
 
@@ -402,5 +485,32 @@ void Boss3BeamAtack(Boss3& boss, BossBeam& beam,BossBeam& beam2 ,Vector2& player
 		beam2.rightDown.x = beam2.EndPos.x + beam2DownRadian.x;
 		beam2.rightDown.y = beam2.EndPos.y + beam2DownRadian.y;
 		
+		Matrix2x2 rotateMatrix = MakeRotateMatrix(boss.DrawAngle);
+
+		boss.leftTop = MatrixMultiply(boss.originarLT, rotateMatrix);
+
+		boss.leftDown = MatrixMultiply(boss.originarLD, rotateMatrix);
+
+		boss.rightTop = MatrixMultiply(boss.originarRT, rotateMatrix);
+
+		boss.rightDown = MatrixMultiply(boss.originarRD, rotateMatrix);
+		boss.leftTop = Add(boss.leftTop, boss.pos);
+		boss.leftDown = Add(boss.leftDown, boss.pos);
+		boss.rightTop = Add(boss.rightTop, boss.pos);
+		boss.rightDown = Add(boss.rightDown, boss.pos);
+	}
+}
+void BossSetpos(Boss3& boss) {
+	if (boss.battleStart == false) {
+		boss.returnSpeed += 1.0f / 120.0f;
+		boss.pos.y = learp(boss.returnSpeed, -1000, 720);
+		boss.pos.x = 1280;
+		boss.leftDown = { boss.pos.x - boss.radius,boss.pos.y + boss.radius };
+		boss.rightDown = { boss.pos.x + boss.radius,boss.pos.y + boss.radius };
+		boss.leftTop = { boss.pos.x - boss.radius,boss.pos.y - boss.radius };
+		boss.rightTop = { boss.pos.x + boss.radius,boss.pos.y - boss.radius };
+		if (boss.returnSpeed >= 1.0f) {
+			boss.battleStart = true;
+		}
 	}
 }

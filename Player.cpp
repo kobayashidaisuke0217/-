@@ -5,6 +5,10 @@ Player::Player(Circle player,Vector2 scroll) {
 	scroll = { 0,0 };
 	hit = false;
 	hitCount = 0;
+	damage = 0;
+	HP = 30;
+	reflect = false;
+	reflectCount = 0;
 }
 
 void Player::Move(char keys[], char preKeys[], int leftx, int lefty, Vector2 scrollStart, Vector2 scrollEnd, int scrollMode) {
@@ -36,11 +40,25 @@ void Player::Move(char keys[], char preKeys[], int leftx, int lefty, Vector2 scr
 		}
 	}
 }
+void Player::Reset() {
+	player.center = { 300,100 };
+	player.HP = 30;
+}
+void Player::Reflect() {
+	if (reflect == true) {
+		 reflectCount++;
+	}
+	if (reflectCount > 40) {
+		reflect = false;
+		reflectCount = 0;
+	}
+}
 void Player::Hit() {
 	if (hit == true) {
 		hitCount++;
 	}
-	if (hitCount > 20) {
+	if (hitCount > 50) {
 		hit = false;
+		hitCount = 0;
 	}
 }
