@@ -109,7 +109,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	enemy[0]->enemy = { 600,300,36.0f,6.0f,WHITE,100 };
 	enemy[1]->enemy = { 1400,100,36.0f,6.0f,WHITE,100 };
 	enemy[2]->enemy = { 2000,200,36.0f,6.0f,WHITE,100 };
-
+	enemy[2]->enemyAlive = true;
 	const int beamNum = 4;//ビーム発射地点
 	BeamPoint* beamPoint[beamNum];
 
@@ -196,13 +196,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	stage[1] = Novice::LoadTexture("./Resources/image/backGround2.png"); //ステージ右上
 	stage[2] = Novice::LoadTexture("./Resources/image/backGround3.png"); //ステージ左下
 	stage[3] = Novice::LoadTexture("./Resources/image/backGround4.png"); //ステージ右下
+	/////////////////////////
+	//チュートリアル看板
+	int tutorial[6]; 
 
-	int tutorial[4]; 
-	tutorial[0] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
-	tutorial[1] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
-	tutorial[2] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
+	int tutorialButtonOne = Novice::LoadTexture("./Resources/image/tutorialButtonOne.png");//チュートリアルボタン
+	int tutorialStickOne = Novice::LoadTexture("./Resources/image/tutorialStickOne.png");//チュートリアルスティック
+	int tutorialStickOnePlayer = Novice::LoadTexture("./Resources/image/tutorialStickOnePlayer.png");//チュートリアルスティック
+	int tutorialRbButton = Novice::LoadTexture("./Resources/image/tutorialRbBuottonOne.png");//チュートリアルRBボタン
+	int tutorialLbButton = Novice::LoadTexture("./Resources/image/tutorialLbBuottonOne.png");//チュートリアルLBボタン
+	int tutorialRButton = Novice::LoadTexture("./Resources/image/tutorialRBuottonOne.png");//チュートリアルRボタン
+
+	tutorial[0] = Novice::LoadTexture("./Resources/image/tutorialStick.png");//チュートリアル
+	tutorial[1] = Novice::LoadTexture("./Resources/image/tutorialButton.png");//チュートリアル
+	tutorial[2] = Novice::LoadTexture("./Resources/image/tutorialRbBuotton.png");//チュートリアル
 	tutorial[3] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
-	
+	tutorial[4] = Novice::LoadTexture("./Resources/image/tutorial.png");//チュートリアル
+	tutorial[5] = Novice::LoadTexture("./Resources/image/tutorialRbBuotton.png");//チュートリアル
+	/////////////////////////
 	Vector2 Start[4];
 	Vector2 Vertex[4];
 	Vector2 End[4];
@@ -297,13 +308,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bossBeam.rightTop = { 0,0 };
 	bossBeam.theta = 0;
 	bossBeam.size = 16;
-
-	int tutorialPosx[4] = { 640,1500,2000,0 };
-	int tutorialPosy[4] = { -360,-360,-360,-360 };
-	int tutorialCount = { 0 };
-	int tutorialSpeed = { 6 };
-	
-
+	/////////////////////////
+	//チュートリアル看板
+	int tutorialTime[4] = { 0,0,0,0 };
+	int tutorialPosx[6] = { 50,550,900,1500,1900,2300 };
+	int tutorialPosy[6] = { -360,-360,-360,-360,-360,-360 };
+	int tutorialCount =  0 ;
+	int tutorialSpeed =  6 ;
+	int tutorialshakePosx[3] = { 0 };
+	int tutorialshakePosy[3] = { 0 };
+	//チュートリアル移動
+	int tutorialStickPosx[4] = { 50,-30,1500,1500 };
+	int tutorialStickPosy[4] = { -360,-360,-360,-360 };
+	int tutorialStickCount = 0;
+	int tutorialStickCancelCount = 0;
+	//チュートリアルチャージ
+	int tutorialButtonPosx = 550;
+	int tutorialButtonPosy = -360;
+	int tutorialBoxCount = 0;
+	//チュートリアル飛ばす
+	int tutorialRbButtonPosx[6] = { 900,900,800,2300, 2300 ,2200 };
+	int tutorialRbButtonPosy[6] = { -360,-360,-360,-360,-360 ,-360 };
+	int tutorialRbButtonCount[2] = { 0 };
+	//チュートリアル囲む
+	int tutorialencirclePosx = 1760;
+	int tutorialencirclePosy = -360;
+	int tutorialencircleCount = 0;
+	/////////////////////////
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -373,48 +404,201 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						enemy[i]->enemy.speed *= -1;
 					}
 				}
+				/////////////////////////
+				if (tutorialCount <= 6) {
+
+					
+					if (player->player.center.x > 50 && tutorialPosy[tutorialCount] <= 0 && tutorialCount == 0) {
+						tutorialPosy[tutorialCount] += tutorialSpeed;
+						tutorialStickPosy[0] += 6;
+						tutorialStickPosy[1] += 6;
+					}
+					
+					if (tutorialStickPosy[0] >= 0  && tutorialStickCount <= 10) {
+						tutorialStickPosy[0] = 0;
+						tutorialStickCount += 1;
+						tutorialStickPosx[0] += 2;
+					}
+					if (tutorialStickPosy[0] >= 0 && tutorialStickCount <= 60) {
+						tutorialStickPosy[0] = 0;
+						tutorialStickCount += 1;
+						tutorialStickPosx[1] += 3;
+						
+					}
+					if (tutorialStickCount == 60) {
+						tutorialStickPosx[0] = 50;
+						tutorialStickPosx[1] = -30;
+						tutorialStickCount = 0;
+					}
+					if (tutorialPosy[tutorialCount] == 0) {
+						tutorialBoxCount += 1;
+					}
+					if (player->player.center.x > 500 && tutorialPosy[tutorialCount] <= 0 && tutorialCount == 1) {
+						tutorialPosy[tutorialCount] += tutorialSpeed;
+						tutorialButtonPosy += tutorialSpeed;
+						
+					}
+					
+					if (tutorialButtonPosy >= 0&& tutorialBoxCount <=120) {
+						tutorialBoxCount += 1;
+						tutorialshakePosx[0] = rand() % 11 - 5;
+						tutorialshakePosy[0] = rand() % 11 - 5;
+
+					}
+					if ( tutorialBoxCount >= 120) {
+						tutorialButtonPosy = 0;
+						tutorialBoxCount = 0;
+					}
+					if (tutorialPosy[tutorialCount] == 0) {
+						tutorialCount += 1;
+					}
+					if (player->player.center.x > 500 && tutorialPosy[tutorialCount] <= 0 && tutorialCount == 2) {
+						tutorialPosy[tutorialCount] += tutorialSpeed;
+						tutorialRbButtonPosy[0] += tutorialSpeed;
+						tutorialRbButtonPosy[1] += tutorialSpeed;
+						tutorialRbButtonPosy[2] += tutorialSpeed;
+					}
+					if (tutorialRbButtonPosy[0] >= 0 && tutorialRbButtonCount[0] <= 10) {
+						tutorialRbButtonPosx[1] += 3;
+						tutorialshakePosx[1] = rand() % 11 - 5;
+						tutorialshakePosy[1] = rand() % 11 - 5;
+
+					}
+					if (tutorialRbButtonPosy[0] >= 0 && tutorialRbButtonCount[0] <= 60) {
+						tutorialRbButtonCount[0] += 1;
+						tutorialRbButtonPosx[2] += 4;
+						tutorialshakePosx[1] = rand() % 11 - 5;
+						tutorialshakePosy[1] = rand() % 11 - 5;
+
+					}
+					if (tutorialRbButtonCount[0] == 60) {
+						tutorialRbButtonPosx[0] = 900;
+						tutorialRbButtonPosx[1] = 900;
+						tutorialRbButtonPosx[2] = 800;
+						tutorialRbButtonCount[0] = 0;
+					}
+					if (tutorialPosy[tutorialCount] == 0) {
+						tutorialBoxCount += 1;
+					}
+					if (player->player.center.x > 1400 && tutorialPosy[tutorialCount] <= 0 && tutorialCount == 3) {
+						tutorialPosy[tutorialCount] += tutorialSpeed;
+						tutorialStickPosy[3] += tutorialSpeed;
+						tutorialStickPosy[2] += tutorialSpeed;
+					}
+					if (tutorialStickPosy[3] >= 0&& tutorialStickCancelCount <=60&& tutorialStickCancelCount>=0) {
+						tutorialshakePosx[2] = rand() % 11 - 5;
+						tutorialshakePosy[2] = rand() % 11 - 5;
+						tutorialStickCancelCount += 1;
+						tutorialStickPosx[3] += 1;
+					}
+					if (tutorialStickPosy[3] >= 0 && tutorialStickCancelCount <= 120 && tutorialStickCancelCount >= 60) {
+						tutorialshakePosx[2] = rand() % 11 - 5;
+						tutorialshakePosy[2] = rand() % 11 - 5;
+						tutorialStickCancelCount += 1;
+						tutorialStickPosy[3] += 1;
+					}
+					if (tutorialStickPosy[3] >= 0 && tutorialStickCancelCount <= 180 && tutorialStickCancelCount >= 120) {
+						tutorialshakePosx[2] = rand() % 11 - 5;
+						tutorialshakePosy[2] = rand() % 11 - 5;
+						tutorialStickCancelCount += 1;
+						tutorialStickPosx[3] -= 1;
+					}
+					if (tutorialStickPosy[3] >= 0 && tutorialStickCancelCount <= 240 && tutorialStickCancelCount >= 180) {
+						tutorialshakePosx[2] = rand() % 11 - 5;
+						tutorialshakePosy[2] = rand() % 11 - 5;
+						tutorialStickCancelCount += 1;
+						tutorialStickPosy[3] -= 1;
+					}
+					if (tutorialStickCancelCount >= 240) {
+						tutorialStickCancelCount = 0;
+					}
+					if (tutorialPosy[tutorialCount] == 0) {
+						tutorialCount += 1;
+					}
+					if (player->player.center.x > 1800 && tutorialPosy[tutorialCount] <= 0 && tutorialCount == 4) {
+						tutorialPosy[tutorialCount] += tutorialSpeed;
+						tutorialencirclePosy += tutorialSpeed;
+					}
+					
+					if (tutorialencirclePosy >= 0 && tutorialencircleCount <= 60 && tutorialencircleCount >= 0) {	
+						tutorialencircleCount += 1;
+						tutorialencirclePosx += 3;
+					}
+					if (tutorialencirclePosy >= 0 && tutorialencircleCount <= 120 && tutorialencircleCount >= 60) {	
+						tutorialencircleCount += 1;
+						tutorialencirclePosy += 2;
+					}
+					if (tutorialencirclePosy >= 0 && tutorialencircleCount <= 180 && tutorialencircleCount >= 120) {
+						tutorialencircleCount += 1;
+						tutorialencirclePosy -= 2;
+						tutorialencirclePosx -= 3;
+					}
+					if (tutorialencircleCount >= 180) {
+						tutorialencircleCount = 0;
+					}
+					if (tutorialPosy[tutorialCount] == 0) {
+						tutorialCount += 1;
+					}
+					if (player->player.center.x > 1800 && tutorialPosy[tutorialCount] <= 0 && tutorialCount == 5) {
+						tutorialPosy[tutorialCount] += tutorialSpeed;
+						tutorialRbButtonPosy[3] += tutorialSpeed;
+						tutorialRbButtonPosy[4] += tutorialSpeed;
+						
+					}
+					if (tutorialRbButtonPosy[3] >= 0 && tutorialRbButtonCount[1] <= 10) {
+						tutorialRbButtonPosx[4] -= 3;
+						tutorialshakePosx[1] = rand() % 11 - 5;
+						tutorialshakePosy[1] = rand() % 11 - 5;
+
+					}
+					if (tutorialRbButtonPosy[0] >= 0 && tutorialRbButtonCount[1] <= 60) {
+						tutorialRbButtonCount[1] += 1;
+						
+						tutorialshakePosx[1] = rand() % 11 - 5;
+						tutorialshakePosy[1] = rand() % 11 - 5;
+
+					}
+					if (tutorialRbButtonCount[1] == 60) {
+						tutorialRbButtonPosx[3] = 900;
+						tutorialRbButtonPosx[4] = 900;
+						
+						tutorialRbButtonCount[1] = 0;
+					}
+
+				}
+					/////////////////////////
+					if (player->player.center.x >= 2500) {
+						fadeoutFlag[0] = true;
+					}
+					if (fadeoutFlag[0] == true && fadeoutFlag[1] == false) {
+						fadeoutClar += 0x5;
+					}
+					if (fadeoutFlag[0] == true && fadeoutClar >= 256)
+					{
+						fadeoutClar = 0;
+					}
+					if (fadeoutClar == 250)
+					{
+						fadeoutClar = 255;
+						fadeoutFlag[1] = true;
+					}
+					if (fadeoutFlag[1] == true)
+					{
+						fadeoutTime++;
+					}
+
+					if (fadeoutTime == 40)
+					{
+						fadeoutFlag[0] = false;
+						fadeoutFlag[1] = false;
+						fadeoutTime = 0;
+						gamemode = 2;
+						tutorialPosy[0] = -360;
+						tutorialPosy[1] = -360;
+						tutorialPosy[2] = -360;
+						tutorialPosy[3] = -360;
+					}
 				
-				if (player->player.center.x > 320 && tutorialPosy[tutorialCount] <= 0) {
-					tutorialPosy[tutorialCount] += tutorialSpeed;
-				}
-				if (tutorialPosy[tutorialCount] == 0) {
-					tutorialCount += 1;
-				}
-				if (player->player.center.x > 1400 && tutorialPosy[tutorialCount] <= 0 && tutorialCount ==1) {
-					tutorialPosy[tutorialCount] += tutorialSpeed;
-				}
-				if (tutorialPosy[tutorialCount] == 0) {
-					tutorialCount += 1;
-				}
-				if (player->player.center.x > 1600 && tutorialPosy[tutorialCount] <= 0 && tutorialCount == 2) {
-					tutorialPosy[tutorialCount] += tutorialSpeed;
-				}
-				if (player->player.center.x >= 2500) {
-					fadeoutFlag[0] = true;
-				}
-				if (fadeoutFlag[0] == true && fadeoutFlag[1] == false) {
-					fadeoutClar += 0x5;
-				}
-				if (fadeoutFlag[0] == true && fadeoutClar >= 256)
-				{
-					fadeoutClar = 0;
-				}
-				if (fadeoutClar == 250)
-				{
-					fadeoutClar = 255;
-					fadeoutFlag[1] = true;
-				}
-				if (fadeoutFlag[1] == true)
-				{
-					fadeoutTime++;
-				}
-				if (fadeoutTime == 40)
-				{
-					fadeoutFlag[0] = false;
-					fadeoutFlag[1] = false;
-					fadeoutTime = 0;
-					gamemode = 2;
-				}
 			}
 			if (gamemode == 2) {//ステージ2
 				scrollMode = 1;
@@ -1014,11 +1198,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (gamemode >= 1) {//ゲームスタート
 			if (gamemode == 1) {//ステージ1
-				
-			}
-			for (int i = 0; i < 4; i++) {
+			/////////////////////////
+            for (int i = 0; i < 6; i++) {
 				Novice::DrawSprite(tutorialPosx[i] - player->scroll.x, tutorialPosy[i] - player->scroll.y, tutorial[i], 1, 1, 0.0f, 0xFFFFFFFF);
 			}
+			//チュートリアルスティック
+			Novice::DrawSprite(tutorialStickPosx[0] - player->scroll.x , tutorialStickPosy[0] - player->scroll.y  , tutorialStickOne, 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawSprite(tutorialStickPosx[1] - player->scroll.x , tutorialStickPosy[1] - player->scroll.y , tutorialStickOnePlayer, 1, 1, 0.0f, 0xFFFFFFFF);
+
+			//チュートリアルボタン
+			Novice::DrawSprite(tutorialButtonPosx - player->scroll.x + tutorialshakePosx[0], tutorialButtonPosy - player->scroll.y + tutorialshakePosy[0], tutorialButtonOne, 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawBox(tutorialButtonPosx + 126 - player->scroll.x, tutorialButtonPosy + 193 - player->scroll.y, 0 + tutorialBoxCount,25, 0.0f, 0xFFFFFFFF,kFillModeSolid);
+			//チュートリアルRBボタン
+
+			Novice::DrawSprite(tutorialRbButtonPosx[0] - player->scroll.x + tutorialshakePosx[1], tutorialRbButtonPosy[0] - player->scroll.y + tutorialshakePosy[1], tutorialRbButton, 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawSprite(tutorialRbButtonPosx[1] - player->scroll.x , tutorialRbButtonPosy[1] - player->scroll.y , tutorialRButton, 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawSprite(tutorialRbButtonPosx[2] - player->scroll.x , tutorialRbButtonPosy[2] - player->scroll.y , tutorialStickOnePlayer, 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawSprite(tutorialencirclePosx - player->scroll.x, tutorialencirclePosy - player->scroll.y, tutorialStickOnePlayer, 1, 1, 0.0f, 0xFFFFFFFF);
+			////チュートリアルキャンセルボタン
+			Novice::DrawSprite(tutorialStickPosx[2] - player->scroll.x + tutorialshakePosx[2], tutorialStickPosy[2] - player->scroll.y + tutorialshakePosy[2], tutorialLbButton, 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawSprite(tutorialStickPosx[3] - player->scroll.x, tutorialStickPosy[3] - player->scroll.y, tutorialStickOnePlayer, 1, 1, 0.0f, 0xFFFFFFFF);
+
+			if (tutorialencirclePosy >= 0 && tutorialencircleCount <= 180) {
+				Novice::DrawEllipse(2060 - player->scroll.x, 240 - player->scroll.y, 10, 10, 0, WHITE, kFillModeSolid);
+			 }
+
+			Novice::DrawSprite(tutorialRbButtonPosx[3] - player->scroll.x + tutorialshakePosx[1], tutorialRbButtonPosy[3] - player->scroll.y + tutorialshakePosy[1], tutorialRbButton, 1, 1, 0.0f, 0xFFFFFFFF);
+			Novice::DrawSprite(tutorialRbButtonPosx[4] - player->scroll.x, tutorialRbButtonPosy[4] - player->scroll.y, tutorialRButton, 1, 1, 0.0f, 0xFFFFFFFF);
+			
+			}
+			/////////////////////////
 			if (triangle->pattern == 1) {
 				Novice::DrawLine(triangle->line.start.x - player->scroll.x + RandShake.x, triangle->line.start.y - player->scroll.y + RandShake.y, player->player.center.x - player->scroll.x + RandShake.x, player->player.center.y - player->scroll.y + RandShake.y, WHITE);
 			}
@@ -1118,8 +1327,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (fadeoutFlag[0] == true) {
 			Novice::DrawBox(0, 0, 1280, 720, 0, fadeoutClar, kFillModeSolid);
 		}
-
-		Novice::ScreenPrintf(20, 20, "%d", player->scroll.x);
+		
+		Novice::ScreenPrintf(20, 20, "%d", tutorialRbButtonPosy);
+		Novice::ScreenPrintf(20, 40, "%d", tutorialencircleCount);
 		///
 		/// ↑描画処理ここまで
 		///
