@@ -221,6 +221,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	 int gameoverPic= Novice::LoadTexture("./Resources/image/gameover.png");
 	 int kakomePic = Novice::LoadTexture("./Resources/image/StartNanu2.png");
 	 int LTpic = Novice::LoadTexture("./Resources/image/LT.png");
+	 int LBpic = Novice::LoadTexture("./Resources/image/LB.png");
 	 int RBpic = Novice::LoadTexture("./Resources/image/RB.png");
 	 int Lstickpic = Novice::LoadTexture("./Resources/image/Lstick.png");
 	 int Rstickpic = Novice::LoadTexture("./Resources/image/Rstick.png");
@@ -358,8 +359,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	/*bossBeam.parob = { 0,0 };
 	bossBeam.partheta = 0;*/
 	/*チュートリアル*/
-	Tutrial tutrial[4];
-	for (int i = 0; i < 4; i++) {
+	Tutrial tutrial[5];
+	for (int i = 0; i < 5; i++) {
 		tutrial[i].downFlag = false;
 		tutrial[i].pos = { i *400.0f + 200.0f,-400 };
 		tutrial[i].player = { 0,0,16,0,WHITE,1 };
@@ -569,7 +570,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				lastboss.battleStart = true;
 				scrollMode = 0;
 				beamPoint[0]->beamAtackStart = false;
-				for (int i = 0; i < 4; i++) {
+				tutrial[0].downFlag = true;
+				for (int i = 0; i < 5; i++) {
 					TutrialCome(tutrial[i], player->player.center);
 					
 				}
@@ -1318,7 +1320,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (gamemode == 1 || gamemode == 3 || gamemode == 5 || gamemode == 7) {//ゲームスタート
 			if (gamemode == 1) {//ステージ1
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < 5; i++) {
 					Novice::DrawBox(tutrial[i].pos.x - player->scroll.x, tutrial[i].pos.y - player->scroll.y, tutrial[i].sizeX, tutrial[i].sizeY, 0, 0x333333ff, kFillModeSolid);
 					if (i == 0) {
 					/*	Novice::DrawEllipse(tutrial[i].Ob.x - player->scroll.x, tutrial[i].Ob.y - player->scroll.y, 8, 8, 0, WHITE, kFillModeWireFrame);*/
@@ -1330,8 +1332,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (tutrial[1].downFlag == true) {
 					TutrialGauge(tutrial[1], player->scroll,LTpic,Rstickpic,RBpic);
 				}
+				if (tutrial[2].downFlag == true) {
+					TutrialMoveReset(tutrial[2], player->scroll,LBpic);
+				}
 				if (tutrial[3].downFlag == true) {
 					TutorialRepel(tutrial[3], playerPic,nucleusPic, player->scroll);
+				}
+				if (tutrial[4].downFlag == true) {
+					TutrialAttack(tutrial[4], player->scroll, playerPic, Rstickpic, RBpic);
 				}
 			}
 

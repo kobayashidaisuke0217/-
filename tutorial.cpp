@@ -135,3 +135,19 @@ void TutorialRepel(Tutrial& a, int pic, int pic2,Vector2 scroll) {
 	 Novice::DrawBox(a.moveob.x - scroll.x + 30, a.moveob.y - scroll.y, 35, 10, 0, WHITE, kFillModeSolid);
 	 Novice::DrawBox(a.moveob.x - scroll.x + 43, a.moveob.y - scroll.y-10, 10, 35, 0, WHITE, kFillModeSolid);
 }
+ void TutrialMoveReset(Tutrial& a,Vector2 &scroll, int pic) {
+	 a.Ob = { a.pos.x + 100,a.pos.y + 20 };
+	 
+	 Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y, pic, 2, 2, 0, WHITE);
+}
+ void TutrialAttack(Tutrial& a, Vector2& scroll, int pic, int pic2, int pic3) {
+	 a.Ob = { a.pos.x + 20,a.pos.y + 100 };
+	 a.moveob = { a.pos.x + 200,a.pos.y + 120 };
+	 Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y, pic, 0.5, 0.5, 0, WHITE);
+	 Novice::DrawTriangle(a.Ob.x+50 - scroll.x, a.Ob.y  - scroll.y, a.Ob.x + 100 - scroll.x, a.Ob.y  - scroll.y, a.Ob.x + 100 - scroll.x, a.Ob.y + 50 - scroll.y,WHITE,kFillModeWireFrame);
+
+	 Novice::DrawSprite(a.moveob.x - scroll.x, a.moveob.y - scroll.y, pic2, 2, 2, 0, WHITE);
+	 Novice::DrawSprite(a.moveob.x - scroll.x + 70, a.moveob.y - scroll.y, pic3, 2, 2, 0, WHITE);
+	 Novice::DrawBox(a.moveob.x - scroll.x + 30, a.moveob.y - scroll.y, 35, 10, 0, WHITE, kFillModeSolid);
+	 Novice::DrawBox(a.moveob.x - scroll.x + 43, a.moveob.y - scroll.y - 10, 10, 35, 0, WHITE, kFillModeSolid);
+ }
