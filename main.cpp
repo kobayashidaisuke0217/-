@@ -1333,7 +1333,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					TutrialGauge(tutrial[1], player->scroll,LTpic,Rstickpic,RBpic);
 				}
 				if (tutrial[2].downFlag == true) {
-					TutrialMoveReset(tutrial[2], player->scroll,LBpic);
+					TutrialMoveReset(tutrial[2], player->scroll, playerPic,LBpic);
 				}
 				if (tutrial[3].downFlag == true) {
 					TutorialRepel(tutrial[3], playerPic,nucleusPic, player->scroll);

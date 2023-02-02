@@ -135,11 +135,58 @@ void TutorialRepel(Tutrial& a, int pic, int pic2,Vector2 scroll) {
 	 Novice::DrawBox(a.moveob.x - scroll.x + 30, a.moveob.y - scroll.y, 35, 10, 0, WHITE, kFillModeSolid);
 	 Novice::DrawBox(a.moveob.x - scroll.x + 43, a.moveob.y - scroll.y-10, 10, 35, 0, WHITE, kFillModeSolid);
 }
- void TutrialMoveReset(Tutrial& a,Vector2 &scroll, int pic) {
-	 a.Ob = { a.pos.x + 100,a.pos.y + 20 };
+ ///
+ void TutrialMoveReset(Tutrial& a,Vector2 &scroll, int pic,int pic2) {
+	 if (a.moveCount == 0) {
+		 if (a.player.speed <= 1.0f) {
+			 a.player.speed += 3.0f / 60.0f;
+		 }
+		 else {
+			 a.moveCount = 1;
+			 a.player.speed = 0;
+		 }
+		
+		 
+		 if (a.moveCount == 0) {
+			 Novice::DrawLine(a.pos.x + 40 - scroll.x, a.pos.y + 100 - scroll.y, a.player.center.x - scroll.x, a.player.center.y - scroll.y, WHITE);
+			 a.player.center = { learp(a.player.speed,a.pos.x + 40,a.pos.x + 150),learp(a.player.speed,a.pos.y + 100,a.pos.y + 100) };
+		 }
+	 }
+	 if (a.moveCount == 1) {
+		 if (a.player.speed <= 1.0f) {
+			 a.player.speed += 1.0f / 30.0f;
+		 }
+		 else {
+			 a.moveCount = 2;
+			 a.player.speed = 0;
+		 }
+		 a.player.center = { learp(0,a.pos.x + 150,a.pos.x),learp(a.player.speed,a.pos.y + 100,a.pos.y + 150) };
+		
+	 }
+	 if (a.moveCount == 2) {
+		 if (a.player.speed <= 1.0f) {
+			 a.player.speed += 1.0f / 30.0f;
+		 }
+		 else {
+			 a.count++;
+		 }
+		 if (a.count >= 60) {
+			 a.count = 0;
+			 a.moveCount = 0;
+			 a.player.speed = 0;
+		 }
+		 a.player.center = { learp(0,a.pos.x + 150,a.pos.x),learp(a.player.speed,a.pos.y + 150,a.pos.y +50) };
+
+	 }
 	 
-	 Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y, pic, 2, 2, 0, WHITE);
-}
+	 
+	 
+	 a.Ob = { a.pos.x + 200,a.pos.y + 100 };
+	 Novice::DrawSprite(a.player.center.x - scroll.x - 16, a.player.center.y - scroll.y - 16, pic, 0.5, 0.5, 0, WHITE);
+	 Novice::DrawSprite(a.Ob.x  - scroll.x, a.Ob.y - scroll.y, pic2, 2, 2, 0, WHITE);
+
+ }
+ ///
  void TutrialAttack(Tutrial& a, Vector2& scroll, int pic, int pic2, int pic3) {
 	 a.Ob = { a.pos.x + 20,a.pos.y + 100 };
 	 a.moveob = { a.pos.x + 200,a.pos.y + 120 };
