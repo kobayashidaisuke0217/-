@@ -24,7 +24,7 @@ void Boss3Reset(Boss3& boss, Baria& baria, BossBeam& beam) {
 	boss.returnSpeed = 0;
 	boss.returnPos = { 0,0 };
 	boss.battleStart = false;
-
+	boss.randPos = { 0,0 };
 	baria.alpha = 0;
 	baria.breakCount = 0;
 	baria.count = 0;
@@ -363,6 +363,15 @@ void Boss2BeamAtack(Boss3& boss, BossBeam& beam ,Vector2& player) {
 			beam.par[i].isAlive = false;
 		}
 	}*/
+	if (beam.count <= 120) {
+		
+			boss.randPos.x = rand() % 30 - 15;
+			boss.randPos.y = rand() % 30 - 15;
+		
+	}
+	else {
+		boss.randPos = { 0,0 };
+	}
 	if (beam.count >= 120) {
 		beam.flag = true;
 	}
@@ -419,6 +428,15 @@ void Boss2BeamAtack(Boss3& boss, BossBeam& beam ,Vector2& player) {
 void Boss3BeamAtack(Boss3& boss, BossBeam& beam,BossBeam& beam2 ,Vector2& player) {
 	beam.count++;
 	
+	if (beam.count <= 120) {
+
+		boss.randPos.x = rand() % 30 - 15;
+		boss.randPos.y = rand() % 30 - 15;
+
+	}
+	else {
+		boss.randPos = { 0,0 };
+	}
 	if (beam.count >= 120) {
 		beam.flag = true;
 	}

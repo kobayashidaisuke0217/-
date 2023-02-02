@@ -56,8 +56,8 @@ unsigned int GetColor(int red, int green, int blue, int alpha) {
 	return hex = red + green + blue + alpha;
 }
 
-void DrawQuad(Vector2 LT, Vector2 RT, Vector2 LD, Vector2 RD, Vector2 Screen, int pic, int color, int a, int b, int c, int d) {
-	Novice::DrawQuad(LT.x - Screen.x, LT.y - Screen.y, LD.x - Screen.x, LD.y - Screen.y, RT.x - Screen.x, RT.y - Screen.y, RD.x - Screen.x, RD.y - Screen.y, a, b, c, d, pic, color);
+void DrawQuad(Vector2 LT, Vector2 RT, Vector2 LD, Vector2 RD, Vector2 Screen, int pic, int color, int a, int b, int c, int d, Vector2 rand) {
+	Novice::DrawQuad(LT.x - Screen.x+rand.x, LT.y - Screen.y+rand.y, LD.x + rand.x - Screen.x, LD.y - Screen.y + rand.y, RT.x - Screen.x + rand.x, RT.y - Screen.y + rand.y, RD.x - Screen.x + rand.x, RD.y - Screen.y + rand.y, a, b, c, d, pic, color);
 }
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -315,6 +315,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	lastboss.returnSpeed = 0;
 	lastboss.returnPos = { 0,0 };
 	lastboss.battleStart = false;
+	lastboss.randPos = { 0,0 };
 
 	rasBossBaria.alpha = 0;
 	rasBossBaria.breakCount = 0;
@@ -889,13 +890,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				triangle->line.vertex.x = learp(easeInSine(triangle->triangleSpeed), triangle->preLineVertex.x, triangleDown.x);
 				triangle->line.vertex.y = learp(easeInSine(triangle->triangleSpeed), triangle->preLineVertex.y, triangleDown.y);
-
-
-
-				/*	throwPos = { throwradian.x + throwPos.x,throwradian.y + throwPos.y };*/
-
-
-
 			}
 
 			player->player.center = Add(player->player.center, triangle->atackSpeed);
@@ -912,7 +906,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (triangle->pattern == 4) {
 					if (nucleus[i]->exterior > 0.0f && nucleus[i]->exterior2 > 0.0f && nucleus[i]->exterior3 > 0.0f || nucleus[i]->exterior < 0.0f && nucleus[i]->exterior2 < 0.0f && nucleus[i]->exterior3 < 0.0f) {
 						nucleus[i]->nucleus.color = BLUE;
-						//nucleus[i]->nucleusSuctionFlag = true;
+						
 						nucleusSuctionFlag[i] = true;
 						if (nucleus[i]->nucleusCountfrag == false) {
 							nucleusSuctionCount++;
@@ -1464,15 +1458,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			if (lastboss.isAlive == true && gamemode >= 3) {
 				if (gamemode == 7) {
-					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[0], WHITE, 0, 0, 256, 256);
+					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[0], WHITE, 0, 0, 256, 256,lastboss.randPos);
 				
 				}
 				else if (gamemode == 5) {
-					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[1], WHITE, 0, 0, 256, 256);
+					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[1], WHITE, 0, 0, 256, 256, lastboss.randPos);
 
 				}
 				else if (gamemode == 3) {
-					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[2], WHITE, 0, 0, 256, 256);
+					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[2], WHITE, 0, 0, 256, 256, lastboss.randPos);
 
 				}
 				Novice::DrawSprite(lastboss.pos.x - player->scroll.x - 64, lastboss.pos.y - player->scroll.y - 170, hpBar1, 1, 1, 0.0f, 0xFFFFFFFF);

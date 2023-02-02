@@ -31,7 +31,7 @@ typedef struct Boss3 {
 	Vector2 rightTop;
 	Vector2 leftDown;
 	Vector2 rightDown;
-
+	Vector2 randPos;
 	Vector2 returnPos;
 	float theta;
 	int selectCount;
