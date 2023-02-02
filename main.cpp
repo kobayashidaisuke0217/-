@@ -228,7 +228,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	 int Clearpic= Novice::LoadTexture("./Resources/image/Gameclear.png");
 	 int hpBar1= Novice::LoadTexture("./Resources/image/HP1.png");
 	 int hpBar2= Novice::LoadTexture("./Resources/image/HP2.png");
-	 int PowerUP=Novice::LoadTexture("./Resources/image/.Power1.png");
+	// int PowerUP=Novice::LoadTexture("./Resources/image/.Power1.png");
 	Vector2 Start[4];
 	Vector2 Vertex[4];
 	Vector2 End[4];
@@ -1366,9 +1366,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					Novice::DrawEllipse(throwPos[i].x - player->scroll.x + RandShake.x, throwPos[i].y - player->scroll.y + RandShake.y, hitradius[i], hitradius[i], 0, RED, kFillModeWireFrame);
 				}
 			}
-			if (nucleusSuctionCount > 1) {
+		/*	if (nucleusSuctionCount > 1) {
 				Novice::DrawSprite(player->player.center.x - player->scroll.x, player->player.center.y - 30 - player->scroll.y, PowerUP, 1, 1, 0, WHITE);
-			}
+			}*/
 			for (int i = 0; i < bulletNum; i++) {//弾
 				if (bullet[i]->bulletOnFlag == true) {
 					Novice::DrawSprite(bullet[i]->bullet.center.x - player->scroll.x + RandShake.x - bullet[i]->bullet.radius, bullet[i]->bullet.center.y - player->scroll.y + RandShake.y - bullet[i]->bullet.radius, BulletPic, 1, 1, 0, WHITE);
