@@ -225,8 +225,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	 int Lstickpic = Novice::LoadTexture("./Resources/image/Lstick.png");
 	 int Rstickpic = Novice::LoadTexture("./Resources/image/Rstick.png");
 	 int Clearpic= Novice::LoadTexture("./Resources/image/Gameclear.png");
-	 int hpBar1= Novice::LoadTexture("./Resources/image/Gameclear.png");
-	 int hpBar2= Novice::LoadTexture("./Resources/image/Gameclear.png");
+	 int hpBar1= Novice::LoadTexture("./Resources/image/HP1.png");
+	 int hpBar2= Novice::LoadTexture("./Resources/image/HP2.png");
 	Vector2 Start[4];
 	Vector2 Vertex[4];
 	Vector2 End[4];
@@ -471,7 +471,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (fadeOutAlpha >= 250) {
 			if (playerIsAlive == true) {
-				player->HP = 100;
+				player->HP = 30;
 			}
 		}
 		if (fadeoutFlag[0] == true) {
