@@ -41,7 +41,7 @@ void Player::Move(char keys[], char preKeys[], int leftx, int lefty, Vector2 scr
 	}
 }
 void Player::Reset() {
-	player.center = { 300,100 };
+	player.center = { 200,400 };
 	player.HP = 30;
 }
 void Player::Reflect() {

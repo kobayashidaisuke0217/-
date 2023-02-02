@@ -7,7 +7,7 @@ void Boss3Reset(Boss3& boss, Baria& baria, BossBeam& beam) {
 
 	
 	boss.radius = 128;
-	boss.HP = 100;
+	boss.HP = 50;
 	boss.isAlive = true;
 	boss.select = 0;
 	boss.selectCount = 860;
