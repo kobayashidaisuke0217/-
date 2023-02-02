@@ -265,6 +265,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	bool beemHit = false;
 
+	int attackHitTimer = 120;//攻撃被弾時タイマー
 
 	int beamPreCount = 0;
 
@@ -589,6 +590,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 							player->hit = true;
 							player->HP -= 1;
+							attackHitTimer = 120;
 						}
 					}
 
@@ -640,6 +642,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 								player->hit = true;
 								player->HP -= 1;
+								attackHitTimer = 120;
 							}
 						}
 					}
@@ -1082,6 +1085,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						bullet[i]->bulletOnFlag = false;
 						bullet[i]->bulletEndTimer = 400;
 						player->HP -= 1;
+						attackHitTimer = 120;
 					}
 				}
 
@@ -1220,6 +1224,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						triangle->atackSpeed.y = triangle->atackSpeed.y * 0.8;
 						player->hit = true;
 						player->HP -= 1;
+						attackHitTimer = 120;
 					}
 				}
 				if (beams[i]->atackCount >= 40) {
@@ -1230,6 +1235,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			if (lastboss.HP <= 0) {
 				lastboss.isAlive = false;
+			}
+
+			if (attackHitTimer > 0) {
+				attackHitTimer--;
+			}
+			else {
+				attackHitTimer = 0;
 			}
 
 
@@ -1316,10 +1328,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						Novice::DrawSprite(aimx - 10, aimy - 10, playerAimPic, 1, 1, 0, WHITE);
 					}
 				}
-				Novice::DrawSprite(10, 10, hpBar1, 1, 1, 0.0f, 0xFFFFFFFF);
-				Novice::DrawBox(13,30, player->HP *4, 24, 0.0f, RED, kFillModeSolid);
-				Novice::DrawSprite(10, 10, hpBar2, 1, 1, 0.0f, 0xFFFFFFFF);
-				Novice::ScreenPrintf(10, 100, "%d", player->HP);
+				if (attackHitTimer > 0) {
+					Novice::DrawSprite(monitorx + RandShake.x - player->player.radius - 30, monitory + RandShake.y - player->player.radius - 60, hpBar1, 1, 1, 0.0f, 0xFFFFFFFF);
+					Novice::DrawBox(monitorx + RandShake.x - player->player.radius - 30 + 3, monitory + RandShake.y - player->player.radius - 60 + 20, player->HP * 4, 24, 0.0f, RED, kFillModeSolid);
+					Novice::DrawSprite(monitorx + RandShake.x - player->player.radius - 30, monitory + RandShake.y - player->player.radius - 60, hpBar2, 1, 1, 0.0f, 0xFFFFFFFF);
+				}
 			}
 
 			for (int i = 0; i < nucleus[0]->max; i++) {
