@@ -542,7 +542,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
-			lastboss.HP = 1;
+			lastboss.HP = 50;
 			if (fadeOutAlpha >= 255 ) {
 				triangle->pattern = 0;
 				gamemode = 5;
@@ -558,7 +558,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
-			lastboss.HP = 1;
+			lastboss.HP = 100;
 			if (fadeOutAlpha >= 255 ) {
 				triangle->pattern = 0;
 				gamemode = 7;
@@ -1069,8 +1069,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (throwDamageFlag[i] == true) {
 					if (CircleCollisinHit(throwPos[i], hitradius[i], lastboss.pos, lastboss.radius) == true) {
 						throwDamageFlag[i] = false;
-						//lastboss.HP -= atackdamage;
-						lastboss.HP -= 10;
+						lastboss.HP -= atackdamage;
+						//lastboss.HP -= 10;
 					}
 				}
 				for (int j = 0; j < 4; j++) {
