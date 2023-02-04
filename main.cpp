@@ -384,7 +384,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::GetHitKeyStateAll(keys);
 		Novice::GetAnalogInputLeft(stickNo, &leftx, &lefty);
 		Novice::GetAnalogInputRight(stickNo, &triangle->mouseX, &triangle->mouseY);
-		//Novice::SetWindowMode(kFullscreen);
+		Novice::SetWindowMode(kFullscreen);
 		///
 		/// ↓更新処理ここから
 		///
