@@ -11,7 +11,8 @@ Nucleus::Nucleus(Circle nucleus) {
 	nucleusCountfrag = false;
 	nucleusPrePos = { 0,0 };
 	nucleusSuctionPos = { 0,0 };
-
+	RespornCount = 0;
+	isAlive = true;
 	float exterior = { 0 };
 	float exterior2 = { 0 };
 	float exterior3 = { 0 };

@@ -47,7 +47,7 @@ typedef struct Boss3 {
 	float returnSpeed;
 
 	bool battleStart;
-
+	bool MonitorinFlag;
 
 
 
@@ -93,7 +93,7 @@ void RotatetReset(Boss3& boss);
 void Boss3BeamReset(BossBeam& beam,BossBeam& beam2);
 void Boss2BeamReset(BossBeam& beam);
 void Boss3BeamAtack(Boss3& boss, BossBeam& beam, BossBeam& beam2, Vector2& player);
-void Boss1Pattern(Boss3& boss, BossBeam& beam);
+void Boss1Pattern(Boss3& boss, BossBeam& beam,Vector2 player);
 void BossSetpos(Boss3& boss);
 void BossBaria(Boss3& a,  Baria& baria);
 void Boss2Pattern(Boss3& boss, BossBeam& beam, Vector2& player, Baria& baria);
@@ -102,3 +102,4 @@ void Boss3Pattern(Boss3& boss, BossBeam& beam, BossBeam& beam2,  Vector2& player
 void BossBariaCollision(Baria& baria, Vector2& atack, float& radius,int& count, bool& flag);
 void Boss2BeamAtack(Boss3& boss, BossBeam& beam, Vector2 &player);
 float learp(float t, float s, float e);
+void BossDanger(Boss3 &boss,Vector2 &scroll,int pic);

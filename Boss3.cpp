@@ -1,7 +1,12 @@
 #include "Boss3.h"
+#include "collisionfunc.h"
 float learp(float t, float s, float e) {
 	return (1.0f - t) * s + t * e;
 }
+//float Distance(const Vector2& a, const Vector2& b) {
+//	Vector2 c = { a.x - b.x,a.y - b.y };
+//	return sqrtf(c.x * c.x + c.y * c.y);
+//}
 void Boss3Reset(Boss3& boss, Baria& baria, BossBeam& beam) {
 	boss.patten = 0;
 
@@ -201,11 +206,12 @@ void BossBaria(Boss3& boss, Baria& baria ) {
 void Boss1Pattern(Boss3& boss, BossBeam& beam,Vector2 player) {
 	if (boss.selectCount > 1000) {
 
-		boss.select = rand() % 3 + 1;
+	/*	boss.select = rand() % 3 + 1;
 		while (boss.preSelect == boss.select)
 		{
-			boss.select = rand() % 3 + 1;
-		}
+			boss.select = rand() % 2 + 1;
+		}*/
+		boss.select = 2;
 		boss.returnSpeed = 0;
 		boss.selectCount = 0;
 	}
@@ -220,9 +226,10 @@ void Boss1Pattern(Boss3& boss, BossBeam& beam,Vector2 player) {
 		Boss2BeamAtack(boss, beam, player);
 		boss.returnPos = boss.pos;
 	}
-	else if (boss.select == 3) {
+	else if (boss.select == 2) {
 		BossAtackRotatet(boss);
 		boss.returnPos = boss.pos;
+		
 	}
 
 	else if (boss.select == 0) {
@@ -237,6 +244,20 @@ void Boss1Pattern(Boss3& boss, BossBeam& beam,Vector2 player) {
 		}
 		Boss2BeamReset(beam);
 		boss.pos = { learp(boss.returnSpeed,boss.returnPos.x , 1280),learp(boss.returnSpeed,boss.returnPos.y , 720) };
+		
+		Matrix2x2 rotateMatrix = MakeRotateMatrix(boss.rotateTheta);
+
+		boss.leftTop = MatrixMultiply(boss.originarLT, rotateMatrix);
+		
+		boss.leftDown = MatrixMultiply(boss.originarLD, rotateMatrix);
+		
+		boss.rightTop = MatrixMultiply(boss.originarRT, rotateMatrix);
+		
+		boss.rightDown = MatrixMultiply(boss.originarRD, rotateMatrix);
+		boss.leftTop = Add(boss.leftTop, boss.pos);
+		boss.leftDown = Add(boss.leftDown,boss.pos);
+		boss.rightTop = Add(boss.rightTop, boss.pos);
+		boss.rightDown = Add(boss.rightDown, boss.pos);
 
 	}
 }
@@ -526,5 +547,37 @@ void BossSetpos(Boss3& boss) {
 		if (boss.returnSpeed >= 1.0f) {
 			boss.battleStart = true;
 		}
+	}
+}
+void BossDanger(Boss3& boss, Vector2 &scroll,int pic) {
+	if (boss.pos.x - scroll.x >= 1330 || boss.pos.x - scroll.x <= -50 || boss.pos.y - scroll.y >= 770 || boss.pos.y - scroll.y <= -50) {
+		boss.MonitorinFlag = false;
+	}
+	else {
+		boss.MonitorinFlag = true;
+	}
+	if (boss.MonitorinFlag == false) {
+		Vector2 center = { 640,360 };
+		Vector2 dangerAngle = {  boss.pos.x- scroll.x, boss.pos.y- scroll.y };
+		Vector2 dangerRadian = Normalais(dangerAngle);
+		Vector2 danger = Multiply(dangerRadian,Distance(boss.pos,scroll));
+		
+			if (danger.x >= 1264) {
+				danger.x = 1264;
+			}
+			if (danger.x <= 16) {
+				danger.x = 16;
+			}
+			if (danger.y >= 704) {
+				danger.y = 704;
+			}
+			if (danger.y <= 8) {
+				danger.y = 8;
+			}
+		//	Novice::DrawEllipse(danger.x, danger.y, 16, 16, 0, RED, kFillModeSolid);
+			Novice::DrawSprite(danger.x, danger.y, pic, 1, 1, 0, WHITE);
+			Novice::ScreenPrintf(100, 100, "out");
+		
+		
 	}
 }

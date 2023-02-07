@@ -13,7 +13,7 @@ public:
 	int nucleusSuctionCount;
 	int max;
 	int nucleusCountfrag;
-
+	int RespornCount;
 	float exterior;
 	float exterior2;
 	float exterior3;
@@ -22,5 +22,6 @@ public:
 	float enemyexterior2;
 	float enemyexterior3;
 	int nucleusSuctionFlag;
+	bool isAlive;
 };
 

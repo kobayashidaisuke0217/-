@@ -11,5 +11,8 @@ public:
 
 	int beamAlive;//ビーム発射地点の生存フラグ
 	int beamAtackStart = false;//ビーム開始
+	bool Break;
+	int Resporn;
+	int spwanCount;
 
 };

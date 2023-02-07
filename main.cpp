@@ -105,7 +105,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		nucleus[i]->nucleusSuctionPos = nucleus[i]->nucleus.center;
 		nucleuspicRadius[i] = 1;
 	}
-
+	bool nucleusResetFlag = false;
 	const int enemyNum = 3;
 	Enemy* enemy[enemyNum];
 
@@ -228,6 +228,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	 int Clearpic= Novice::LoadTexture("./Resources/image/Gameclear.png");
 	 int hpBar1= Novice::LoadTexture("./Resources/image/HP1.png");
 	 int hpBar2= Novice::LoadTexture("./Resources/image/HP2.png");
+	 int dangerPic = Novice::LoadTexture("./Resources/image/warning.png");
 	// int PowerUP=Novice::LoadTexture("./Resources/image/.Power1.png");
 	Vector2 Start[4];
 	Vector2 Vertex[4];
@@ -526,7 +527,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
-			lastboss.HP = 25;
+			lastboss.HP = 1;
 			if (fadeOutAlpha >= 255) {
 				triangle->pattern = 0;
 				gamemode = 3;
@@ -543,7 +544,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
-			lastboss.HP = 50;
+			lastboss.HP = 1;
 			if (fadeOutAlpha >= 255 ) {
 				triangle->pattern = 0;
 				gamemode = 5;
@@ -601,18 +602,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				fadeoutFlag[0] = false;
 				BossSetpos(lastboss);
 				scrollMode = 1;
-				beamPoint[0]->beamAtackStart = true;
-				beams[0]->beamMode = 0;
-				for (int i = 0; i < enemyNum; i++) {
-					if (i >= 1) {
-						enemy[i]->enemyAlive = false;
-					}
-				}
-				enemy[0]->enemyAlive = true;
-				enemy[0]->enemy.center = lastboss.pos;
-
 				if (lastboss.HP <= 0) {
 					gamemode += 1;
+				}
+				if (lastboss.battleStart == true) {
+					beamPoint[0]->beamAtackStart = true;
+					beams[0]->beamMode = 0;
+					for (int i = 0; i < enemyNum; i++) {
+						if (i >= 1) {
+							enemy[i]->enemyAlive = false;
+						}
+					}
+					enemy[0]->enemyAlive = true;
+					enemy[0]->enemy.center = lastboss.pos;
+					if (lastboss.isAlive == true) {
+						Boss1Pattern(lastboss, bossBeam[0],player->player.center);
+						if (CircleCollisinHit(player->player.center, player->player.radius, lastboss.pos, lastboss.radius) == true && player->reflect == false) {
+							triangle->atackSpeed.x = -triangle->atackSpeed.x * 0.7;
+							triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
+							player->reflect = true;
+							player->hit = true;
+							player->HP -= 1;
+							attackHitTimer = 120;
+						}
+						if (bossBeam[0].flag == true) {
+							if (RectCollisionHit(bossBeam[0].pos, bossBeam[0].EndPos, player->player.center, player->player.radius, bossBeam[0].size) == true && player->hit == false) {
+
+								player->hit = true;
+								player->HP -= 1;
+								attackHitTimer = 120;
+							}
+						}
+
+						
+					}
 				}
 			}
 			if (gamemode == 5) {//ステージ2
@@ -651,6 +674,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
 							player->reflect = true;
 							player->hit = true;
+							attackHitTimer = 120;
 							player->HP -= 1;
 						}
 					}
@@ -666,7 +690,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
 							player->hit = true;
 							player->reflect = true;
-
+							attackHitTimer = 120;
+							player->HP -= 1;
 						}
 					}
 					for (int i = 0; i < enemyNum; i++) {
@@ -767,12 +792,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (triangle->pattern == 0) {
 				triangle->atackSpeed = { 0,0 };
 				for (int i = 0; i < nucleus[0]->max; i++) {
+					if (nucleusResetFlag == false) {
+					/*	nucleus[i]->nucleusPrePos.x = rand() % i * 640 + (i + 1) * 640;
+						nucleus[i]->nucleusPrePos.y=rand()%i**/
+						nucleusResetFlag = true;
+
+				}
 					nucleus[i]->nucleus.center = nucleus[i]->nucleusPrePos;
-					//nucleus[i]->nucleusSuctionFlag = false;
+					nucleus[i]->nucleusSuctionFlag = false;
 					nucleusSuctionFlag[i] = false;
 					nucleus[i]->nucleus.radius = 32.0f;
 					nucleuspicRadius[i] = 1;
 					nucleus[i]->nucleus.color = WHITE;
+					if (nucleus[i]->RespornCount >= 240) {
+						nucleus[i]->isAlive = true;
+						
+						nucleus[i]->RespornCount = 0;
+					}
 				}
 			}
 
@@ -898,29 +934,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//三角形と核の当たり判定を計算する
 			for (int i = 0; i < nucleus[0]->max; i++) {
+				if (nucleus[i]->isAlive == true) {
+					nucleus[i]->exterior = Product(triangle->line.start, triangle->line.end, nucleus[i]->nucleus.center);
 
-				nucleus[i]->exterior = Product(triangle->line.start, triangle->line.end, nucleus[i]->nucleus.center);
+					nucleus[i]->exterior2 = Product(triangle->line.end, triangle->line.vertex, nucleus[i]->nucleus.center);
 
-				nucleus[i]->exterior2 = Product(triangle->line.end, triangle->line.vertex, nucleus[i]->nucleus.center);
-
-				nucleus[i]->exterior3 = Product(triangle->line.vertex, triangle->line.start, nucleus[i]->nucleus.center);
-				if (triangle->pattern == 4) {
-					if (nucleus[i]->exterior > 0.0f && nucleus[i]->exterior2 > 0.0f && nucleus[i]->exterior3 > 0.0f || nucleus[i]->exterior < 0.0f && nucleus[i]->exterior2 < 0.0f && nucleus[i]->exterior3 < 0.0f) {
-						nucleus[i]->nucleus.color = BLUE;
-						
-						nucleusSuctionFlag[i] = true;
-						if (nucleus[i]->nucleusCountfrag == false) {
-							nucleusSuctionCount++;
-							if (nucleusSuctionCount >= 4) {
-								nucleusSuctionCount = 4;
+					nucleus[i]->exterior3 = Product(triangle->line.vertex, triangle->line.start, nucleus[i]->nucleus.center);
+					if (triangle->pattern == 4) {
+						if (nucleus[i]->exterior > 0.0f && nucleus[i]->exterior2 > 0.0f && nucleus[i]->exterior3 > 0.0f || nucleus[i]->exterior < 0.0f && nucleus[i]->exterior2 < 0.0f && nucleus[i]->exterior3 < 0.0f) {
+							nucleus[i]->nucleus.color = BLUE;
+							nucleus[i]->isAlive = false;
+							nucleusSuctionFlag[i] = true;
+							if (nucleus[i]->nucleusCountfrag == false) {
+								nucleusSuctionCount++;
+								if (nucleusSuctionCount >= 4) {
+									nucleusSuctionCount = 4;
+								}
+								atackdamage = nucleusSuctionCount;
+								nucleus[i]->nucleusCountfrag = true;
 							}
-							atackdamage = nucleusSuctionCount;
-							nucleus[i]->nucleusCountfrag = true;
 						}
-					}
-					else {
-						nucleus[i]->nucleus.color = WHITE;
+						else {
+							nucleus[i]->nucleus.color = WHITE;
 
+						}
 					}
 				}
 			}
@@ -948,7 +985,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 
 			}
+			
 			for (int i = 0; i < nucleus[0]->max; i++) {
+				if (nucleus[i]->isAlive ==false ) {
+					nucleus[i]->RespornCount++;
+				}
 				if (triangle->pattern >= 4) {
 					if (triangleBreak == true) {
 						/*if (nucleus[i]->nucleusSuctionFlag == true) {*/
@@ -1026,7 +1067,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 								triangle->pattern = 0;
 								for (int j = 0; j < nucleus[0]->max; j++) {
 									//nucleus[j]->nucleusSuctionFlag = false;
-									nucleusSuctionFlag[i] = false;
+									
 								}
 							}
 							break;
@@ -1080,6 +1121,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						if (CircleCollisinHit(throwPos[i], hitradius[i], beamPoint[j]->beamPoint.center, beamPoint[j]->beamPoint.radius) == true) {
 							throwDamageFlag[i] = false;
 							beamPoint[j]->beamAlive = false;
+							beamPoint[j]->Break = true;
 						}
 					}
 
@@ -1193,30 +1235,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 
 			}
+
 			for (int i = 0; i < 4; i++) {
+
+				beams[i]->beam.pos = beams[0]->beemStart;
+				beams[i]->beam.angle = { beamPoint[i]->beamPoint.center.x - beams[0]->beemStart.x ,beamPoint[i]->beamPoint.center.y - beams[0]->beemStart.y };
+				beams[i]->beam.radian = Normalais(beams[i]->beam.angle);
+				beams[i]->beam.EndPos = Multiply(beams[i]->beam.radian, Distance(beamPoint[i]->beamPoint.center,{1280,720}));
+
+				beams[i]->beam.EndPos.x += beams[i]->beam.pos.x;
+				beams[i]->beam.EndPos.y += beams[i]->beam.pos.y;
+
+				beams[i]->BTop.radian = { -beams[i]->beam.radian.y,beams[i]->beam.radian.x };
+				beams[i]->BTop.angle = Multiply(beams[i]->BTop.radian, 32);
+				beams[i]->BTop.pos = { beams[i]->beam.pos.x + beams[i]->BTop.angle.x,beams[i]->beam.pos.y + beams[i]->BTop.angle.y };
+				beams[i]->BTop.EndPos = { beams[i]->beam.EndPos.x + beams[i]->BTop.angle.x,beams[i]->beam.EndPos.y + beams[i]->BTop.angle.y };
+
+				beams[i]->BDown.radian = { beams[i]->beam.radian.y,-beams[i]->beam.radian.x };
+				beams[i]->BDown.angle = Multiply(beams[i]->BDown.radian, 32);
+				beams[i]->BDown.pos = { beams[i]->beam.pos.x + beams[i]->BDown.angle.x,beams[i]->beam.pos.y + beams[i]->BDown.angle.y };
+				beams[i]->BDown.EndPos = { beams[i]->beam.EndPos.x + beams[i]->BDown.angle.x,beams[i]->beam.EndPos.y + beams[i]->BDown.angle.y };
+
 				if (beamPreCount == 120 && beamPoint[i]->beamAlive == true) {
 					beams[i]->atackFlag = true;
-
-					beams[i]->beam.pos = beams[0]->beemStart;
-					beams[i]->beam.angle = { beamPoint[i]->beamPoint.center.x - beams[0]->beemStart.x ,beamPoint[i]->beamPoint.center.y - beams[0]->beemStart.y };
-					beams[i]->beam.radian = Normalais(beams[i]->beam.angle);
-					beams[i]->beam.EndPos = Multiply(beams[i]->beam.radian, beams[i]->beam.size);
-
-					beams[i]->beam.EndPos.x += beams[i]->beam.pos.x;
-					beams[i]->beam.EndPos.y += beams[i]->beam.pos.y;
-
-					beams[i]->BTop.radian = { -beams[i]->beam.radian.y,beams[i]->beam.radian.x };
-					beams[i]->BTop.angle = Multiply(beams[i]->BTop.radian, 32);
-					beams[i]->BTop.pos = { beams[i]->beam.pos.x + beams[i]->BTop.angle.x,beams[i]->beam.pos.y + beams[i]->BTop.angle.y };
-					beams[i]->BTop.EndPos = { beams[i]->beam.EndPos.x + beams[i]->BTop.angle.x,beams[i]->beam.EndPos.y + beams[i]->BTop.angle.y };
-
-					beams[i]->BDown.radian = { beams[i]->beam.radian.y,-beams[i]->beam.radian.x };
-					beams[i]->BDown.angle = Multiply(beams[i]->BDown.radian, 32);
-					beams[i]->BDown.pos = { beams[i]->beam.pos.x + beams[i]->BDown.angle.x,beams[i]->beam.pos.y + beams[i]->BDown.angle.y };
-					beams[i]->BDown.EndPos = { beams[i]->beam.EndPos.x + beams[i]->BDown.angle.x,beams[i]->beam.EndPos.y + beams[i]->BDown.angle.y };
-
-
-
 
 				}
 			}
@@ -1239,16 +1280,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			if (beamAttackchange <= 5) {
-				beamPoint[0]->beamPoint = { 0,0,36.0f,6.0f,RED,100 };
-				beamPoint[2]->beamPoint = { 2560,00,36.0f,6.0f,RED,100 };
-				beamPoint[3]->beamPoint = { 0,1440,36.0f,6.0f,RED,100 };
-				beamPoint[1]->beamPoint = { 2560,1440,36.0f,6.0f,RED,100 };
+				beamPoint[0]->beamPoint = { 0+beamPoint[0]->beamPoint.radius,0 + beamPoint[0]->beamPoint.radius,36.0f,6.0f,RED,100};
+				beamPoint[2]->beamPoint = { 2560-beamPoint[0]->beamPoint.radius,0 + beamPoint[0]->beamPoint.radius,36.0f,6.0f,RED,100 };
+				beamPoint[3]->beamPoint = { 0 + beamPoint[0]->beamPoint.radius,1440 - beamPoint[0]->beamPoint.radius,36.0f,6.0f,RED,100 };
+				beamPoint[1]->beamPoint = { 2560 - beamPoint[0]->beamPoint.radius,1440 - beamPoint[0]->beamPoint.radius,36.0f,6.0f,RED,100 };
 			}
 			if (beamAttackchange > 5) {
-				beamPoint[0]->beamPoint = { 1280,0,36.0f,6.0f,RED,100 };
-				beamPoint[2]->beamPoint = { 2560,720,36.0f,6.0f,RED,100 };
-				beamPoint[1]->beamPoint = { 1280,1440,36.0f,6.0f,RED,100 };
-				beamPoint[3]->beamPoint = { 0,720,36.0f,6.0f,RED,100 };
+				beamPoint[0]->beamPoint = { 1280,0 + beamPoint[0]->beamPoint.radius,36.0f,6.0f,RED,100 };
+				beamPoint[2]->beamPoint = { 2560 - beamPoint[0]->beamPoint.radius,720,36.0f,6.0f,RED,100 };
+				beamPoint[1]->beamPoint = { 1280,1440 - beamPoint[0]->beamPoint.radius,36.0f,6.0f,RED,100 };
+				beamPoint[3]->beamPoint = { 0 + beamPoint[0]->beamPoint.radius,720,36.0f,6.0f,RED,100 };
 			}
 
 			if (beamAttackchange > 10) {
@@ -1269,6 +1310,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 				if (beams[i]->atackCount >= 40) {
 					beams[i]->atackCount = 0;
+				}
+				if (beamPoint[i]->Break == true) {
+					beamPoint[i]->Resporn++;
+				}
+				if (beamPoint[i]->Resporn >= 500 && beamPreCount == 0) {
+					beamPoint[i]->beamAlive = true;
+					beamPoint[i]->Break - false;
+					beamPoint[i]->Resporn = 0;
 				}
 
 
@@ -1318,10 +1367,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				for (int i = 0; i < 5; i++) {
 					Novice::DrawBox(tutrial[i].pos.x - player->scroll.x, tutrial[i].pos.y - player->scroll.y, tutrial[i].sizeX, tutrial[i].sizeY, 0, 0x333333ff, kFillModeSolid);
 					if (i == 0) {
-					/*	Novice::DrawEllipse(tutrial[i].Ob.x - player->scroll.x, tutrial[i].Ob.y - player->scroll.y, 8, 8, 0, WHITE, kFillModeWireFrame);*/
+					
 						Novice::DrawSprite(tutrial[i].Ob.x - player->scroll.x, tutrial[i].Ob.y - player->scroll.y, playerPic, 0.5, 0.5, 0, WHITE);
 						Novice::DrawSprite(tutrial[i].player.center.x - player->scroll.x, tutrial[i].player.center.y - player->scroll.y-80,Lstickpic, 2, 2, 0, WHITE);
-						//Novice::DrawEllipse(tutrial[i].player.center.x - player->scroll.x, tutrial[i].player.center.y - player->scroll.y, tutrial[i].player.radius, tutrial[i].player.radius, 0, RED, kFillModeWireFrame);
+						
 					}
 				}
 				if (tutrial[1].downFlag == true) {
@@ -1366,9 +1415,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					Novice::DrawEllipse(throwPos[i].x - player->scroll.x + RandShake.x, throwPos[i].y - player->scroll.y + RandShake.y, hitradius[i], hitradius[i], 0, RED, kFillModeWireFrame);
 				}
 			}
-		/*	if (nucleusSuctionCount > 1) {
-				Novice::DrawSprite(player->player.center.x - player->scroll.x, player->player.center.y - 30 - player->scroll.y, PowerUP, 1, 1, 0, WHITE);
-			}*/
+		
 			for (int i = 0; i < bulletNum; i++) {//弾
 				if (bullet[i]->bulletOnFlag == true) {
 					Novice::DrawSprite(bullet[i]->bullet.center.x - player->scroll.x + RandShake.x - bullet[i]->bullet.radius, bullet[i]->bullet.center.y - player->scroll.y + RandShake.y - bullet[i]->bullet.radius, BulletPic, 1, 1, 0, WHITE);
@@ -1401,8 +1448,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < nucleus[0]->max; i++) {
 
 				if (nucleusSuctionFlag[i] == false) {
-
-					Novice::DrawSprite(nucleus[i]->nucleus.center.x - player->scroll.x + RandShake.x - nucleus[i]->nucleus.radius, nucleus[i]->nucleus.center.y - player->scroll.y + RandShake.y - nucleus[i]->nucleus.radius, nucleusPic, nucleuspicRadius[i], nucleuspicRadius[i], 0, WHITE);
+					if (nucleus[i]->isAlive == true) {
+						Novice::DrawSprite(nucleus[i]->nucleus.center.x - player->scroll.x + RandShake.x - nucleus[i]->nucleus.radius, nucleus[i]->nucleus.center.y - player->scroll.y + RandShake.y - nucleus[i]->nucleus.radius, nucleusPic, nucleuspicRadius[i], nucleuspicRadius[i], 0, WHITE);
+					}
 				}
 				else {
 					Novice::DrawSprite(nucleus[i]->nucleusSuctionPos.x - player->scroll.x + RandShake.x - nucleus[i]->nucleus.radius, nucleus[i]->nucleusSuctionPos.y - player->scroll.y + RandShake.y - nucleus[i]->nucleus.radius, nucleusPic, nucleuspicRadius[i], nucleuspicRadius[i], 0, WHITE);
@@ -1434,6 +1482,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (beamPoint[i]->beamAlive == true) {
 					Novice::DrawSprite(beamPoint[i]->beamPoint.center.x - player->scroll.x + RandShake.x - beamPoint[i]->beamPoint.radius, beamPoint[i]->beamPoint.center.y - player->scroll.y + RandShake.y - beamPoint[i]->beamPoint.radius, BeamPointPic, 1, 1, 0, WHITE);
 				}
+				else {
+					Novice::DrawSprite(1280 - player->scroll.x-beamPoint[i]->beamPoint.radius, 720 - player->scroll.y-beamPoint[i]->beamPoint.radius, BeamPointPic, 1, 1, 0, WHITE);
+				}
 			}
 
 			if (gamemode == 1) {
@@ -1452,28 +1503,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			for (int i = 0; i < 2; i++) {
 				if (bossBeam[i].flag == true) {
-					/*for (int i = 0; i < 30; i++) {
-						if (bossBeam.par[i].isAlive == true) {
-							Novice::DrawEllipse(bossBeam.par[i].pos.x-player->scroll.x, bossBeam.par[i].pos.y-player->scroll.y, bossBeam.par[i].size, bossBeam.par[i].size, 0, WHITE, kFillModeWireFrame);
-						}
-					}*/
+					
 					Novice::DrawQuad(bossBeam[i].leftTop.x - player->scroll.x, bossBeam[i].leftTop.y - player->scroll.y, bossBeam[i].rightTop.x - player->scroll.x, bossBeam[i].rightTop.y - player->scroll.y, bossBeam[i].leftDown.x - player->scroll.x, bossBeam[i].leftDown.y - player->scroll.y, bossBeam[i].rightDown.x - player->scroll.x, bossBeam[i].rightDown.y - player->scroll.y, 0, 0, 1, 1, WhiteP, WHITE);
 				}
 			}
 			if (lastboss.isAlive == true && gamemode >= 3) {
-				if (gamemode == 7) {
-					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[0], WHITE, 0, 0, 256, 256,lastboss.randPos);
 				
+				if (gamemode == 7) {
+					BossDanger(lastboss, player->scroll,dangerPic);
+					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[0], WHITE, 0, 0, 256, 256,lastboss.randPos);
+					
 				}
 				else if (gamemode == 5) {
+					BossDanger(lastboss, player->scroll,dangerPic);
 					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[1], WHITE, 0, 0, 256, 256, lastboss.randPos);
-
+					
 				}
 				else if (gamemode == 3) {
+					BossDanger(lastboss, player->scroll,dangerPic);
 					DrawQuad(lastboss.leftTop, lastboss.leftDown, lastboss.rightTop, lastboss.rightDown, player->scroll, Bosspic[2], WHITE, 0, 0, 256, 256, lastboss.randPos);
-
 				}
-				Novice::DrawSprite(lastboss.pos.x - player->scroll.x - 64, lastboss.pos.y - player->scroll.y - 170, hpBar1, 1, 1, 0.0f, 0xFFFFFFFF);
+				//Novice::DrawSprite(lastboss.pos.x - player->scroll.x - 64, lastboss.pos.y - player->scroll.y - 170, hpBar1, 1, 1, 0.0f, 0xFFFFFFFF);
 				Novice::DrawBox(lastboss.pos.x - player->scroll.x - 61, lastboss.pos.y - player->scroll.y - 150, lastboss.HP + lastboss.HP / 5, 24, 0.0f, RED, kFillModeSolid);
 				Novice::DrawSprite(lastboss.pos.x - player->scroll.x - 64, lastboss.pos.y - player->scroll.y - 170, hpBar2, 1, 1, 0.0f, 0xFFFFFFFF);
 			}
@@ -1481,7 +1531,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				Novice::DrawQuad(rasBossBaria.leftTop.x - player->scroll.x, rasBossBaria.leftTop.y - player->scroll.y, rasBossBaria.leftDown.x - player->scroll.x, rasBossBaria.leftDown.y - player->scroll.y, rasBossBaria.rightTop.x - player->scroll.x, rasBossBaria.rightTop.y - player->scroll.y, rasBossBaria.rightDown.x - player->scroll.x, rasBossBaria.rightDown.y - player->scroll.y, 0, 0, 1, 1, WhiteP, GetColor(255, 0, 0, rasBossBaria.alpha));
 			}
 		}
-
 
 
 
