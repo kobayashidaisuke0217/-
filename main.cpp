@@ -229,7 +229,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	 int hpBar1= Novice::LoadTexture("./Resources/image/HP1.png");
 	 int hpBar2= Novice::LoadTexture("./Resources/image/HP2.png");
 	 int dangerPic = Novice::LoadTexture("./Resources/image/warning.png");
-	// int PowerUP=Novice::LoadTexture("./Resources/image/.Power1.png");
+	 int PowerUP=Novice::LoadTexture("./Resources/image/Power1.png");
+	 int speed3Pic= Novice::LoadTexture("./Resources/image/speed1.png");
+	 int speed2Pic = Novice::LoadTexture("./Resources/image/speed2.png");
+	 int speed1Pic = Novice::LoadTexture("./Resources/image/speed3.png");
 	Vector2 Start[4];
 	Vector2 Vertex[4];
 	Vector2 End[4];
@@ -812,25 +815,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 
-			if (Novice::IsPressButton(0, kPadButton10) || keys[DIK_SPACE]) {
+			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_SPACE]) {
 
 				triangle->PressCount++;
 				//ゲージ
-				triangle->playerSpeed = triangle->PressCount * 4;
-				if (triangle->playerSpeed == 0) {
-					triangle->playerSpeed = 2;
-				}
+				//triangle->playerSpeed = triangle->PressCount * 4;
 				
+				/*
 				if (triangle->pattern <= 1 && triangle->atackSpeed.x <= 0.3f && triangle->atackSpeed.x >= -0.3f && triangle->atackSpeed.y <= 0.3f && triangle->atackSpeed.y >= -0.3f) {
 					gaugeRight.x = 30 + triangle->playerSpeed;
-				}
-				if (triangle->PressCount >= 20) {
+				}*/
+				if (triangle->PressCount >= 3) {
 					triangle->PressCount = 0;
 				}
 			}
 			//スペースを押してなおかつ止まっているとき
 			if (Novice::IsTriggerButton(0, kPadButton9) || preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 /*&& atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f*/) {
 				//一つ目の点を求める
+				if (triangle->PressCount == 0) {
+					triangle->playerSpeed = 40;
+				}
+				if (triangle->PressCount == 1) {
+					triangle->playerSpeed = 60;
+				}
+				if (triangle->PressCount == 2) {
+					triangle->playerSpeed = 80;
+				}
 				if (triangle->pattern == 0) {
 					triangle->playerEndSpeed = 0;
 					triangle->triangleSpeed = 0;
@@ -1429,6 +1439,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				float aimx = monitorx + triangle->mouseX / 1000 + RandShake.x;
 				float aimy = monitory + triangle->mouseY / 1000 + RandShake.y;
 				if (player->hit == false) {
+					if (triangle->pattern == 0) {
+						if (triangle->PressCount == 0) {
+							Novice::DrawSprite(monitorx + RandShake.x - player->player.radius * 2, monitory + RandShake.y - player->player.radius * 2, speed1Pic, 1, 1, 0, WHITE);
+						}
+						else if (triangle->PressCount == 1) {
+							Novice::DrawSprite(monitorx + RandShake.x - player->player.radius * 2, monitory + RandShake.y - player->player.radius * 2, speed2Pic, 1, 1, 0, WHITE);
+
+						}
+						else if (triangle->PressCount==2) {
+							Novice::DrawSprite(monitorx + RandShake.x - player->player.radius * 2, monitory + RandShake.y - player->player.radius * 2, speed3Pic, 1, 1, 0, WHITE);
+
+						}
+					}
 					Novice::DrawSprite(monitorx + RandShake.x - player->player.radius, monitory + RandShake.y - player->player.radius, playerPic, 1, 1, 0, WHITE);
 					Novice::DrawSprite(aimx - 10, aimy - 10, playerAimPic, 1, 1, 0, WHITE);
 				}
@@ -1545,8 +1568,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			
 			Novice::DrawSprite(0, 0, Clearpic, 1, 1, 0, WHITE);
 		}
-		Novice::ScreenPrintf(10, 40, "%d", lastboss.HP);
-
+		Novice::ScreenPrintf(10, 40, "%d", triangle->playerSpeed);
+		Novice::ScreenPrintf(10, 60, "%d", triangle->PressCount);
 		///
 		///
 		/// ↑描画処理ここまで
