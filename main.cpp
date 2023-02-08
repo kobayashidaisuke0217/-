@@ -17,6 +17,7 @@
 #include"tutorial.h"
 #include "FireWorks.h"
 #include "Explosion.h"
+#include "particle.h"
 const char kWindowTitle[] = "LC1B_08_コバヤシダイスケ";
 
 
@@ -287,6 +288,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int powerCount=0;
 	bool powerFlag = false;
+	bool girechange = false;
+	int girechangeCount = 0;
 
 	int fadeoutFlag[2] = { false };
 	int fadeoutClar = 0x00000000;
@@ -372,6 +375,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	/*bossBeam.parob = { 0,0 };
 	bossBeam.partheta = 0;*/
 	/*チュートリアル*/
+	parManag particle;
+	
+	for (int i = 0; i < 12; i++) {
+
+		particle.par[i].theta = 0;
+		particle.par[i].count = 0;
+		particle.par[i].pos = { 0,0 };
+		particle.par[i].vertex = { 0, 0 };
+		particle.par[i].End = { 0, 0 };
+		particle.par[i].start = { 0, 0 };
+		particle.par[i].originalvertex = { 0, -6 };
+		particle.par[i].originalEnd = { 3, 3 };
+		particle.par[i].originalstart = { -3, -3 };
+		particle.par[i].isAlive = false;
+		particle.par[i].count = 0;
+		particle.par[i].randStart = 0;
+
+	}
 	Tutrial tutrial[6];
 	for (int i = 0; i < 6; i++) {
 		tutrial[i].downFlag = false;
@@ -568,7 +589,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
-			lastboss.HP = 1;
+			lastboss.HP = 25;
 			if (fadeOutAlpha >= 255) {
 				triangle->pattern = 0;
 				gamemode = 3;
@@ -585,7 +606,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
-			lastboss.HP = 1;
+			lastboss.HP = 50;
 			if (fadeOutAlpha >= 255) {
 				triangle->pattern = 0;
 				gamemode = 5;
@@ -601,7 +622,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
-			lastboss.HP = 1;
+			lastboss.HP = 100;
 			if (fadeOutAlpha >= 255) {
 				triangle->pattern = 0;
 				gamemode = 7;
@@ -660,7 +681,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						explosion3->enemyAlphaTimer = 255;
 					}
 				}
-				if (lastboss.battleStart == true&&lastboss.isAlive==true) {
+				if (lastboss.battleStart == true && lastboss.isAlive == true) {
 					beamPoint[0]->beamAtackStart = true;
 					beams[0]->beamMode = 0;
 					for (int i = 0; i < enemyNum; i++) {
@@ -699,6 +720,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				scrollMode = 1;
 				beamPoint[0]->beamAtackStart = true;
 				beams[0]->beamMode = 0;
+				if (lastboss.isAlive == false) {
+					bossBeam->flag = false;
+				}
 				if (lastboss.HP <= 0) {
 					explosion->explosionFlag = true;
 					explosion2->explosionFlag = true;
@@ -752,17 +776,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (gamemode == 7) {
 				fadeoutFlag[0] = false;
 				BossSetpos(lastboss);
+				if (lastboss.isAlive == false) {
+					bossBeam->flag = false;
+				}
 				if (lastboss.battleStart == true && lastboss.isAlive == true) {
-					
-						if (CircleCollisinHit(player->player.center, player->player.radius, lastboss.pos, lastboss.radius) == true && player->reflect == false) {
-							triangle->atackSpeed.x = -triangle->atackSpeed.x * 0.7;
-							triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
-							player->hit = true;
-							player->reflect = true;
-							attackHitTimer = 120;
-							player->HP -= 1;
-						}
-					
+
+					if (CircleCollisinHit(player->player.center, player->player.radius, lastboss.pos, lastboss.radius) == true && player->reflect == false) {
+						triangle->atackSpeed.x = -triangle->atackSpeed.x * 0.7;
+						triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
+						player->hit = true;
+						player->reflect = true;
+						attackHitTimer = 120;
+						player->HP -= 1;
+					}
+
 					for (int i = 0; i < enemyNum; i++) {
 
 						enemy[i]->enemyAlive = false;
@@ -899,16 +926,61 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				triangle->PressCount++;
 				//ゲージ
-				//triangle->playerSpeed = triangle->PressCount * 4;
-
-				/*
-				if (triangle->pattern <= 1 && triangle->atackSpeed.x <= 0.3f && triangle->atackSpeed.x >= -0.3f && triangle->atackSpeed.y <= 0.3f && triangle->atackSpeed.y >= -0.3f) {
-					gaugeRight.x = 30 + triangle->playerSpeed;
-				}*/
+				girechange = true;
+				girechangeCount = 0;
 				if (triangle->PressCount >= 3) {
 					triangle->PressCount = 0;
 				}
+
 			}
+			if (girechange == true) {
+				//particleTriangle(particle, player->player.center);
+
+				for (int i = 0; i < 16; i++) {
+					if (particle.par[i].isAlive == false) {
+						
+						particle.par[i].pos.y = player->player.center.y;
+
+						particle.par[i].pos.x = player->player.center.x;//( rand() % (int)player->player.center.x)  - (int)player->player.center.x - player->player.radius;
+
+						particle.par[i].originalvertex = { 0, -32 };
+						particle.par[i].originalEnd = { 16, 16 };
+						particle.par[i].originalstart = { -16, -16 };
+						particle.par[i].isAlive = true;
+						particle.par[i].count = 0;
+						break;
+					}
+					if (particle.par[i].isAlive == true) {
+						particle.par[i].count++;
+						particle.par[i].theta += 1.0f / 10.0f;
+						particle.par[i].pos.y -= 2;
+						Matrix2x2 rotateMatrix = MakeRotateMatrix(particle.par[i].theta);
+
+						particle.par[i].start = MatrixMultiply(particle.par[i].originalstart, rotateMatrix);
+
+						particle.par[i].vertex = MatrixMultiply(particle.par[i].originalvertex, rotateMatrix);
+
+						particle.par[i].End = MatrixMultiply(particle.par[i].originalEnd, rotateMatrix);
+
+						particle.par[i].start = Add(particle.par[i].start, particle.par[i].pos);
+						particle.par[i].vertex = Add(particle.par[i].vertex, particle.par[i].pos);
+						particle.par[i].End = Add(particle.par[i].End, particle.par[i].pos);
+					}
+					if (particle.par[i].count >= 20) {
+						particle.par[i].isAlive = false;
+					}
+				}
+				girechangeCount++;
+			}
+			else {
+				for (int i = 0; i < 16; i++) {
+					particle.par[i].isAlive = false;
+				}
+			}
+			if (girechangeCount >= 60){
+				girechange = false;
+				girechangeCount = 0;
+		}
 			//スペースを押してなおかつ止まっているとき
 			if (Novice::IsTriggerButton(0, kPadButton9) || preKeys[DIK_SPACE] && keys[DIK_SPACE] == 0 /*&& atackSpeed.x <= 0.3f && atackSpeed.x >= -0.3f && atackSpeed.y <= 0.3f && atackSpeed.y >= -0.3f*/) {
 				//一つ目の点を求める
@@ -1530,6 +1602,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				float monitory = player->player.center.y - player->scroll.y;
 				float aimx = monitorx + triangle->mouseX / 1000 + RandShake.x;
 				float aimy = monitory + triangle->mouseY / 1000 + RandShake.y;
+				for (int i = 0; i < 12; i++) {
+					if (girechange == true) {
+						if (triangle->PressCount == 0) {
+							Novice::DrawTriangle(particle.par[i].start.x-player->scroll.x, particle.par[i].start.y - player->scroll.y, particle.par[i].vertex.x - player->scroll.x, particle.par[i].vertex.y - player->scroll.y, particle.par[i].End.x - player->scroll.x, particle.par[i].End.y - player->scroll.y, GetColor(148,214,218,155), kFillModeSolid);
+						}
+						if (triangle->PressCount == 1) {
+							Novice::DrawTriangle(particle.par[i].start.x - player->scroll.x, particle.par[i].start.y - player->scroll.y, particle.par[i].vertex.x - player->scroll.x, particle.par[i].vertex.y - player->scroll.y, particle.par[i].End.x - player->scroll.x, particle.par[i].End.y - player->scroll.y, GetColor(204,255,102,155), kFillModeSolid);
+
+						}
+						if (triangle->PressCount == 2) {
+							Novice::DrawTriangle(particle.par[i].start.x - player->scroll.x, particle.par[i].start.y - player->scroll.y, particle.par[i].vertex.x - player->scroll.x, particle.par[i].vertex.y - player->scroll.y, particle.par[i].End.x - player->scroll.x, particle.par[i].End.y - player->scroll.y, 0xcd5c5c9b, kFillModeSolid);
+
+						}
+					}
+				}
 				if (powerFlag == true) {
 					if (nucleusSuctionCount == 2) {
 						Novice::DrawSprite(monitorx + RandShake.x - player->player.radius, monitory + RandShake.y - player->player.radius * 4, power1Pic, 0.5, 0.5, 0, WHITE);
@@ -1651,7 +1738,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 
 				Novice::DrawSprite(lastboss.pos.x - player->scroll.x - 64, lastboss.pos.y - player->scroll.y - 170, hpBar1, 1, 1, 0.0f, 0xFFFFFFFF);
-				Novice::DrawBox(lastboss.pos.x - player->scroll.x - 61, lastboss.pos.y - player->scroll.y - 150, lastboss.HP + lastboss.HP / 5, 24, 0.0f, RED, kFillModeSolid);
+				if (gamemode == 3) {
+					Novice::DrawBox(lastboss.pos.x - player->scroll.x - 61, lastboss.pos.y - player->scroll.y - 150, (lastboss.HP + lastboss.HP / 5)*4, 24, 0.0f, BLUE, kFillModeSolid);
+				}
+				if (gamemode == 5) {
+					Novice::DrawBox(lastboss.pos.x - player->scroll.x - 61, lastboss.pos.y - player->scroll.y - 150, (lastboss.HP + lastboss.HP / 5) * 2, 24, 0.0f, BLUE, kFillModeSolid);
+				}
+				if (gamemode == 7) {
+					Novice::DrawBox(lastboss.pos.x - player->scroll.x - 61, lastboss.pos.y - player->scroll.y - 150, (lastboss.HP + lastboss.HP / 5) , 24, 0.0f, BLUE, kFillModeSolid);
+				}
 				Novice::DrawSprite(lastboss.pos.x - player->scroll.x - 64, lastboss.pos.y - player->scroll.y - 170, hpBar2, 1, 1, 0.0f, 0xFFFFFFFF);
 			}
 			
@@ -1679,8 +1774,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			fireworks2->Draw(GetColor(rand() % 255, 255, 255, fireworks2->fireWorksAlpha));
 			fireworks3->Draw(GetColor(rand() % 255, 255, rand() % 255, fireworks3->fireWorksAlpha));
 		}
-		Novice::ScreenPrintf(10, 40, "%d", tutrial[5].player.center.x);
-		Novice::ScreenPrintf(10, 60, "%d", triangle->PressCount);
+		Novice::ScreenPrintf(100, 100, "%d", particle.par[0].pos.x);
 		///
 		///
 		/// ↑描画処理ここまで
