@@ -77,6 +77,9 @@
     <ClCompile Include="FireWorks.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
+    <ClCompile Include="Explosion.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\audio\Audio.h">
@@ -172,6 +175,9 @@
     <ClInclude Include="tutorial.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="FireWorks.h">
+      <Filter>KamataEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Explosion.h">
       <Filter>KamataEngine</Filter>
     </ClInclude>
   </ItemGroup>
