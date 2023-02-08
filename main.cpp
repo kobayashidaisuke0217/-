@@ -403,9 +403,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Explosion* explosion2 = new Explosion;
 	Explosion* explosion3 = new Explosion;
 
-	explosion->pos = { lastboss.pos.x - 100,lastboss.pos.y - 100 };
-	explosion2->pos = { lastboss.pos.x + 80,lastboss.pos.y  };
-	explosion3->pos = { lastboss.pos.x - 30,lastboss.pos.y + 20 };
+	
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -421,6 +419,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+		 explosion->pos = { lastboss.pos.x - 80,lastboss.pos.y - 80 };
+		explosion2->pos = { lastboss.pos.x + 50,lastboss.pos.y };
+		explosion3->pos = { lastboss.pos.x - 30,lastboss.pos.y + 20 };
 		if (keys[DIK_Z]) {
 			gamemode = 2;
 		}
@@ -1609,9 +1610,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (beamPoint[i]->beamAlive == true) {
 					Novice::DrawSprite(beamPoint[i]->beamPoint.center.x - player->scroll.x + RandShake.x - beamPoint[i]->beamPoint.radius, beamPoint[i]->beamPoint.center.y - player->scroll.y + RandShake.y - beamPoint[i]->beamPoint.radius, BeamPointPic, 1, 1, 0, WHITE);
 				}
-				else {
-					Novice::DrawSprite(1280 - player->scroll.x - beamPoint[i]->beamPoint.radius, 720 - player->scroll.y - beamPoint[i]->beamPoint.radius, BeamPointPic, 1, 1, 0, WHITE);
-				}
+				
 			}
 
 			if (gamemode == 1) {

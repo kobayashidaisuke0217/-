@@ -17,5 +17,5 @@ public:
 	int explosionCount;
 	int enemyAlphaTimer;
 
-	int explosion;
+	int ex[13];
 };
