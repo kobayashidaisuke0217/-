@@ -190,12 +190,12 @@ void TutorialPowerUp(Tutrial& a, Vector2 scroll, int pic1, int pic2,int pic3) {
 	 a.Ob = { a.pos.x + 100,a.pos.y + 20 };
 	 a.moveob = { a.pos.x + 200,a.pos.y + 120 };
 	 Novice::DrawSprite(a.player.center.x - scroll.x+40, a.pos.y - scroll.y + 50, pic4, 0.5, 0.5, 0, WHITE);
-	 //Novice::DrawBox(a.player.center.x - scroll.x, a.pos.y - scroll.y+35, a.count * 2, 16, 0, WHITE, kFillModeSolid);
+	 
 	 Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y, pic, 2, 2, 0, WHITE);
 
 	 Novice::DrawSprite(a.moveob.x - scroll.x, a.moveob.y - scroll.y, pic2, 2, 2, 0, WHITE);
 	 Novice::DrawSprite(a.moveob.x - scroll.x+70, a.moveob.y - scroll.y, pic3, 2, 2, 0, WHITE);
-	 Novice::DrawBox(a.moveob.x - scroll.x + 30, a.moveob.y - scroll.y, 35, 10, 0, WHITE, kFillModeSolid);
+	 //Novice::DrawBox(a.moveob.x - scroll.x + 30, a.moveob.y - scroll.y, 35, 10, 0, WHITE, kFillModeSolid);
 	 
 }
  ///

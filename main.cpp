@@ -552,10 +552,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 		if (gamemode == 3 || gamemode == 5 || gamemode == 7) {
-			if (lastboss.isAlive == false) {
+			/*if (lastboss.isAlive == false) {
 				lastboss.battleStart = false;
 
-			}
+			}*/
 		}
 
 		if (gamemode == 2 && fadeoutFlag[0] == false) {
@@ -600,7 +600,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 2; i++) {
 				Boss3Reset(lastboss, rasBossBaria, bossBeam[i]);
 			}
-			lastboss.HP = 100;
+			lastboss.HP = 1;
 			if (fadeOutAlpha >= 255) {
 				triangle->pattern = 0;
 				gamemode = 7;
@@ -659,7 +659,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						explosion3->enemyAlphaTimer = 255;
 					}
 				}
-				if (lastboss.battleStart == true) {
+				if (lastboss.battleStart == true&&lastboss.isAlive==true) {
 					beamPoint[0]->beamAtackStart = true;
 					beams[0]->beamMode = 0;
 					for (int i = 0; i < enemyNum; i++) {
@@ -715,7 +715,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						explosion3->enemyAlphaTimer = 255;
 					}
 				}
-				if (lastboss.battleStart == true) {
+				if (lastboss.battleStart == true && lastboss.isAlive == true) {
 					Boss2Pattern(lastboss, bossBeam[0], player->player.center, rasBossBaria);
 					if (bossBeam[0].flag == true) {
 						if (RectCollisionHit(bossBeam[0].pos, bossBeam[0].EndPos, player->player.center, player->player.radius, bossBeam[0].size) == true && player->hit == false) {
@@ -751,8 +751,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (gamemode == 7) {
 				fadeoutFlag[0] = false;
 				BossSetpos(lastboss);
-				if (lastboss.battleStart == true) {
-					if (lastboss.isAlive == true) {
+				if (lastboss.battleStart == true && lastboss.isAlive == true) {
+					
 						if (CircleCollisinHit(player->player.center, player->player.radius, lastboss.pos, lastboss.radius) == true && player->reflect == false) {
 							triangle->atackSpeed.x = -triangle->atackSpeed.x * 0.7;
 							triangle->atackSpeed.y = -triangle->atackSpeed.y * 0.7;
@@ -761,7 +761,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							attackHitTimer = 120;
 							player->HP -= 1;
 						}
-					}
+					
 					for (int i = 0; i < enemyNum; i++) {
 
 						enemy[i]->enemyAlive = false;
@@ -815,7 +815,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				boundPoint = { 1280,720 };
 			}
 			//プレイヤーの操作
-			if (triangle->pattern == 0 || triangle->pattern == 5 && lastboss.battleStart == true) {
+			if (triangle->pattern == 0 || triangle->pattern == 5 && lastboss.isAlive == true) {
 
 				player->Move(keys, preKeys, leftx, lefty, scrollWall, scrollWallEnd, scrollMode);
 			}
@@ -1238,7 +1238,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//誘導弾
 			for (int j = 0; j < enemyNum; j++) {
 				for (int i = 0; i < bulletNum; i++) {
-					if (bullet[i]->bulletOnFlag == false && bullet[j]->bullettimer <= 0 && enemy[j]->enemyAlive == true && enemy[j]->enemyScreenIn == true && lastboss.battleStart == true) {
+					if (bullet[i]->bulletOnFlag == false && bullet[j]->bullettimer <= 0 && enemy[j]->enemyAlive == true && enemy[j]->enemyScreenIn == true && lastboss.isAlive == true) {
 						bullet[i]->bullet.center = { enemy[j]->enemy.center.x ,enemy[j]->enemy.center.y };
 						bullet[i]->bulletOnFlag = true;
 						bullet[j]->bullettimer = 80 + 20 * i;
@@ -1301,7 +1301,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//ビーム
 			beams[0]->beemStart = { 1280 ,720 };
 			for (int i = 0; i < 4; i++) {
-				if (lastboss.battleStart == false) {
+				if (lastboss.isAlive == false) {
 					beams[i]->atackFlag = false;
 					beams[i]->preAtack = false;
 					beams[i]->atackCount = 0;
