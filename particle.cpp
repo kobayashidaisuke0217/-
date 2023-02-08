@@ -5,11 +5,11 @@ void particleTriangle(parManag& par, Vector2 player) {
 			par.par[i]. randStart = player.x;
 			par.par[i].pos.y = player.y;
 			
-			par.par[i].pos.x =rand()%(int)player.x+32-(int)player.x-32;
+			par.par[i].pos.x =player.x;
 			
-			par.par[i].originalvertex = { 0, -6 };
-			par.par[i].originalEnd = { 3, 3 };
-			par.par[i].originalstart = { -3, -3 };
+			par.par[i].originalvertex = { 0, -32 };
+			par.par[i].originalEnd = { 16, 16 };
+			par.par[i].originalstart = { -16, -16 };
 			par.par[i].isAlive = true;
 			par.par[i].count = 0;
 			break;

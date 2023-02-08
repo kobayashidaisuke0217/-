@@ -582,9 +582,7 @@ void BossDanger(Boss3& boss, Vector2 &scroll,int pic) {
 			if (danger.y <= 8) {
 				danger.y = 8;
 			}
-		//	Novice::DrawEllipse(danger.x, danger.y, 16, 16, 0, RED, kFillModeSolid);
 			Novice::DrawSprite(danger.x, danger.y, pic, 1, 1, 0, WHITE);
-			Novice::ScreenPrintf(100, 100, "out");
 		
 		
 	}
