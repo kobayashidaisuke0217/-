@@ -143,12 +143,7 @@ void BossBaria(Boss3& boss, Baria& baria ) {
 	
 	if (baria.isAlive == true) {
 		baria.count++;
-		if (baria.alpha > 0) {
-			baria.alpha -= 10;
-		}
-		if (baria.alpha < 30) {
-			baria.alpha = 30;
-		}
+		
 		
 
 		if (baria.count >= 480) {
@@ -260,6 +255,7 @@ void Boss1Pattern(Boss3& boss, BossBeam& beam,Vector2 player) {
 		boss.rightDown = Add(boss.rightDown, boss.pos);
 
 	}
+	
 }
 void Boss2Pattern(Boss3& boss,BossBeam& beam,Vector2 &player,Baria &baria) {
 	
@@ -307,6 +303,12 @@ void Boss2Pattern(Boss3& boss,BossBeam& beam,Vector2 &player,Baria &baria) {
 		Boss2BeamReset(beam);
 		boss.pos = { learp(boss.returnSpeed,boss.returnPos.x , 1280),learp(boss.returnSpeed,boss.returnPos.y , 720) };
 	
+	}
+	if (baria.alpha > 0) {
+		baria.alpha -= 10;
+	}
+	if (baria.alpha < 30) {
+		baria.alpha = 30;
 	}
 }
 
@@ -359,6 +361,12 @@ void Boss3Pattern(Boss3& boss, BossBeam& beam,BossBeam& beam2,Vector2& player, B
 		}
 		Boss3BeamReset(beam,beam2);
 		boss.pos = { learp(boss.returnSpeed,boss.returnPos.x , 1280),learp(boss.returnSpeed,boss.returnPos.y , 720) };
+	}
+	if (baria.alpha > 0) {
+		baria.alpha -= 10;
+	}
+	if (baria.alpha < 30) {
+		baria.alpha = 30;
 	}
 }
 void Boss2BeamAtack(Boss3& boss, BossBeam& beam ,Vector2& player) {

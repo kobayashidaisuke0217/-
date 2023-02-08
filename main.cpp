@@ -214,27 +214,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Bosspic[2] = Novice::LoadTexture("./Resources/image/Enemy3.png");
 	int BeamPic = Novice::LoadTexture("./Resources/image/Beam.png");
 	int nucleusPic = Novice::LoadTexture("./Resources/image/Nucleus.png");
-	int playerPic = Novice::LoadTexture("./Resources/image/Player.png");
-	int playerAimPic = Novice::LoadTexture("./Resources/image/playerAim.png");
-	int BulletPic = Novice::LoadTexture("./Resources/image/Bullet.png");
-	int BeamPointPic = Novice::LoadTexture("./Resources/image/Beampoint.png");
-	int BGPic = Novice::LoadTexture("./Resources/image/Background.png");
-	int StartBG = Novice::LoadTexture("./Resources/image/StartNanu.png");
-	int gameoverPic = Novice::LoadTexture("./Resources/image/gameover.png");
-	int kakomePic = Novice::LoadTexture("./Resources/image/StartNanu2.png");
-	int LTpic = Novice::LoadTexture("./Resources/image/LT.png");
-	int LBpic = Novice::LoadTexture("./Resources/image/LB.png");
-	int RBpic = Novice::LoadTexture("./Resources/image/RB.png");
-	int Lstickpic = Novice::LoadTexture("./Resources/image/Lstick.png");
-	int Rstickpic = Novice::LoadTexture("./Resources/image/Rstick.png");
-	int Clearpic = Novice::LoadTexture("./Resources/image/Gameclear.png");
-	int hpBar1 = Novice::LoadTexture("./Resources/image/HP1.png");
-	int hpBar2 = Novice::LoadTexture("./Resources/image/HP2.png");
-	int dangerPic = Novice::LoadTexture("./Resources/image/warning.png");
-	int PowerUP = Novice::LoadTexture("./Resources/image/Power1.png");
-	int speed3Pic = Novice::LoadTexture("./Resources/image/speed1.png");
-	int speed2Pic = Novice::LoadTexture("./Resources/image/speed2.png");
-	int speed1Pic = Novice::LoadTexture("./Resources/image/speed3.png");
+	 int playerPic= Novice::LoadTexture("./Resources/image/Player.png");
+	 int playerAimPic=Novice::LoadTexture("./Resources/image/playerAim.png");
+	 int BulletPic = Novice::LoadTexture("./Resources/image/Bullet.png");
+	 int BeamPointPic = Novice::LoadTexture("./Resources/image/Beampoint.png");
+	 int BGPic= Novice::LoadTexture("./Resources/image/Background.png");
+	 int StartBG= Novice::LoadTexture("./Resources/image/StartNanu.png");
+	 int gameoverPic= Novice::LoadTexture("./Resources/image/gameover.png");
+	 int kakomePic = Novice::LoadTexture("./Resources/image/StartNanu2.png");
+	 int LTpic = Novice::LoadTexture("./Resources/image/LT.png");
+	 int LBpic = Novice::LoadTexture("./Resources/image/LB.png");
+	 int RBpic = Novice::LoadTexture("./Resources/image/RB.png");
+	 int Lstickpic = Novice::LoadTexture("./Resources/image/Lstick.png");
+	 int Rstickpic = Novice::LoadTexture("./Resources/image/Rstick.png");
+	 int Clearpic= Novice::LoadTexture("./Resources/image/Gameclear.png");
+	 int hpBar1= Novice::LoadTexture("./Resources/image/HP1.png");
+	 int hpBar2= Novice::LoadTexture("./Resources/image/HP2.png");
+	 int dangerPic = Novice::LoadTexture("./Resources/image/warning.png");
+	 int PowerUP=Novice::LoadTexture("./Resources/image/Power1.png");
+	 int speed3Pic= Novice::LoadTexture("./Resources/image/speed1.png");
+	 int speed2Pic = Novice::LoadTexture("./Resources/image/speed2.png");
+	 int speed1Pic = Novice::LoadTexture("./Resources/image/speed3.png");
+	 int power1Pic = Novice::LoadTexture("./Resources/image/Power1.png");
+	 int power2Pic = Novice::LoadTexture("./Resources/image/Power2.png");
+	 int power3Pic = Novice::LoadTexture("./Resources/image/Power3.png");
 	Vector2 Start[4];
 	Vector2 Vertex[4];
 	Vector2 End[4];
@@ -282,6 +285,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int beamPreCount = 0;
 
+	int powerCount=0;
+	bool powerFlag = false;
 
 	int fadeoutFlag[2] = { false };
 	int fadeoutClar = 0x00000000;
@@ -367,8 +372,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	/*bossBeam.parob = { 0,0 };
 	bossBeam.partheta = 0;*/
 	/*チュートリアル*/
-	Tutrial tutrial[5];
-	for (int i = 0; i < 5; i++) {
+	Tutrial tutrial[6];
+	for (int i = 0; i < 6; i++) {
 		tutrial[i].downFlag = false;
 		tutrial[i].pos = { i * 400.0f + 200.0f,-400 };
 		tutrial[i].player = { 0,0,16,0,WHITE,1 };
@@ -523,7 +528,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				gamemode = 100;
 
 			}
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 6; i++) {
 				TutrialReset(tutrial[i]);
 			}
 			for (int i = 0; i < 2; i++) {
@@ -609,7 +614,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				scrollMode = 0;
 				beamPoint[0]->beamAtackStart = false;
 				tutrial[0].downFlag = true;
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 6; i++) {
 					TutrialCome(tutrial[i], player->player.center);
 
 				}
@@ -1029,6 +1034,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							nucleus[i]->nucleus.color = BLUE;
 							nucleus[i]->isAlive = false;
 							nucleusSuctionFlag[i] = true;
+							powerFlag = true;
 							if (nucleus[i]->nucleusCountfrag == false) {
 								nucleusSuctionCount++;
 								if (nucleusSuctionCount >= 4) {
@@ -1044,8 +1050,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						}
 					}
 				}
+				
 			}
-
+			if (powerFlag == true) {
+				powerCount++;
+			}
+			if (powerCount >= 60) {
+				powerCount = 0;
+				powerFlag = false;
+			}
 
 			triangleBreak = lineSearch(nucleusSuctionFlag, nucleus[0]->max);
 
@@ -1448,7 +1461,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (gamemode == 1 || gamemode == 3 || gamemode == 5 || gamemode == 7) {//ゲームスタート
 			if (gamemode == 1) {//ステージ1
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 6; i++) {
 					Novice::DrawBox(tutrial[i].pos.x - player->scroll.x, tutrial[i].pos.y - player->scroll.y, tutrial[i].sizeX, tutrial[i].sizeY, 0, 0x333333ff, kFillModeSolid);
 					if (i == 0) {
 
@@ -1458,16 +1471,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					}
 				}
 				if (tutrial[1].downFlag == true) {
-					TutrialGauge(tutrial[1], player->scroll, LTpic, Rstickpic, RBpic);
+					TutrialGauge(tutrial[1], player->scroll,LTpic,Rstickpic,RBpic,playerPic,speed1Pic,speed2Pic,speed3Pic);
 				}
 				if (tutrial[2].downFlag == true) {
 					TutrialMoveReset(tutrial[2], player->scroll, playerPic, LBpic);
 				}
+				
 				if (tutrial[3].downFlag == true) {
 					TutorialRepel(tutrial[3], playerPic, nucleusPic, player->scroll);
 				}
 				if (tutrial[4].downFlag == true) {
 					TutrialAttack(tutrial[4], player->scroll, playerPic, Rstickpic, RBpic);
+				}
+				if (tutrial[5].downFlag == true) {
+					TutorialPowerUp(tutrial[5], player->scroll, playerPic, nucleusPic, power1Pic);
 				}
 			}
 
@@ -1512,6 +1529,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				float monitory = player->player.center.y - player->scroll.y;
 				float aimx = monitorx + triangle->mouseX / 1000 + RandShake.x;
 				float aimy = monitory + triangle->mouseY / 1000 + RandShake.y;
+				if (powerFlag == true) {
+					if (nucleusSuctionCount == 2) {
+						Novice::DrawSprite(monitorx + RandShake.x - player->player.radius, monitory + RandShake.y - player->player.radius * 4, power1Pic, 0.5, 0.5, 0, WHITE);
+					}
+					else if (nucleusSuctionCount == 2) {
+						Novice::DrawSprite(monitorx + RandShake.x - player->player.radius, monitory + RandShake.y - player->player.radius * 4, power2Pic, 0.5, 0.5, 0, WHITE);
+
+					}
+					else if (nucleusSuctionCount == 3) {
+						Novice::DrawSprite(monitorx + RandShake.x - player->player.radius, monitory + RandShake.y - player->player.radius * 4, power3Pic, 0.5, 0.5, 0, WHITE);
+
+					}
+				}
 				if (player->hit == false) {
 					if (triangle->pattern == 0) {
 						if (triangle->PressCount == 0) {
@@ -1650,7 +1680,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			fireworks2->Draw(GetColor(rand() % 255, 255, 255, fireworks2->fireWorksAlpha));
 			fireworks3->Draw(GetColor(rand() % 255, 255, rand() % 255, fireworks3->fireWorksAlpha));
 		}
-		Novice::ScreenPrintf(10, 40, "%d", triangle->playerSpeed);
+		Novice::ScreenPrintf(10, 40, "%d", tutrial[5].player.center.x);
 		Novice::ScreenPrintf(10, 60, "%d", triangle->PressCount);
 		///
 		///

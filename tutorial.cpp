@@ -109,31 +109,94 @@ void TutorialRepel(Tutrial& a, int pic, int pic2,Vector2 scroll) {
 		Novice::DrawLine(a.pos.x + 150 - scroll.x, a.pos.y + 50 - scroll.y, a.pos.x+150 - scroll.x, a.pos.y+150 - scroll.y, WHITE);
 
 	}
-	/*if (a.moveCount > 2) {
-		Novice::DrawLine(a.pos.x + 150 - scroll.x, a.pos.y + 50 - scroll.y, a.pos.x + 150 - scroll.x, a.pos.y + 150 - scroll.y, WHITE);
-
-	}*/
+	
 	a.Ob = { a.pos.x + 100,a.pos.y + 100 };
 	Novice::DrawSprite(a.player.center.x - scroll.x-16, a.player.center.y - scroll.y-16, pic, 0.5, 0.5, 0, WHITE);
 	Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y, pic2, 0.5, 0.5, 0, WHITE);
 
 }
- void TutrialGauge(Tutrial& a,Vector2 &scroll, int pic,int pic2,int pic3) {
+void TutorialPowerUp(Tutrial& a, Vector2 scroll, int pic1, int pic2,int pic3) {
+	if (a.moveCount == 0) {
+		if (a.player.speed <= 1.0f) {
+			a.player.speed += 1.0f / 30.0f;
+		}
+		else {
+			a.moveCount = 1;
+			a.player.speed = 0;
+		}
+		a.player.center = { learp(a.player.speed,a.pos.x + 40,a.pos.x + 150),learp(a.player.speed,a.pos.y + 100,a.pos.y + 10) };
+		Novice::DrawLine(a.pos.x + 40 - scroll.x, a.pos.y + 100 - scroll.y, a.player.center.x - scroll.x, a.player.center.y - scroll.y, WHITE);
+	}
+	if (a.moveCount == 1) {
+		if (a.player.speed <= 1.0f) {
+			a.player.speed += 1.0f / 30.0f;
+		}
+		else {
+			a.moveCount = 2;
+			a.player.speed = 0;
+		}
+		a.player.center = { learp(a.player.speed,a.pos.x + 150,a.pos.x + 150),learp(a.player.speed,a.pos.y + 50,a.pos.y + 150) };
+		Novice::DrawLine(a.pos.x + 150 - scroll.x, a.pos.y + 10 - scroll.y, a.player.center.x - scroll.x, a.player.center.y - scroll.y, WHITE);
+	}
+	if (a.moveCount == 2) {
+		if (a.player.speed <= 1.0f) {
+			a.player.speed += 1.0f / 30.0f;
+		}
+		else {
+			a.count++;
+
+		}
+		if (a.count >= 50) {
+			a.moveCount = 0;
+			a.count = 0;
+			a.player.speed = 0;
+		}
+		a.player.center = { learp(a.player.speed,a.pos.x + 150,a.pos.x + 40),learp(a.player.speed,a.pos.y + 150,a.pos.y + 100) };
+		Novice::DrawLine(a.pos.x + 150 - scroll.x, a.pos.y + 150 - scroll.y, a.player.center.x - scroll.x, a.player.center.y - scroll.y, WHITE);
+	}
+	if (a.moveCount > 0) {
+		Novice::DrawLine(a.pos.x + 40 - scroll.x, a.pos.y + 100 - scroll.y, a.pos.x + 150 - scroll.x, a.pos.y + 10 - scroll.y, WHITE);
+
+	}
+	if (a.moveCount > 1) {
+		Novice::DrawLine(a.pos.x + 150 - scroll.x, a.pos.y + 10 - scroll.y, a.pos.x + 150 - scroll.x, a.pos.y + 150 - scroll.y, WHITE);
+
+	}
+
+	a.Ob = { a.pos.x + 100,a.pos.y + 100 };
+	Novice::DrawSprite(a.player.center.x - scroll.x - 16, a.player.center.y - scroll.y - 16, pic1, 0.5, 0.5, 0, WHITE);
+	Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y, pic2, 0.5, 0.5, 0, WHITE);
+	Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y-50, pic2, 0.5, 0.5, 0, WHITE);
+	Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y - 50, pic2, 0.5, 0.5, 0, WHITE);
+	Novice::DrawSprite(a.pos.x - scroll.x + 10, a.pos.y - scroll.y - 10, pic3, 0.25, 0.25, 0, WHITE);
+}
+
+ void TutrialGauge(Tutrial& a,Vector2 &scroll, int pic,int pic2,int pic3,int pic4,int pic5,int pic6,int pic7 ) {
 	 if (a.count <= 100) {
 		 a.count++;
 	 }
 	 else {
 		 a.count = 0;
 	 }
+	 if (a.count <= 33) {
+		 Novice::DrawSprite(a.player.center.x - scroll.x + 40-16, a.pos.y - scroll.y+ 50 - 16, pic5, 0.5, 0.5, 0, WHITE);
+	 }
+	 else if (a.count <= 66) {
+		 Novice::DrawSprite(a.player.center.x - scroll.x + 40 - 16, a.pos.y - scroll.y + 50 - 16, pic6, 0.5, 0.5, 0, WHITE);
+	 }
+	 else {
+		 Novice::DrawSprite(a.player.center.x - scroll.x + 40 - 16, a.pos.y - scroll.y + 50 - 16, pic7, 0.5, 0.5, 0, WHITE);
+	 }
 	 a.Ob = { a.pos.x + 100,a.pos.y + 20 };
 	 a.moveob = { a.pos.x + 200,a.pos.y + 120 };
-	 Novice::DrawBox(a.player.center.x - scroll.x, a.pos.y - scroll.y+35, a.count * 2, 16, 0, WHITE, kFillModeSolid);
+	 Novice::DrawSprite(a.player.center.x - scroll.x+40, a.pos.y - scroll.y + 50, pic4, 0.5, 0.5, 0, WHITE);
+	 //Novice::DrawBox(a.player.center.x - scroll.x, a.pos.y - scroll.y+35, a.count * 2, 16, 0, WHITE, kFillModeSolid);
 	 Novice::DrawSprite(a.Ob.x - scroll.x, a.Ob.y - scroll.y, pic, 2, 2, 0, WHITE);
 
 	 Novice::DrawSprite(a.moveob.x - scroll.x, a.moveob.y - scroll.y, pic2, 2, 2, 0, WHITE);
 	 Novice::DrawSprite(a.moveob.x - scroll.x+70, a.moveob.y - scroll.y, pic3, 2, 2, 0, WHITE);
 	 Novice::DrawBox(a.moveob.x - scroll.x + 30, a.moveob.y - scroll.y, 35, 10, 0, WHITE, kFillModeSolid);
-	 Novice::DrawBox(a.moveob.x - scroll.x + 43, a.moveob.y - scroll.y-10, 10, 35, 0, WHITE, kFillModeSolid);
+	 
 }
  ///
  void TutrialMoveReset(Tutrial& a,Vector2 &scroll, int pic,int pic2) {
