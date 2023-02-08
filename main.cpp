@@ -15,6 +15,7 @@
 #include "Scene.h"
 #include<time.h>
 #include"tutorial.h"
+#include "FireWorks.h"
 const char kWindowTitle[] = "LC1B_08_コバヤシダイスケ";
 
 
@@ -378,6 +379,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		tutrial[i].Ob = { 0,0 };
 		tutrial[i].moveob = { 0,0 };
 	}
+
+	FireWorks* fireworks = new FireWorks;
+	FireWorks* fireworks2 = new FireWorks;
+	FireWorks* fireworks3 = new FireWorks;
+
+	fireworks->fireWorksCenter.center = { 300,300 };
+	fireworks->fireWorksCenter.color = RED;
+
+	fireworks2->fireWorksCenter.center = { 800,500 };
+	fireworks2->fireWorksCenter.color = BLUE;
+
+	fireworks3->fireWorksCenter.center = { 1000,200 };
+	fireworks3->fireWorksCenter.color = GREEN;
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -424,12 +439,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			else {
 				gamemode = 10;
+				fireworks->startFlag = true;
+				fireworks2->startFlag = true;
+				fireworks3->startFlag = true;
 			}
 
 		}
 		if (gamemode == 9 || gamemode == 10) {
+			fireworks->Update(keys);
+			fireworks2->Update(keys);
+			fireworks3->Update(keys);
 			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]) {
-
 				gamemode = 11;
 			}
 
@@ -1565,8 +1585,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Novice::DrawSprite(0, 0, gameoverPic, 1, 1, 0, WHITE);
 		}
 		if (gamemode == 10) {
-			
 			Novice::DrawSprite(0, 0, Clearpic, 1, 1, 0, WHITE);
+			fireworks->Draw(GetColor(255, rand() % 255, rand() % 255, fireworks->fireWorksAlpha));
+			fireworks2->Draw(GetColor(rand() % 255, 255, 255, fireworks2->fireWorksAlpha));
+			fireworks3->Draw(GetColor(rand() % 255, 255, rand() % 255, fireworks3->fireWorksAlpha));
 		}
 		Novice::ScreenPrintf(10, 40, "%d", triangle->playerSpeed);
 		Novice::ScreenPrintf(10, 60, "%d", triangle->PressCount);
@@ -1596,7 +1618,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	for (int i = 0; i < bulletNum; i++) {
 		delete bullet[i];
 	}
-
+	delete fireworks;
+	delete fireworks2;
+	delete fireworks3;
 
 	// ライブラリの終了
 	Novice::Finalize();
