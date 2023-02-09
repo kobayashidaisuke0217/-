@@ -533,7 +533,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (gamemode == 0) {//ゲーム開始画面
 			player->scroll = { 0,0 };
 			triangle->pattern = 0;
-			beamPoint[0]->beamAtackStart = false;
+			for (int i = 0; i < 4; i++) {
+				beams[i]->atackFlag = false;
+			}
 			if (Novice::IsTriggerButton(0, kPadButton10) || keys[DIK_V]) {
 				gamemode = 100;
 
